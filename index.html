@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เว็บกลาง | เครื่องมือร้านค้า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #eef2f7;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --primary: #2563eb;
+  }
+
+  body {
+    font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(24px, 4vw, 48px) 14px;
+  }
+
+  .wrap { width: 100%; max-width: 860px; }
+
+  /* ---------- Header ---------- */
+  .hub-header { text-align: center; margin-bottom: clamp(24px, 4vw, 36px); }
+
+  .hub-icon {
+    width: 68px; height: 68px;
+    border-radius: 20px;
+    display: grid; place-items: center;
+    font-size: 32px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, #dbeafe, #eff6ff);
+    border: 1px solid #bfdbfe;
+    box-shadow: 0 10px 24px -12px rgba(37, 99, 235, .5);
+  }
+
+  h1 { font-size: clamp(22px, 4.5vw, 28px); font-weight: 700; color: #0f172a; letter-spacing: .3px; }
+
+  .hub-header p { font-size: clamp(12.5px, 3vw, 14px); color: var(--muted); margin-top: 6px; }
+
+  /* ---------- Cards ---------- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+
+  .app-card {
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --accent-border: #bfdbfe;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 12px 32px -18px rgba(15, 23, 42, .28), 0 2px 8px rgba(15, 23, 42, .04);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+
+  .app-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    box-shadow: 0 20px 44px -20px rgba(15, 23, 42, .4);
+  }
+
+  .app-card.vnc   { --accent: #2563eb; --accent-soft: #eff6ff; --accent-border: #bfdbfe; }
+  .app-card.gfinn { --accent: #d97706; --accent-soft: #fffbeb; --accent-border: #fde68a; }
+  .app-card.ttrs  { --accent: #7c3aed; --accent-soft: #f5f3ff; --accent-border: #ddd6fe; }
+  .app-card.don   { --accent: #e11d48; --accent-soft: #fff1f2; --accent-border: #fecdd3; }
+
+  .app-icon {
+    width: 54px; height: 54px;
+    border-radius: 15px;
+    display: grid; place-items: center;
+    font-size: 26px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    transition: transform .25s ease;
+  }
+
+  .app-card:hover .app-icon { transform: scale(1.07); }
+
+  .app-card h2 { font-size: 17px; font-weight: 700; color: #0f172a; }
+
+  .app-card p { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
+
+  .app-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 16px;
+    border-radius: 11px;
+    background: var(--accent-soft);
+    border: 1.5px solid var(--accent-border);
+    color: var(--accent);
+    font-size: 13.5px;
+    font-weight: 700;
+    transition: background .25s ease, color .25s ease, border-color .25s ease;
+  }
+
+  .app-btn svg { transition: transform .25s ease; }
+
+  .app-card:hover .app-btn { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .app-card:hover .app-btn svg { transform: translateX(3px); }
+
+  /* ---------- Footer ---------- */
+  footer {
+    text-align: center;
+    margin-top: clamp(28px, 5vw, 44px);
+    font-size: 12px;
+    color: #94a3b8;
+    letter-spacing: .3px;
+  }
+
+  @media (max-width: 640px) {
+    body { justify-content: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hub-header">
+    <div class="hub-icon">🌐</div>
+    <h1>เว็บกลาง</h1>
+    <p>ศูนย์รวมเครื่องมือร้านค้า — เลือกเว็บที่ต้องการใช้งาน</p>
+  </header>
+
+  <div class="cards">
+
+    <a class="app-card vnc" href="vnc.html">
+      <div class="app-icon">📝</div>
+      <h2>VNC</h2>
+      <p>แบบฟอร์มกรอกข้อมูลร้านค้าและข้อมูลผ่อนชำระ</p>
+      <span class="app-btn">
+        เปิดใช้งาน
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="m13 6 6 6-6 6"/>
+        </svg>
+      </span>
+    </a>
+
+    <a class="app-card gfinn" href="gfinn.html">
+      <div class="app-icon">📱</div>
+      <h2>GFINN</h2>
+      <p>บันทึกข้อมูลเครื่องมือสอง (มือ 1 / มือ 2)</p>
+      <span class="app-btn">
+        เปิดใช้งาน
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="m13 6 6 6-6 6"/>
+        </svg>
+      </span>
+    </a>
+
+    <a class="app-card ttrs" href="ttrs25.html">
+      <div class="app-icon">⚙️</div>
+      <h2>TTRS25</h2>
+      <p>กรอกข้อมูลสินค้า แยกผ่อน/เดือน</p>
+      <span class="app-btn">
+        เปิดใช้งาน
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="m13 6 6 6-6 6"/>
+        </svg>
+      </span>
+    </a>
+
+    <a class="app-card don" href="ตารางผ่อน.html">
+      <div class="app-icon">📊</div>
+      <h2>ตารางผ่อน</h2>
+      <p>ตารางผ่อนมือถือ ดลโมบาย — พิมพ์ / บันทึก PDF</p>
+      <span class="app-btn">
+        เปิดใช้งาน
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="m13 6 6 6-6 6"/>
+        </svg>
+      </span>
+    </a>
+
+  </div>
+
+  <footer>© 2026 เว็บกลาง · ข้อมูลในแต่ละเว็บถูกบันทึกอัตโนมัติในเครื่องของคุณ</footer>
+
+</div>
+</body>
+</html>

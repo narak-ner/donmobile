@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบฟอร์มการกรอกข้อมูลร้านค้า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #eef2f7;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --input-bg: #f8fafc;
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --danger: #dc2626;
+    --danger-soft: #fef2f2;
+    --danger-border: #fecaca;
+    --success: #16a34a;
+  }
+
+  body {
+    font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: clamp(16px, 3vw, 32px) 14px 48px;
+  }
+
+  .wrap { max-width: 800px; margin: 0 auto; }
+
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: 0 12px 32px -18px rgba(15, 23, 42, .28), 0 2px 8px rgba(15, 23, 42, .04);
+    padding: clamp(20px, 4vw, 34px);
+  }
+
+  /* ---------- Header + RESET ---------- */
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+
+  .brand-icon {
+    width: 52px; height: 52px;
+    border-radius: 15px;
+    display: grid; place-items: center;
+    font-size: 25px;
+    background: linear-gradient(135deg, #dbeafe, #eff6ff);
+    border: 1px solid #bfdbfe;
+    flex-shrink: 0;
+  }
+
+  h1 { font-size: clamp(16.5px, 3.4vw, 20px); font-weight: 700; color: #0f172a; line-height: 1.4; }
+
+  .brand p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+  .btn-reset {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 1.5px solid var(--danger-border);
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-family: inherit; font-size: 13.5px; font-weight: 700;
+    cursor: pointer; white-space: nowrap;
+    transition: all .2s ease;
+  }
+  .btn-reset:hover { background: var(--danger); border-color: var(--danger); color: #fff; box-shadow: 0 8px 18px -8px rgba(220, 38, 38, .55); }
+  .btn-reset:active { transform: scale(.97); }
+
+  .header-actions { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .btn-home {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: #334155;
+    font-family: inherit; font-size: 13.5px; font-weight: 700;
+    text-decoration: none; white-space: nowrap;
+    transition: all .2s ease;
+  }
+  .btn-home:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; box-shadow: 0 8px 18px -10px rgba(37, 99, 235, .45); }
+  .btn-home:active { transform: scale(.97); }
+
+  .meta-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  .date-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #f1f5f9; border: 1px solid var(--border);
+    color: #475569; font-size: 12.5px; font-weight: 600;
+    padding: 6px 14px; border-radius: 999px;
+  }
+  .date-chip b { color: #1e293b; }
+
+  .autosave-note { font-size: 12px; color: var(--muted); }
+
+  /* ---------- Sections + fields ---------- */
+  h2 {
+    font-size: 15px; font-weight: 700; color: #0f172a;
+    border-left: 4px solid var(--primary);
+    padding-left: 10px;
+    margin: 28px 0 14px;
+  }
+
+  .field {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 10px; flex-wrap: wrap;
+  }
+
+  .field > label {
+    width: 240px;
+    font-size: 13.5px; font-weight: 600; color: #334155;
+    padding-right: 4px;
+  }
+
+  input[type="text"], input[type="tel"], input[type="number"] {
+    flex: 1; min-width: 190px;
+    padding: 10px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: inherit; font-size: 14px; color: var(--text);
+    background: var(--input-bg);
+    transition: border-color .2s, box-shadow .2s, background .2s;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3.5px rgba(37, 99, 235, .13);
+  }
+
+  /* ---------- Preview ---------- */
+  .preview-head {
+    display: flex; align-items: center; gap: 10px;
+    margin: 28px 0 10px;
+    font-size: 13.5px; font-weight: 700; color: #334155;
+  }
+  .preview-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .preview {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px; line-height: 1.75;
+    white-space: pre-wrap; word-break: break-word;
+    min-height: 90px;
+  }
+
+  /* ---------- Copy + status ---------- */
+  .btn-copy {
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    width: 100%;
+    margin-top: 14px;
+    padding: 14px 26px;
+    border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 22px -10px rgba(37, 99, 235, .65);
+    transition: all .2s ease;
+  }
+  .btn-copy:hover { filter: brightness(1.08); }
+  .btn-copy:active { transform: scale(.985); }
+
+  .status {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13.5px; font-weight: 600;
+    color: var(--success);
+    min-height: 22px;
+  }
+  .status.error { color: var(--danger); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 640px) {
+    .field > label { width: 100%; margin-bottom: 2px; }
+    .field { gap: 6px; margin-bottom: 14px; }
+    .btn-reset, .btn-home { padding: 9px 14px; font-size: 12.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">📝</div>
+        <div>
+          <h1>แบบฟอร์มการกรอกข้อมูลร้านค้า</h1>
+          <p>VNC · ฟอร์มผ่อนชำระ</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a class="btn-home" href="index.html">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 19-7-7 7-7"/>
+            <path d="M19 12H5"/>
+          </svg>
+          หน้าหลัก
+        </a>
+        <button type="button" class="btn-reset" onclick="resetAll()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+          RESET
+        </button>
+      </div>
+    </header>
+
+    <div class="meta-row">
+      <div class="date-chip">📅 วันที่ : <b id="dateDisplay">–</b></div>
+      <span class="autosave-note">💾 ข้อมูลถูกบันทึกอัตโนมัติในเครื่องของคุณ</span>
+    </div>
+
+    <h2>ข้อมูลลูกค้า</h2>
+    <div class="field"><label>ชื่อ-สกุล :</label><input type="text" data-key="fullname"></div>
+    <div class="field"><label>ชื่อเล่น :</label><input type="text" data-key="nickname"></div>
+    <div class="field"><label>เบอร์โทรลูกค้า :</label><input type="text" data-key="phone"></div>
+    <div class="field"><label>ไอดี ไลน์ ลูกค้า :</label><input type="text" data-key="lineId"></div>
+    <div class="field"><label>ที่อยู่ ปัจจุบันของลูกค้า :</label><input type="text" data-key="address"></div>
+
+    <h2>ข้อมูลที่ทำงาน</h2>
+    <div class="field"><label>ชื่อบริษัท/ร้าน :</label><input type="text" data-key="company"></div>
+    <div class="field"><label>ที่อยู่บริษัท :</label><input type="text" data-key="companyAddress"></div>
+    <div class="field"><label>เบอร์โทรติดต่อที่ทำงาน :</label><input type="text" data-key="companyPhone"></div>
+    <div class="field"><label>ตำแหน่ง / หน้าที่ :</label><input type="text" data-key="position"></div>
+    <div class="field"><label>เงินเดือน :</label><input type="text" data-key="salary"></div>
+    <div class="field"><label>อายุการทำงาน :</label><input type="text" data-key="workAge"></div>
+
+    <h2>อ้างอิง 1</h2>
+    <div class="field"><label>ชื่อ - สกุล :</label><input type="text" data-key="ref1Fullname"></div>
+    <div class="field"><label>ชื่อเล่น :</label><input type="text" data-key="ref1Nickname"></div>
+    <div class="field"><label>เบอร์โทร :</label><input type="text" data-key="ref1Phone"></div>
+    <div class="field"><label>อาชีพ :</label><input type="text" data-key="ref1Job"></div>
+    <div class="field"><label>ความสัมพันธ์ :</label><input type="text" data-key="ref1Relation"></div>
+
+    <h2>อ้างอิง 2</h2>
+    <div class="field"><label>ชื่อ - สกุล :</label><input type="text" data-key="ref2Fullname"></div>
+    <div class="field"><label>ชื่อเล่น :</label><input type="text" data-key="ref2Nickname"></div>
+    <div class="field"><label>เบอร์โทร :</label><input type="text" data-key="ref2Phone"></div>
+    <div class="field"><label>อาชีพ :</label><input type="text" data-key="ref2Job"></div>
+    <div class="field"><label>ความสัมพันธ์ :</label><input type="text" data-key="ref2Relation"></div>
+
+    <h2>คนค้ำ</h2>
+    <div class="field"><label>ชื่อ - สกุล :</label><input type="text" data-key="guarantorFullname"></div>
+    <div class="field"><label>ชื่อเล่น :</label><input type="text" data-key="guarantorNickname"></div>
+    <div class="field"><label>เบอร์โทร :</label><input type="text" data-key="guarantorPhone"></div>
+    <div class="field"><label>อาชีพ :</label><input type="text" data-key="guarantorJob"></div>
+    <div class="field"><label>รายได้ :</label><input type="text" data-key="guarantorIncome"></div>
+    <div class="field"><label>ความสัมพันธ์ :</label><input type="text" data-key="guarantorRelation"></div>
+
+    <h2>โซเชียลมีเดีย</h2>
+    <div class="field"><label>แนบ Link Facebook / TikTok / IG :</label><input type="text" data-key="socialLink"></div>
+
+    <h2>ข้อมูลเครื่อง &amp; การผ่อน</h2>
+    <div class="field"><label>รุ่น &amp; ความจุ :</label><input type="text" data-key="model"></div>
+    <div class="field"><label>สีเครื่อง :</label><input type="text" data-key="color"></div>
+    <div class="field"><label>มือ 1&amp;2 (โปรดระบุ) :</label><input type="text" data-key="hand"></div>
+    <div class="field"><label>เงินดาวน์ :</label><input type="text" data-key="downPayment"></div>
+    <div class="field"><label>เรทผ่อน/เดือน * จำนวนงวด :</label><input type="text" data-key="installment"></div>
+    <div class="field"><label>ยอดที่ร้านจัด &amp; เรท % :</label><input type="text" data-key="shopAmount"></div>
+    <div class="field"><label>ลูกค้าใช้ซิมอะไร :</label><input type="text" data-key="sim"></div>
+
+    <div class="preview-head">📄 พรีวิวข้อมูล (อัปเดตอัตโนมัติ)</div>
+    <pre class="preview" id="preview"></pre>
+
+    <button type="button" class="btn-copy" onclick="copyAll()">📋 คัดลอกข้อมูลทั้งหมด</button>
+    <div class="status" id="status"></div>
+
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'shopFormData_v1';
+  const previewEl = document.getElementById('preview');
+  const statusEl = document.getElementById('status');
+
+  // ===== วันที่อัตโนมัติ (พ.ศ.) =====
+  function setDate() {
+    const now = new Date();
+    document.getElementById('dateDisplay').textContent =
+      `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear() + 543}`;
+  }
+  setDate();
+
+  // ===== ดึงค่าตาม key =====
+  function val(key) {
+    const el = document.querySelector(`input[data-key="${key}"]`);
+    return el ? el.value.trim() : '';
+  }
+
+  // ===== สร้างข้อความทั้งหมด =====
+  function buildText() {
+    const dateText = document.getElementById('dateDisplay').textContent;
+
+    return `✅ แบบฟอร์มการกรอกข้อมูลร้านค้า
+วันที่ : ${dateText}
+ชื่อ-สกุล : ${val('fullname')}
+ชื่อเล่น : ${val('nickname')}
+เบอร์โทรลูกค้า : ${val('phone')}
+ไอดี ไลน์ ลูกค้า : ${val('lineId')}
+ที่อยู่ ปัจจุบันของลูกค้า : ${val('address')}
+ชื่อบริษัท/ร้าน : ${val('company')}
+ที่อยู่บริษัท : ${val('companyAddress')}
+เบอร์โทรติดต่อที่ทำงาน : ${val('companyPhone')}
+ตำแหน่ง / หน้าที่ : ${val('position')}
+เงินเดือน : ${val('salary')}
+อายุการทำงาน : ${val('workAge')}
+
+อ้างอิง 1
+ชื่อ - สกุล : ${val('ref1Fullname')}
+ชื่อเล่น : ${val('ref1Nickname')}
+เบอร์โทร : ${val('ref1Phone')}
+อาชีพ : ${val('ref1Job')}
+ความสัมพันธ์ : ${val('ref1Relation')}
+
+อ้างอิง 2
+ชื่อ - สกุล : ${val('ref2Fullname')}
+ชื่อเล่น : ${val('ref2Nickname')}
+เบอร์โทร : ${val('ref2Phone')}
+อาชีพ : ${val('ref2Job')}
+ความสัมพันธ์ : ${val('ref2Relation')}
+
+คนค้ำ
+ชื่อ - สกุล : ${val('guarantorFullname')}
+ชื่อเล่น : ${val('guarantorNickname')}
+เบอร์โทร : ${val('guarantorPhone')}
+อาชีพ : ${val('guarantorJob')}
+รายได้ : ${val('guarantorIncome')}
+ความสัมพันธ์ : ${val('guarantorRelation')}
+
+แนบ Link Facebook / TikTok / IG
+${val('socialLink')}
+
+รุ่น & ความจุ : ${val('model')}
+สีเครื่อง : ${val('color')}
+มือ 1&2 (โปรดระบุ) : ${val('hand')}
+เงินดาวน์ : ${val('downPayment')}
+เรทผ่อน/เดือน * จำนวนงวด : ${val('installment')}
+ยอดที่ร้านจัด & เรท % : ${val('shopAmount')}
+ลูกค้าใช้ซิมอะไร : ${val('sim')}`;
+  }
+
+  function updatePreview() {
+    previewEl.textContent = buildText();
+  }
+
+  // ===== สถานะ =====
+  function showStatus(msg, isError) {
+    statusEl.textContent = msg;
+    statusEl.classList.toggle('error', !!isError);
+    clearTimeout(statusEl._t);
+    statusEl._t = setTimeout(() => { statusEl.textContent = ''; }, 2200);
+  }
+
+  // ===== โหลดข้อมูลจาก localStorage =====
+  function loadData() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    try {
+      const data = JSON.parse(saved);
+      document.querySelectorAll('input[data-key]').forEach(input => {
+        if (data[input.dataset.key] !== undefined) input.value = data[input.dataset.key];
+      });
+    } catch (e) { console.warn('โหลดข้อมูลไม่สำเร็จ', e); }
+  }
+
+  // ===== บันทึกอัตโนมัติ =====
+  let saveTimer = null;
+  function autoSave() {
+    updatePreview();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      const data = {};
+      document.querySelectorAll('input[data-key]').forEach(input => {
+        data[input.dataset.key] = input.value;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      showStatus('💾 บันทึกอัตโนมัติแล้ว');
+    }, 400);
+  }
+
+  document.querySelectorAll('input[data-key]').forEach(input => {
+    input.addEventListener('input', autoSave);
+  });
+
+  // ===== คัดลอกข้อมูลทั้งหมด =====
+  function copyAll() {
+    const text = buildText();
+    const done = () => showStatus('✅ คัดลอกข้อมูลทั้งหมดแล้ว');
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); }
+      catch (e) { showStatus('❌ คัดลอกไม่สำเร็จ', true); }
+      document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  // ===== ล้างข้อมูล (RESET) =====
+  function resetAll() {
+    if (!confirm('ต้องการล้างข้อมูลทั้งหมดใช่หรือไม่?')) return;
+    document.querySelectorAll('input[data-key]').forEach(input => { input.value = ''; });
+    localStorage.removeItem(STORAGE_KEY);
+    updatePreview();
+    showStatus('🗑️ ล้างข้อมูลเรียบร้อยแล้ว');
+  }
+
+  // ===== เริ่มต้น =====
+  loadData();
+  updatePreview();
+</script>
+</body>
+</html>

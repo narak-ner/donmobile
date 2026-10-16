@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>กรอกข้อมูลสินค้า (แยกผ่อน/เดือน)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #eef2f7;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --input-bg: #f8fafc;
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --danger: #dc2626;
+    --danger-soft: #fef2f2;
+    --danger-border: #fecaca;
+    --success: #16a34a;
+  }
+
+  body {
+    font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: clamp(16px, 3vw, 32px) 14px 48px;
+  }
+
+  .wrap { max-width: 800px; margin: 0 auto; }
+
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: 0 12px 32px -18px rgba(15, 23, 42, .28), 0 2px 8px rgba(15, 23, 42, .04);
+    padding: clamp(20px, 4vw, 34px);
+  }
+
+  /* ---------- Header + RESET ---------- */
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+
+  .brand-icon {
+    width: 52px; height: 52px;
+    border-radius: 15px;
+    display: grid; place-items: center;
+    font-size: 25px;
+    background: linear-gradient(135deg, #dbeafe, #eff6ff);
+    border: 1px solid #bfdbfe;
+    flex-shrink: 0;
+  }
+
+  h1 { font-size: clamp(16.5px, 3.4vw, 20px); font-weight: 700; color: #0f172a; line-height: 1.4; }
+
+  .brand p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+  .btn-reset {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 1.5px solid var(--danger-border);
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-family: inherit; font-size: 13.5px; font-weight: 700;
+    cursor: pointer; white-space: nowrap;
+    transition: all .2s ease;
+  }
+  .btn-reset:hover { background: var(--danger); border-color: var(--danger); color: #fff; box-shadow: 0 8px 18px -8px rgba(220, 38, 38, .55); }
+  .btn-reset:active { transform: scale(.97); }
+
+  .header-actions { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  .btn-home {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: #334155;
+    font-family: inherit; font-size: 13.5px; font-weight: 700;
+    text-decoration: none; white-space: nowrap;
+    transition: all .2s ease;
+  }
+  .btn-home:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; box-shadow: 0 8px 18px -10px rgba(37, 99, 235, .45); }
+  .btn-home:active { transform: scale(.97); }
+
+  .meta-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  .autosave-note { font-size: 12px; color: var(--muted); }
+
+  /* ---------- Sections + fields ---------- */
+  h2 {
+    font-size: 15px; font-weight: 700; color: #0f172a;
+    border-left: 4px solid var(--primary);
+    padding-left: 10px;
+    margin: 28px 0 14px;
+  }
+
+  .field {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 10px; flex-wrap: wrap;
+  }
+
+  .field > label {
+    width: 240px;
+    font-size: 13.5px; font-weight: 600; color: #334155;
+    padding-right: 4px;
+  }
+
+  input[type="text"], input[type="tel"], input[type="number"] {
+    flex: 1; min-width: 190px;
+    padding: 10px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: inherit; font-size: 14px; color: var(--text);
+    background: var(--input-bg);
+    transition: border-color .2s, box-shadow .2s, background .2s;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: #fff;
+    box-shadow: 0 0 0 3.5px rgba(37, 99, 235, .13);
+  }
+
+  /* ---------- แถวหลายช่อง ---------- */
+  .field-grid { display: grid; gap: 12px; margin-bottom: 10px; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .field-grid .field { display: block; margin: 0; }
+  .field-grid .field label { display: block; width: auto; margin-bottom: 5px; font-size: 13px; }
+  .field-grid input { min-width: 0; width: 100%; }
+
+  /* ---------- บรรทัดข้อมูลคงที่ ---------- */
+  .fixed-line {
+    background: #eff6ff;
+    border: 1.5px dashed #93c5fd;
+    color: #1d4ed8;
+    font-weight: 700; text-align: center;
+    padding: 10px; border-radius: 10px;
+    font-size: 14px;
+    margin: 16px 0 4px;
+  }
+
+  /* ---------- Preview ---------- */
+  .preview-head {
+    display: flex; align-items: center; gap: 10px;
+    margin: 28px 0 10px;
+    font-size: 13.5px; font-weight: 700; color: #334155;
+  }
+  .preview-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .preview {
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px; line-height: 1.75;
+    white-space: pre-wrap; word-break: break-word;
+    min-height: 90px;
+  }
+
+  /* ---------- Copy + status ---------- */
+  .btn-copy {
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    width: 100%;
+    margin-top: 14px;
+    padding: 14px 26px;
+    border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 22px -10px rgba(37, 99, 235, .65);
+    transition: all .2s ease;
+  }
+  .btn-copy:hover { filter: brightness(1.08); }
+  .btn-copy:active { transform: scale(.985); }
+
+  .status {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13.5px; font-weight: 600;
+    color: var(--success);
+    min-height: 22px;
+  }
+  .status.error { color: var(--danger); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 640px) {
+    .field > label { width: 100%; margin-bottom: 2px; }
+    .field { gap: 6px; margin-bottom: 14px; }
+    .btn-reset, .btn-home { padding: 9px 14px; font-size: 12.5px; }
+    .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">⚙️</div>
+        <div>
+          <h1>กรอกข้อมูลสินค้า</h1>
+          <p>TTRS25 · แยกผ่อน/เดือน</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a class="btn-home" href="index.html">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 19-7-7 7-7"/>
+            <path d="M19 12H5"/>
+          </svg>
+          หน้าหลัก
+        </a>
+        <button type="button" class="btn-reset" onclick="resetAll()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+          RESET
+        </button>
+      </div>
+    </header>
+
+    <div class="meta-row">
+      <span class="autosave-note">💾 ข้อมูลถูกบันทึกอัตโนมัติในเครื่องของคุณ</span>
+    </div>
+
+    <div class="fixed-line">ดลโมบาย 2178001</div>
+
+    <div class="field-grid grid-3">
+      <div class="field">
+        <label>รุ่น</label>
+        <input type="text" id="modelName" placeholder="รุ่น">
+      </div>
+      <div class="field">
+        <label>ความจำ</label>
+        <input type="text" id="memory" placeholder="ความจำ">
+      </div>
+      <div class="field">
+        <label>สี</label>
+        <input type="text" id="color" placeholder="สี">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>มือ :</label>
+      <input type="text" id="hand" placeholder="มือ 1 หรือ 2">
+    </div>
+
+    <div class="fixed-line">ดาวน์ 25%</div>
+
+    <div class="field-grid grid-2">
+      <div class="field">
+        <label>ผ่อน</label>
+        <input type="text" id="monthlyAmount" placeholder="จำนวนเงินผ่อน">
+      </div>
+      <div class="field">
+        <label>เดือน</label>
+        <input type="text" id="monthlyPeriod" placeholder="จำนวนเดือน">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>EMI :</label>
+      <input type="text" id="emi" placeholder="EMI">
+    </div>
+
+    <div class="field">
+      <label>S/N :</label>
+      <input type="text" id="sn" placeholder="Serial Number">
+    </div>
+
+    <div class="preview-head">📄 พรีวิวข้อมูล (อัปเดตอัตโนมัติ)</div>
+    <pre class="preview" id="preview"></pre>
+
+    <button type="button" class="btn-copy" onclick="copyAll()">📋 คัดลอกข้อมูลทั้งหมด</button>
+    <div class="status" id="status"></div>
+
+  </div>
+</div>
+
+<script>
+  const FIXED_LINE1 = 'ดลโมบาย 2178001';
+  const FIXED_LINE_DOWN = 'ดาวน์ 25%';
+  const STORAGE_KEY = 'ttrsFormData_v1';
+
+  const previewEl = document.getElementById('preview');
+  const statusEl = document.getElementById('status');
+
+  // field ids สำหรับผูก event และล้างข้อมูล
+  const fields = ['modelName', 'memory', 'color', 'hand', 'monthlyAmount', 'monthlyPeriod', 'emi', 'sn'];
+
+  function getVal(id) {
+    return document.getElementById(id).value.trim() || '-';
+  }
+
+  // ===== สร้างข้อความ =====
+  function buildText() {
+    const monthlyLine = `ผ่อน/เดือน ${getVal('monthlyAmount')} x ${getVal('monthlyPeriod')} เดือน`;
+
+    return FIXED_LINE1 + '\n' +
+      `รุ่น ${getVal('modelName')} ความจำ ${getVal('memory')} สี ${getVal('color')}\n` +
+      `มือ ${getVal('hand')}\n` +
+      FIXED_LINE_DOWN + '\n' +
+      monthlyLine + '\n' +
+      `EMI ${getVal('emi')}\n` +
+      `S/N ${getVal('sn')}`;
+  }
+
+  function updatePreview() {
+    previewEl.textContent = buildText();
+  }
+
+  // ===== สถานะ =====
+  function showStatus(msg, isError) {
+    statusEl.textContent = msg;
+    statusEl.classList.toggle('error', !!isError);
+    clearTimeout(statusEl._t);
+    statusEl._t = setTimeout(() => { statusEl.textContent = ''; }, 2200);
+  }
+
+  // ===== บันทึกอัตโนมัติ =====
+  let saveTimer = null;
+  function autoSave() {
+    updatePreview();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      const data = {};
+      fields.forEach(id => { data[id] = document.getElementById(id).value; });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      showStatus('💾 บันทึกอัตโนมัติแล้ว');
+    }, 400);
+  }
+
+  // ===== โหลดข้อมูล =====
+  function loadData() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    try {
+      const data = JSON.parse(saved);
+      fields.forEach(id => {
+        if (data[id] !== undefined) document.getElementById(id).value = data[id];
+      });
+    } catch (e) { console.warn('โหลดข้อมูลไม่สำเร็จ', e); }
+  }
+
+  // ===== คัดลอกข้อมูลทั้งหมด =====
+  function copyAll() {
+    const text = buildText();
+    const done = () => showStatus('✅ คัดลอกข้อมูลทั้งหมดแล้ว');
+    const fallback = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); }
+      catch (e) { showStatus('❌ คัดลอกไม่สำเร็จ', true); }
+      document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  // ===== ล้างข้อมูล (RESET) =====
+  function resetAll() {
+    if (!confirm('ต้องการล้างข้อมูลทั้งหมดใช่หรือไม่?')) return;
+    fields.forEach(id => { document.getElementById(id).value = ''; });
+    localStorage.removeItem(STORAGE_KEY);
+    updatePreview();
+    showStatus('🗑️ ล้างข้อมูลเรียบร้อยแล้ว');
+  }
+
+  // ===== เริ่มต้น =====
+  fields.forEach(id => {
+    document.getElementById(id).addEventListener('input', autoSave);
+  });
+
+  loadData();
+  updatePreview();
+</script>
+</body>
+</html>
