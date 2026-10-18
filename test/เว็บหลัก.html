@@ -1,847 +1,192 @@
 <!DOCTYPE html>
-<html lang="th" class="dark">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Hub - Multi-Utility Dashboard</title>
-    <!-- Tailwind CSS CDN -->
+    <title>บันทึก UPDATE ต่างๆ</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Kanit', 'sans-serif'],
+                        darkBg: '#0f172a',
+                        cardBg: '#1e293b',
+                        inputBg: '#090d16',
+                        accentYellow: '#f59e0b',
+                        accentPurple: '#8b5cf6'
                     }
                 }
             }
         }
     </script>
-    <!-- Google Fonts: Kanit -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- QRCodes JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Kanit', sans-serif;
-            background-attachment: fixed;
-        }
-        /* Glassmorphism Styles */
-        .glass {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .dark .glass {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .glass-card {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .glass-card:hover {
-            transform: translateY(-2px);
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.4);
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(107, 114, 128, 0.7);
-        }
+        body { font-family: 'Prompt', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+<body class="bg-darkBg text-slate-100 min-h-screen flex items-center justify-center p-4">
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-    <!-- Header / Navbar -->
-    <header class="sticky top-0 z-40 glass border-b border-slate-200/50 dark:border-slate-800/50">
-        <div class="max-w-7xl mx-mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between mx-auto">
-            <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-gradient-to-tr from-sky-500 to-indigo-600 rounded-xl text-white shadow-lg shadow-sky-500/20">
-                    <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+    <div class="w-full max-w-lg bg-cardBg rounded-2xl p-6 shadow-2xl border border-slate-800 relative">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 text-xl">
+                    <i class="fa-solid fa-pen-to-square"></i>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold bg-gradient-to-r from-sky-600 to-indigo-600 dark:from-sky-400 dark:to-indigo-400 bg-clip-text text-transparent">Smart Hub</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">ศูนย์รวมเครื่องมือคำนวณและประมวลผลอัจฉริยะ</p>
-                </div>
+                <h1 class="text-xl font-semibold tracking-wide">บันทึก UPDATE ต่างๆ</h1>
             </div>
-
-            <!-- Action Controls -->
-            <div class="flex items-center gap-3">
-                <!-- Theme Switcher Button -->
-                <button id="theme-toggle" class="p-2.5 rounded-xl glass hover:bg-slate-200/50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-300 transition-all">
-                    <i id="theme-icon-sun" data-lucide="sun" class="w-5 h-5 hidden"></i>
-                    <i id="theme-icon-moon" data-lucide="moon" class="w-5 h-5 hidden"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content Grid -->
-    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-
-        <!-- Banner / Quick Stats -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="glass glass-card p-4 rounded-2xl flex items-center gap-4">
-                <div class="p-3 bg-blue-500/10 text-blue-500 rounded-xl">
-                    <i data-lucide="qr-code" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">สร้าง QR Code สะสม</p>
-                    <h3 id="stat-qr-count" class="text-2xl font-bold mt-0.5">0</h3>
-                </div>
-            </div>
-
-            <div class="glass glass-card p-4 rounded-2xl flex items-center gap-4">
-                <div class="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl">
-                    <i data-lucide="calculator" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">คำนวณเงินกู้ล่าสุด</p>
-                    <h3 id="stat-last-loan" class="text-2xl font-bold mt-0.5">฿0</h3>
-                </div>
-            </div>
-
-            <div class="glass glass-card p-4 rounded-2xl flex items-center gap-4">
-                <div class="p-3 bg-amber-500/10 text-amber-500 rounded-xl">
-                    <i data-lucide="notebook-pen" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">บันทึกโน้ตทั้งหมด</p>
-                    <h3 id="stat-notes-count" class="text-2xl font-bold mt-0.5">0</h3>
-                </div>
-            </div>
-
-            <div class="glass glass-card p-4 rounded-2xl flex items-center gap-4">
-                <div class="p-3 bg-purple-500/10 text-purple-500 rounded-xl">
-                    <i data-lucide="sparkles" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">AI วิเคราะห์สำเร็จ</p>
-                    <h3 id="stat-ai-count" class="text-2xl font-bold mt-0.5">0</h3>
-                </div>
-            </div>
+            <button onclick="runAiSmart()" class="flex items-center space-x-1.5 bg-slate-800/80 hover:bg-slate-700 text-purple-400 text-xs px-3 py-1.5 rounded-full border border-purple-500/30 transition-all shadow-inner">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span class="font-medium">AI Smart</span>
+            </button>
         </div>
 
-        <!-- Main Feature Dashboard Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-            <!-- LEFT COLUMN: PromptPay Generator & Loan Calculator (7 cols) -->
-            <div class="lg:col-span-7 space-y-6">
-
-                <!-- 1. PromptPay Generator Module -->
-                <section class="glass rounded-3xl p-6 shadow-xl relative overflow-hidden">
-                    <div class="flex items-center justify-between mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">
-                        <div class="flex items-center gap-2.5">
-                            <i data-lucide="qr-code" class="w-5 h-5 text-sky-500"></i>
-                            <h2 class="text-lg font-semibold">สร้าง QR Code พร้อมเพย์ (PromptPay)</h2>
-                        </div>
-                        <span class="text-xs font-normal text-slate-400 px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">มาตรฐาน EMVCo</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                        <!-- Inputs -->
-                        <div class="md:col-span-7 space-y-4">
-                            <div>
-                                <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">เบอร์โทรศัพท์ หรือ เลขประจำตัวประชาชน</label>
-                                <div class="relative">
-                                    <input type="text" id="pp-target" placeholder="08X-XXX-XXXX หรือ เลขบัตร 13 หลัก" 
-                                        class="w-full pl-10 pr-3 py-2.5 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm transition-all">
-                                    <i data-lucide="phone-call" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">จำนวนเงิน (บาท)</label>
-                                    <input type="number" id="pp-amount" step="0.01" placeholder="0.00" 
-                                        class="w-full px-3 py-2.5 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm transition-all">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ชื่อบันทึกย่อ (ถ้าระบุ)</label>
-                                    <input type="text" id="pp-tag" placeholder="เช่น ค่าอาหาร" 
-                                        class="w-full px-3 py-2.5 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-sky-500 outline-none text-sm transition-all">
-                                </div>
-                            </div>
-
-                            <!-- Preset Favorites -->
-                            <div>
-                                <div class="flex justify-between items-center mb-1">
-                                    <label class="text-xs font-medium text-slate-600 dark:text-slate-300">รายการที่ใช้บ่อย</label>
-                                    <button id="btn-save-pp-preset" class="text-xs text-sky-500 hover:text-sky-600 font-medium hover:underline flex items-center gap-1">
-                                        <i data-lucide="plus" class="w-3 h-3"></i> บันทึกเบอร์นี้
-                                    </button>
-                                </div>
-                                <div id="pp-presets-list" class="flex flex-wrap gap-1.5 min-h-[32px] items-center">
-                                    <!-- Dynamic Presets Chips -->
-                                </div>
-                            </div>
-
-                            <button id="btn-generate-qr" class="w-full py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-medium rounded-xl shadow-md shadow-sky-500/20 transition-all flex items-center justify-center gap-2">
-                                <i data-lucide="wand-2" class="w-4 h-4"></i> สร้าง QR Code
-                            </button>
-                        </div>
-
-                        <!-- QR Preview Display Area -->
-                        <div class="md:col-span-5 flex flex-col items-center justify-center p-4 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/60 rounded-2xl text-center">
-                            <div id="qrcode-box" class="bg-white p-3 rounded-2xl shadow-md mb-3 min-w-[160px] min-h-[160px] flex items-center justify-center">
-                                <p class="text-xs text-slate-400">ระบุเบอร์โทรเพื่อสร้าง QR</p>
-                            </div>
-                            <div id="qr-info" class="text-xs text-slate-500 dark:text-slate-400 space-y-1 w-full mb-3 hidden">
-                                <p class="font-semibold text-slate-700 dark:text-slate-200 truncate" id="qr-info-target">-</p>
-                                <p class="text-emerald-600 dark:text-emerald-400 font-bold text-sm" id="qr-info-amount">฿0.00</p>
-                            </div>
-                            <div class="flex gap-2 w-full">
-                                <button id="btn-download-qr" disabled class="flex-1 py-1.5 px-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium opacity-50 cursor-not-allowed hover:bg-slate-300 dark:hover:bg-slate-700 transition flex items-center justify-center gap-1">
-                                    <i data-lucide="download" class="w-3.5 h-3.5"></i> โหลดภาพ
-                                </button>
-                                <button id="btn-copy-qr-payload" disabled class="flex-1 py-1.5 px-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium opacity-50 cursor-not-allowed hover:bg-slate-300 dark:hover:bg-slate-700 transition flex items-center justify-center gap-1">
-                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> ก๊อปปี้รหัส
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 2. Smart Quick Calculator & Loan Estimator -->
-                <section class="glass rounded-3xl p-6 shadow-xl">
-                    <div class="flex items-center justify-between mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">
-                        <div class="flex items-center gap-2.5">
-                            <i data-lucide="calculator" class="w-5 h-5 text-emerald-500"></i>
-                            <h2 class="text-lg font-semibold">คำนวณเงินกู้ / ค่างวดรายเดือน</h2>
-                        </div>
-                        <span class="text-xs text-slate-400">คำนวณดอกเบี้ยแบบลดต้นลดดอก</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">วงเงินกู้ (บาท)</label>
-                            <input type="number" id="loan-amount" value="100000" step="5000" 
-                                class="w-full px-3 py-2 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">อัตราดอกเบี้ยต่อปี (%)</label>
-                            <input type="number" id="loan-rate" value="5.5" step="0.1" 
-                                class="w-full px-3 py-2 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-slate-600 dark:text-slate-300 mb-1">ระยะเวลา (ปี)</label>
-                            <input type="number" id="loan-years" value="3" min="1" max="30" 
-                                class="w-full px-3 py-2 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
-                        </div>
-                    </div>
-
-                    <!-- Output Summary Banner -->
-                    <div class="grid grid-cols-3 gap-3 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl mb-4 text-center">
-                        <div>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400">ผ่อนต่อเดือน</p>
-                            <p id="res-monthly-pay" class="text-lg sm:text-xl font-bold text-emerald-600 dark:emerald-400">฿0</p>
-                        </div>
-                        <div>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400">ดอกเบี้ยรวม</p>
-                            <p id="res-total-interest" class="text-lg sm:text-xl font-bold text-amber-600 dark:text-amber-400">฿0</p>
-                        </div>
-                        <div>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400">ยอดชำระทั้งหมด</p>
-                            <p id="res-total-pay" class="text-lg sm:text-xl font-bold text-slate-700 dark:text-slate-200">฿0</p>
-                        </div>
-                    </div>
-
-                    <!-- Schedule Preview Table -->
-                    <div class="space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-medium text-slate-500">ตารางผ่อนชำระเบื้องต้น (6 งวดแรก)</span>
-                            <button id="btn-toggle-schedule" class="text-xs text-emerald-500 hover:underline">ซ่อน/แสดง</button>
-                        </div>
-                        <div id="schedule-wrapper" class="overflow-x-auto">
-                            <table class="w-full text-left text-xs border-collapse">
-                                <thead>
-                                    <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400">
-                                        <th class="py-2">งวดที่</th>
-                                        <th class="py-2">ค่างวด</th>
-                                        <th class="py-2">เงินต้น</th>
-                                        <th class="py-2">ดอกเบี้ย</th>
-                                        <th class="py-2">คงเหลือ</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="loan-schedule-body" class="divide-y divide-slate-100 dark:divide-slate-800/50">
-                                    <!-- Dynamic rows -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-            </div>
-
-            <!-- RIGHT COLUMN: Notes & AI Analyzer + Data Analytics (5 cols) -->
-            <div class="lg:col-span-5 space-y-6">
-
-                <!-- 3. Smart Task & Quick Notes with AI Simulator -->
-                <section class="glass rounded-3xl p-6 shadow-xl flex flex-col h-full">
-                    <div class="flex items-center justify-between mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">
-                        <div class="flex items-center gap-2.5">
-                            <i data-lucide="notebook-pen" class="w-5 h-5 text-amber-500"></i>
-                            <h2 class="text-lg font-semibold">บันทึก & AI ช่วยวิเคราะห์</h2>
-                        </div>
-                        <span class="px-2 py-0.5 text-[10px] bg-purple-500/10 text-purple-500 font-medium rounded-full flex items-center gap-1">
-                            <i data-lucide="sparkles" class="w-3 h-3"></i> AI Smart
-                        </span>
-                    </div>
-
-                    <!-- Input Box -->
-                    <div class="space-y-3 mb-4">
-                        <textarea id="note-input" rows="3" placeholder="พิมพ์ข้อความ ไอเดีย งานที่ต้องทำ หรือโน้ตสั้นๆ ตรงนี้..."
-                            class="w-full p-3 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm transition-all resize-none"></textarea>
-                        
-                        <div class="flex gap-2">
-                            <button id="btn-add-note" class="flex-1 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-medium transition shadow-sm flex items-center justify-center gap-1">
-                                <i data-lucide="plus-circle" class="w-4 h-4"></i> เพิ่มบันทึก
-                            </button>
-                            <button id="btn-ai-analyze-all" class="py-2 px-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-medium transition shadow-sm flex items-center justify-center gap-1">
-                                <i data-lucide="cpu" class="w-4 h-4"></i> สรุปด้วย AI
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- AI Insights Display Box (Collapsed or Expandable) -->
-                    <div id="ai-insight-box" class="hidden mb-4 p-3.5 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/20 rounded-2xl text-xs space-y-2">
-                        <div class="flex items-center justify-between text-purple-600 dark:text-purple-400 font-medium">
-                            <span class="flex items-center gap-1.5"><i data-lucide="bot" class="w-4 h-4"></i> ผลการวิเคราะห์จาก AI</span>
-                            <button id="btn-close-ai-insight" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
-                        </div>
-                        <p id="ai-insight-text" class="text-slate-600 dark:text-slate-300 leading-relaxed"></p>
-                    </div>
-
-                    <!-- Notes List Area -->
-                    <div class="flex-grow space-y-2 max-h-[320px] overflow-y-auto pr-1" id="notes-list">
-                        <!-- Dynamic Notes -->
-                    </div>
-                </section>
-
-                <!-- 4. Smart Data Tracker / Analytics Preview -->
-                <section class="glass rounded-3xl p-6 shadow-xl">
-                    <div class="flex items-center justify-between mb-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-3">
-                        <div class="flex items-center gap-2.5">
-                            <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-500"></i>
-                            <h2 class="text-lg font-semibold">สรุปสถิติการใช้งาน</h2>
-                        </div>
-                    </div>
-
-                    <div class="h-48 relative flex items-center justify-center">
-                        <canvas id="analyticsChart"></canvas>
-                    </div>
-                </section>
-
-            </div>
-
+        <!-- Input Area -->
+        <div class="mb-4">
+            <textarea id="noteInput" rows="3" placeholder="พิมพ์ข้อความ ไอเดีย งานที่ต้องทำ หรือโน้ตสั้นๆ ตรงนี้..." class="w-full bg-inputBg text-slate-200 placeholder-slate-500 text-sm rounded-xl p-4 border border-slate-800 focus:outline-none focus:border-purple-500/50 resize-none transition-all shadow-inner"></textarea>
         </div>
 
-    </main>
+        <!-- Action Buttons -->
+        <div class="flex items-center space-x-3 mb-6">
+            <button onclick="addNote()" id="submitBtn" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-all shadow-lg shadow-amber-500/10 active:scale-[0.99]">
+                <i class="fa-solid fa-circle-plus text-base"></i>
+                <span>เพิ่มบันทึก</span>
+            </button>
+            <button onclick="runAiSimulation()" class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center space-x-2 transition-all shadow-lg shadow-purple-600/10 active:scale-[0.99]">
+                <i class="fa-solid fa-microchip text-base"></i>
+                <span>สรุปด้วย AI</span>
+            </button>
+        </div>
 
-    <!-- Footer -->
-    <footer class="mt-auto py-4 border-t border-slate-200/50 dark:border-slate-800/50 text-center text-xs text-slate-400">
-        <p>© 2026 Smart Hub - Interactive Web Application. Crafted with HTML5 & Tailwind CSS.</p>
-    </footer>
+        <!-- AI Analysis Box (Hidden by default) -->
+        <div id="aiBox" class="hidden mb-6 bg-slate-900/90 border border-purple-500/30 rounded-xl p-4 relative shadow-inner animate-fadeIn">
+            <button onclick="closeAiBox()" class="absolute top-3 right-3 text-slate-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+            <div class="flex items-center space-x-2 text-purple-400 mb-2">
+                <i class="fa-solid fa-robot text-sm"></i>
+                <span class="text-xs font-semibold tracking-wider uppercase">ผลการวิเคราะห์จาก AI</span>
+            </div>
+            <p id="aiResultText" class="text-xs text-slate-300 leading-relaxed pr-4"></p>
+        </div>
 
-    <!-- JavaScript Logic -->
+        <!-- Notes Feed -->
+        <div id="notesContainer" class="space-y-3 max-h-[350px] overflow-y-auto pr-1">
+            <!-- Dynamic Notes will load here -->
+            <div class="text-center text-slate-500 text-xs py-6">กำลังโหลดข้อมูลจาก Google Sheets...</div>
+        </div>
+
+    </div>
+
     <script>
-        // ==========================================
-        // 1. STATE & STORAGE MANAGEMENT
-        // ==========================================
-        const STORE_KEY_NOTES = 'smarthub_notes';
-        const STORE_KEY_PRESETS = 'smarthub_pp_presets';
-        const STORE_KEY_STATS = 'smarthub_stats';
-        const STORE_KEY_THEME = 'smarthub_theme';
+        const SHEETDB_URL = 'https://sheetdb.io/api/v1/cq7ghrqhdz3ar';
 
-        let appState = {
-            notes: JSON.parse(localStorage.getItem(STORE_KEY_NOTES)) || [],
-            presets: JSON.parse(localStorage.getItem(STORE_KEY_PRESETS)) || ['0812345678', '1100200300405'],
-            stats: JSON.parse(localStorage.getItem(STORE_KEY_STATS)) || {
-                qrCount: 0,
-                lastLoan: 0,
-                aiCount: 0
-            },
-            qrPayload: '',
-            chartInstance: null
-        };
+        // โหลดข้อมูลเมื่อเปิดเว็บ
+        window.addEventListener('DOMContentLoaded', fetchNotes);
 
-        function saveState() {
-            localStorage.setItem(STORE_KEY_NOTES, JSON.stringify(appState.notes));
-            localStorage.setItem(STORE_KEY_PRESETS, JSON.stringify(appState.presets));
-            localStorage.setItem(STORE_KEY_STATS, JSON.stringify(appState.stats));
-            updateStatsUI();
-            updateChart();
-        }
+        async function fetchNotes() {
+            const container = document.getElementById('notesContainer');
+            try {
+                const response = await fetch(SHEETDB_URL);
+                const data = await response.json();
+                
+                container.innerHTML = '';
+                if (data.length === 0) {
+                    container.innerHTML = '<div class="text-center text-slate-500 text-xs py-6">ยังไม่มีบันทึกข้อความ</div>';
+                    return;
+                }
 
-        // ==========================================
-        // 2. THEME CONTROLLER
-        // ==========================================
-        function initTheme() {
-            const savedTheme = localStorage.getItem(STORE_KEY_THEME) || 'dark';
-            if (savedTheme === 'dark') {
-                document.documentElement.classList.add('dark');
-                document.getElementById('theme-icon-sun').classList.remove('hidden');
-                document.getElementById('theme-icon-moon').classList.add('hidden');
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.getElementById('theme-icon-sun').classList.add('hidden');
-                document.getElementById('theme-icon-moon').classList.remove('hidden');
-            }
-        }
-
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem(STORE_KEY_THEME, isDark ? 'dark' : 'light');
-            document.getElementById('theme-icon-sun').classList.toggle('hidden', !isDark);
-            document.getElementById('theme-icon-moon').classList.toggle('hidden', isDark);
-            updateChart(); // Refresh chart with new theme colors
-        });
-
-        // Toast Helper
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl shadow-lg text-xs font-medium text-white flex items-center gap-2 transform transition-all duration-300 translate-y-2 opacity-0 ${
-                type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-slate-800'
-            }`;
-            toast.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'info'}" class="w-4 h-4"></i> ${message}`;
-            container.appendChild(toast);
-            lucide.createIcons();
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            }, 10);
-
-            setTimeout(() => {
-                toast.classList.add('translate-y-2', 'opacity-0');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // ==========================================
-        // 3. PROMPTPAY QR GENERATOR (EMVCo Protocol)
-        // ==========================================
-        // Helper CRC16 calculation for PromptPay
-        function crc16(data) {
-            let crc = 0xFFFF;
-            for (let i = 0; i < data.length; i++) {
-                let x = ((crc >> 8) ^ data.charCodeAt(i)) & 0xFF;
-                x ^= x >> 4;
-                crc = ((crc << 8) ^ (x << 12) ^ (x << 5) ^ x) & 0xFFFF;
-            }
-            return crc.toString(16).toUpperCase().padStart(4, '0');
-        }
-
-        function formatTarget(target) {
-            const cleaned = target.replace(/[^0-9]/g, '');
-            if (cleaned.length === 10 && cleaned.startsWith('0')) {
-                // Mobile phone -> format: 00668XXXXXXXX
-                return '0066' + cleaned.substring(1);
-            }
-            return cleaned; // Citizen ID or E-Wallet (13-15 chars)
-        }
-
-        function generatePromptPayPayload(target, amount) {
-            const formattedTarget = formatTarget(target);
-            const targetType = formattedTarget.length >= 13 ? '02' : '01'; // 01=Mobile, 02=National ID
-            
-            let targetLength = formattedTarget.length.toString().padStart(2, '0');
-            let merchantInfo = `0016A000000677010111${targetType}${targetLength}${formattedTarget}`;
-            let merchantPayload = `29${merchantInfo.length.toString().padStart(2, '0')}${merchantInfo}`;
-
-            let payload = `000201010212${merchantPayload}5303764`;
-
-            if (amount && parseFloat(amount) > 0) {
-                let amtStr = parseFloat(amount).toFixed(2);
-                let amtLength = amtStr.length.toString().padStart(2, '0');
-                payload += `54${amtLength}${amtStr}`;
-            }
-
-            payload += `5802TH6304`;
-            payload += crc16(payload);
-
-            return payload;
-        }
-
-        function renderQR() {
-            const targetInput = document.getElementById('pp-target').value.trim();
-            const amountInput = document.getElementById('pp-amount').value;
-            const tagInput = document.getElementById('pp-tag').value.trim();
-
-            if (!targetInput) {
-                showToast('กรุณาระบุเบอร์โทรศัพท์ หรือ เลขบัญชี/บัตรประชาชน', 'error');
-                return;
-            }
-
-            const payload = generatePromptPayPayload(targetInput, amountInput);
-            appState.qrPayload = payload;
-
-            const qrBox = document.getElementById('qrcode-box');
-            qrBox.innerHTML = '';
-            
-            new QRCode(qrBox, {
-                text: payload,
-                width: 150,
-                height: 150,
-                colorDark: "#0f172a",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.M
-            });
-
-            // Update UI info
-            document.getElementById('qr-info').classList.remove('hidden');
-            document.getElementById('qr-info-target').innerText = (tagInput ? `[${tagInput}] ` : '') + targetInput;
-            document.getElementById('qr-info-amount').innerText = amountInput ? `฿${parseFloat(amountInput).toLocaleString('th-TH', {minimumFractionDigits: 2})}` : 'ไม่ระบุยอดเงิน';
-
-            // Enable Actions
-            const btnDownload = document.getElementById('btn-download-qr');
-            const btnCopy = document.getElementById('btn-copy-qr-payload');
-            
-            btnDownload.disabled = false;
-            btnDownload.classList.remove('opacity-50', 'cursor-not-allowed');
-            btnCopy.disabled = false;
-            btnCopy.classList.remove('opacity-50', 'cursor-not-allowed');
-
-            // Increment Stat
-            appState.stats.qrCount++;
-            saveState();
-            showToast('สร้าง QR Code สำเร็จ!', 'success');
-        }
-
-        function renderPresetsUI() {
-            const container = document.getElementById('pp-presets-list');
-            container.innerHTML = '';
-
-            appState.presets.forEach((item, index) => {
-                const chip = document.createElement('div');
-                chip.className = 'flex items-center gap-1 px-2.5 py-1 bg-slate-200/60 dark:bg-slate-800 rounded-lg text-xs font-medium cursor-pointer hover:bg-sky-500/20 hover:text-sky-500 transition';
-                chip.innerHTML = `
-                    <span onclick="applyPreset('${item}')">${item}</span>
-                    <i data-lucide="x" class="w-3 h-3 hover:text-rose-500" onclick="removePreset(${index}, event)"></i>
-                `;
-                container.appendChild(chip);
-            });
-            lucide.createIcons();
-        }
-
-        window.applyPreset = function(val) {
-            document.getElementById('pp-target').value = val;
-            showToast(`เลือกรายการ: ${val}`);
-        };
-
-        window.removePreset = function(index, e) {
-            e.stopPropagation();
-            appState.presets.splice(index, 1);
-            saveState();
-            renderPresetsUI();
-        };
-
-        document.getElementById('btn-save-pp-preset').addEventListener('click', () => {
-            const val = document.getElementById('pp-target').value.trim();
-            if (val && !appState.presets.includes(val)) {
-                appState.presets.push(val);
-                saveState();
-                renderPresetsUI();
-                showToast('บันทึกเบอร์ใช้บ่อยเรียบร้อย', 'success');
-            }
-        });
-
-        document.getElementById('btn-generate-qr').addEventListener('click', renderQR);
-
-        document.getElementById('btn-download-qr').addEventListener('click', () => {
-            const img = document.querySelector('#qrcode-box img');
-            if (img) {
-                const a = document.createElement('a');
-                a.href = img.src;
-                a.download = `PromptPay_${Date.now()}.png`;
-                a.click();
-                showToast('ดาวน์โหลดรูปภาพ QR เรียบร้อย', 'success');
-            }
-        });
-
-        document.getElementById('btn-copy-qr-payload').addEventListener('click', () => {
-            if (appState.qrPayload) {
-                navigator.clipboard.writeText(appState.qrPayload).then(() => {
-                    showToast('คัดลอก Raw Payload ลง Clipboard แล้ว', 'success');
+                // แสดงข้อมูลล่าสุดไว้ด้านบน
+                data.reverse().forEach(note => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-inputBg/60 border border-slate-800/80 rounded-xl p-4 transition-all hover:border-slate-700';
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-slate-800 text-slate-300 text-[10px] px-2.5 py-0.5 rounded-full font-medium">${note.category || 'ทั่วไป'}</span>
+                            <span class="text-[10px] text-slate-500">${note.time || ''}</span>
+                        </div>
+                        <p class="text-sm text-slate-200 whitespace-pre-wrap break-words">${note.content}</p>
+                    `;
+                    container.appendChild(card);
                 });
+            } catch (error) {
+                container.innerHTML = '<div class="text-center text-red-400 text-xs py-6">ไม่สามารถโหลดข้อมูลจาก Google Sheets ได้</div>';
             }
-        });
-
-        // ==========================================
-        // 4. LOAN & INTEREST CALCULATOR
-        // ==========================================
-        function calculateLoan() {
-            const principal = parseFloat(document.getElementById('loan-amount').value) || 0;
-            const annualRate = parseFloat(document.getElementById('loan-rate').value) || 0;
-            const years = parseInt(document.getElementById('loan-years').value) || 1;
-
-            if (principal <= 0 || annualRate < 0 || years <= 0) return;
-
-            const totalMonths = years * 12;
-            const monthlyRate = (annualRate / 100) / 12;
-
-            let monthlyPayment = 0;
-            if (monthlyRate > 0) {
-                monthlyPayment = (principal * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
-            } else {
-                monthlyPayment = principal / totalMonths;
-            }
-
-            const totalPay = monthlyPayment * totalMonths;
-            const totalInterest = totalPay - principal;
-
-            // Update UI
-            document.getElementById('res-monthly-pay').innerText = `฿${Math.round(monthlyPayment).toLocaleString()}`;
-            document.getElementById('res-total-interest').innerText = `฿${Math.round(totalInterest).toLocaleString()}`;
-            document.getElementById('res-total-pay').innerText = `฿${Math.round(totalPay).toLocaleString()}`;
-
-            // Generate Amortization Table (First 6 months)
-            const tableBody = document.getElementById('loan-schedule-body');
-            tableBody.innerHTML = '';
-
-            let balance = principal;
-            for (let i = 1; i <= Math.min(6, totalMonths); i++) {
-                const interestPayment = balance * monthlyRate;
-                const principalPayment = monthlyPayment - interestPayment;
-                balance -= principalPayment;
-
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-500/5';
-                tr.innerHTML = `
-                    <td class="py-1.5 font-medium">${i}</td>
-                    <td class="py-1.5">฿${Math.round(monthlyPayment).toLocaleString()}</td>
-                    <td class="py-1.5 text-emerald-600 dark:text-emerald-400">฿${Math.round(principalPayment).toLocaleString()}</td>
-                    <td class="py-1.5 text-amber-600 dark:text-amber-400">฿${Math.round(interestPayment).toLocaleString()}</td>
-                    <td class="py-1.5">฿${Math.round(Math.max(0, balance)).toLocaleString()}</td>
-                `;
-                tableBody.appendChild(tr);
-            }
-
-            // Save Stat
-            appState.stats.lastLoan = principal;
-            saveState();
         }
 
-        ['loan-amount', 'loan-rate', 'loan-years'].forEach(id => {
-            document.getElementById(id).addEventListener('input', calculateLoan);
-        });
+        async function addNote() {
+            const input = document.getElementById('noteInput');
+            const content = input.value.trim();
+            if (!content) return;
 
-        document.getElementById('btn-toggle-schedule').addEventListener('click', () => {
-            const wrapper = document.getElementById('schedule-wrapper');
-            wrapper.classList.toggle('hidden');
-        });
-
-        // ==========================================
-        // 5. SMART NOTES & AI ASSISTANT SIMULATOR
-        // ==========================================
-        function addNote() {
-            const input = document.getElementById('note-input');
-            const text = input.value.trim();
-            if (!text) return;
-
-            // Auto-categorize simulation
-            let category = 'ทั่วไป';
-            if (/เงิน|กู้|บาท|จ่าย|ราคา|ผ่อน/.test(text)) category = 'การเงิน';
-            else if (/ประชุม|งาน|ส่ง|โปรเจกต์|ลูกค้า/.test(text)) category = 'การงาน';
-            else if (/ซื้อ|ของ|อาหาร|เดินทาง/.test(text)) category = 'ส่วนตัว';
-
-            const newNote = {
-                id: Date.now(),
-                content: text,
-                category: category,
-                timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+            
+            const newRecord = {
+                data: {
+                    content: content,
+                    category: 'ทั่วไป',
+                    time: timeStr
+                }
             };
 
-            appState.notes.unshift(newNote);
-            input.value = '';
-            saveState();
-            renderNotesUI();
-            showToast('เพิ่มบันทึกแล้ว', 'success');
-        }
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i><span>กำลังบันทึก...</span>';
 
-        function deleteNote(id) {
-            appState.notes = appState.notes.filter(n => n.id !== id);
-            saveState();
-            renderNotesUI();
-        }
+            try {
+                await fetch(SHEETDB_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newRecord)
+                });
 
-        function renderNotesUI() {
-            const container = document.getElementById('notes-list');
-            container.innerHTML = '';
-
-            if (appState.notes.length === 0) {
-                container.innerHTML = `<p class="text-xs text-center text-slate-400 py-6">ยังไม่มีโน้ตบันทึกไว้</p>`;
-                return;
+                input.value = '';
+                fetchNotes();
+            } catch (error) {
+                alert('เกิดข้อผิดพลาดในการบันทึก');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-circle-plus text-base"></i><span>เพิ่มบันทึก</span>';
             }
+        }
 
-            appState.notes.forEach(note => {
-                const card = document.createElement('div');
-                card.className = 'p-3 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/60 rounded-xl flex justify-between items-start gap-2 group hover:border-slate-300 dark:hover:border-slate-700 transition';
+        async function runAiSimulation() {
+            const aiBox = document.getElementById('aiBox');
+            const aiText = document.getElementById('aiResultText');
+            aiBox.classList.remove('hidden');
+            aiText.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> กำลังวิเคราะห์ข้อมูล...';
+
+            try {
+                const response = await fetch(SHEETDB_URL);
+                const data = await response.json();
                 
-                const catColor = note.category === 'การเงิน' ? 'bg-emerald-500/10 text-emerald-500' :
-                                 note.category === 'การงาน' ? 'bg-blue-500/10 text-blue-500' : 'bg-slate-500/10 text-slate-400';
-
-                card.innerHTML = `
-                    <div class="space-y-1 flex-grow">
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] px-2 py-0.5 rounded-full font-medium ${catColor}">${note.category}</span>
-                            <span class="text-[10px] text-slate-400">${note.timestamp}</span>
-                        </div>
-                        <p class="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">${note.content}</p>
-                    </div>
-                    <button onclick="deleteNote(${note.id})" class="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 transition">
-                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                    </button>
-                `;
-                container.appendChild(card);
-            });
-            lucide.createIcons();
-        }
-
-        // AI Assistant Simulator Analysis
-        function runAIAnalysis() {
-            if (appState.notes.length === 0) {
-                showToast('กรุณาเพิ่มโน้ตอย่างน้อย 1 รายการเพื่อวิเคราะห์', 'error');
-                return;
-            }
-
-            const insightBox = document.getElementById('ai-insight-box');
-            const insightText = document.getElementById('ai-insight-text');
-
-            insightBox.classList.remove('hidden');
-            insightText.innerText = "🤖 AI กำลังประมวลผลวิเคราะห์ข้อมูล...";
-
-            setTimeout(() => {
-                const catCounts = appState.notes.reduce((acc, note) => {
-                    acc[note.category] = (acc[note.category] || 0) + 1;
-                    return acc;
-                }, {});
-
-                const topCat = Object.keys(catCounts).reduce((a, b) => catCounts[a] > catCounts[b] ? a : b);
-                
-                const summary = `สรุปจากโน้ตทั้งหมด ${appState.notes.length} รายการ: หัวข้อหลักของคุณเน้นไปที่เรื่อง "${topCat}" (${catCounts[topCat]} รายการ) ข้อแนะนำ: ควรจัดลำดับความสำคัญของงานด่วน และติดตามรายการการเงินสม่ำเสมอ`;
-
-                insightText.innerText = summary;
-                appState.stats.aiCount++;
-                saveState();
-                showToast('AI สรุปข้อมูลเรียบร้อยแล้ว', 'success');
-            }, 800);
-        }
-
-        document.getElementById('btn-add-note').addEventListener('click', addNote);
-        document.getElementById('btn-ai-analyze-all').addEventListener('click', runAIAnalysis);
-        document.getElementById('btn-close-ai-insight').addEventListener('click', () => {
-            document.getElementById('ai-insight-box').classList.add('hidden');
-        });
-
-        // ==========================================
-        // 6. DASHBOARD STATS & CHART.JS ANALYTICS
-        // ==========================================
-        function updateStatsUI() {
-            document.getElementById('stat-qr-count').innerText = appState.stats.qrCount;
-            document.getElementById('stat-last-loan').innerText = `฿${(appState.stats.lastLoan || 0).toLocaleString()}`;
-            document.getElementById('stat-notes-count').innerText = appState.notes.length;
-            document.getElementById('stat-ai-count').innerText = appState.stats.aiCount;
-        }
-
-        function initChart() {
-            const ctx = document.getElementById('analyticsChart').getContext('2d');
-            
-            appState.chartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['สร้าง QR Code', 'คำนวณเงินกู้', 'โน้ตบันทึก', 'AI สรุปผล'],
-                    datasets: [{
-                        data: [
-                            appState.stats.qrCount || 1,
-                            appState.stats.lastLoan ? 1 : 0,
-                            appState.notes.length,
-                            appState.stats.aiCount
-                        ],
-                        backgroundColor: [
-                            '#0ea5e9',
-                            '#10b981',
-                            '#f59e0b',
-                            '#a855f7'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569',
-                                font: { family: 'Kanit', size: 11 }
-                            }
-                        }
-                    },
-                    cutout: '70%'
+                if(data.length === 0) {
+                    aiText.innerText = 'ยังไม่มีข้อมูลพอสำหรับการวิเคราะห์ กรุณาเพิ่มโน้ตก่อนครับ';
+                    return;
                 }
-            });
-        }
 
-        function updateChart() {
-            if (appState.chartInstance) {
-                appState.chartInstance.data.datasets[0].data = [
-                    appState.stats.qrCount,
-                    appState.stats.lastLoan ? 1 : 0,
-                    appState.notes.length,
-                    appState.stats.aiCount
-                ];
-                appState.chartInstance.options.plugins.legend.labels.color = 
-                    document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569';
-                appState.chartInstance.update();
+                setTimeout(() => {
+                    aiText.innerText = `สรุปจากโน้ตทั้งหมด ${data.length} รายการ: หัวข้อหลักของคุณเน้นไปที่เรื่อง "ทั่วไป" (${data.length} รายการ) ข้อแนะนำ: ควรจัดลำดับความสำคัญของงานด่วน และติดตามรายการอัพเดตอย่างสม่ำเสมอ`;
+                }, 600);
+            } catch (e) {
+                aiText.innerText = 'ไม่สามารถประมวลผล AI ได้ในขณะนี้';
             }
         }
 
-        // ==========================================
-        // 7. INITIALIZATION
-        // ==========================================
-        window.addEventListener('DOMContentLoaded', () => {
-            initTheme();
-            renderPresetsUI();
-            calculateLoan();
-            renderNotesUI();
-            updateStatsUI();
-            initChart();
-            lucide.createIcons();
-        });
+        function closeAiBox() {
+            document.getElementById('aiBox').classList.add('hidden');
+        }
+
+        function runAiSmart() {
+            alert('AI Smart Mode เปิดใช้งานแล้ว พร้อมช่วยคุณจัดการข้อความ!');
+        }
     </script>
 </body>
 </html>
