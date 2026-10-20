@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CustomerApp - แอดมินจัดการข้อมูล</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="admin">
+  <div id="admin-shell" class="admin-shell locked">
+    <header>
+      <nav>
+        <div class="logo">📱 CustomerApp</div>
+        <ul class="nav-links">
+          <li><a href="register.html">กรอกใบสมัคร</a></li>
+          <li><a href="admin.html" class="active">แอดมินจัดการข้อมูล</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1 class="page-title">แอดมินจัดการข้อมูล</h1>
+      <p class="page-subtitle">ค้นหา แก้ไข และลบใบสมัครลูกค้า (ต้องยืนยันรหัสผ่านทุกครั้งที่แก้ไขหรือลบ)</p>
+
+      <section class="card">
+        <div class="stats" style="margin-bottom: 22px;">
+          <div class="stat-box">
+            <div class="stat-number" id="total-apps">0</div>
+            <div class="stat-label">ใบสมัครทั้งหมด</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number" id="today-apps">0</div>
+            <div class="stat-label">ใบสมัครวันนี้</div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <input type="text" id="search" placeholder="🔍 ค้นหาด้วยชื่อ เบอร์โทร บริษัท หรือรุ่นเครื่อง...">
+          <a href="register.html" class="btn btn-primary">➕ เพิ่มใบสมัคร</a>
+        </div>
+
+        <div id="apps-container" class="applications-grid">
+          <!-- รายการใบสมัครจะถูกแสดงที่นี่โดย JavaScript -->
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>© 2026 CustomerApp — ระบบบันทึกใบสมัครลูกค้า</p>
+    </footer>
+  </div>
+
+  <!-- หน้าจอล็อก: ปิดทั้งหน้าไว้จนกว่าจะใส่รหัสผ่านถูก -->
+  <div id="admin-lock" class="admin-lock">
+    <div class="admin-lock-box">
+      <div class="admin-lock-icon">🔒</div>
+      <h2>พื้นที่แอดมิน</h2>
+      <p>กรุณาใส่รหัสผ่านเพื่อเข้าถึงข้อมูลลูกค้า</p>
+      <input type="password" id="admin-password" class="form-control" placeholder="••••••" maxlength="20" autocomplete="off">
+      <div class="error" id="admin-password-error"></div>
+      <button id="admin-unlock" class="btn btn-primary">🔓 เข้าสู่ระบบ</button>
+      <a href="register.html" class="admin-lock-back">← กลับไปยังหน้ากรอกข้อมูล</a>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
