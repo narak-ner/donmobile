@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CustomerApp - กรอกใบสมัครลูกค้า</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">📱 CustomerApp</div>
+      <ul class="nav-links">
+        <li><a href="register.html" class="active">กรอกใบสมัคร</a></li>
+        <li><a href="admin.html">แอดมินจัดการข้อมูล</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h1 class="page-title">กรอกข้อมูลลูกค้า</h1>
+    <p class="page-subtitle">กรอกให้ครบทุกช่องตามตัวอย่าง เพื่อให้ใบสมัครสมบูรณ์</p>
+
+    <section class="card">
+      <form id="application-form" novalidate>
+        <!-- ข้อมูลลูกค้า -->
+        <div class="section-title">👤 ข้อมูลลูกค้า</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="fullName">ชื่อ-สกุล *</label>
+            <input type="text" id="fullName" placeholder="เช่น สมชาย ใจดี" autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="nickname">ชื่อเล่น</label>
+            <input type="text" id="nickname" placeholder="เช่น ชาย">
+          </div>
+          <div class="form-group">
+            <label for="phone">เบอร์โทรลูกค้า *</label>
+            <input type="tel" id="phone" placeholder="เช่น 081-234-5678" autocomplete="tel">
+          </div>
+          <div class="form-group">
+            <label for="lineId">ไอดีไลน์</label>
+            <input type="text" id="lineId" placeholder="เช่น somchai.j">
+          </div>
+          <div class="form-group full-width">
+            <label for="address">ที่อยู่ปัจจุบันของลูกค้า *</label>
+            <textarea id="address" placeholder="เช่น 123/45 หมู่ 6 ต.บางรัก อ.เมือง จ.กรุงเทพฯ 10500" autocomplete="street-address"></textarea>
+          </div>
+        </div>
+
+        <!-- ข้อมูลที่ทำงาน -->
+        <div class="section-title">💼 ข้อมูลที่ทำงาน</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="companyName">ชื่อบริษัท/ร้าน *</label>
+            <input type="text" id="companyName" placeholder="เช่น บริษัท เอบีซี เทรดดิ้ง จำกัด">
+          </div>
+          <div class="form-group">
+            <label for="companyPhone">เบอร์โทรติดต่อที่ทำงาน</label>
+            <input type="tel" id="companyPhone" placeholder="เช่น 02-123-4567">
+          </div>
+          <div class="form-group full-width">
+            <label for="companyAddress">ที่อยู่บริษัท</label>
+            <textarea id="companyAddress" placeholder="เช่น 88/9 ถ.สุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="position">ตำแหน่ง / หน้าที่ *</label>
+            <input type="text" id="position" placeholder="เช่น พนักงานขาย">
+          </div>
+          <div class="form-group">
+            <label for="salary">เงินเดือน *</label>
+            <input type="text" id="salary" placeholder="เช่น 18,000 บาท">
+          </div>
+          <div class="form-group">
+            <label for="workExperience">อายุการทำงาน</label>
+            <input type="text" id="workExperience" placeholder="เช่น 3 ปี">
+          </div>
+        </div>
+
+        <!-- อ้างอิง 1 -->
+        <div class="section-title">👥 บุคคลอ้างอิง 1</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="ref1Name">ชื่อ-สกุล *</label>
+            <input type="text" id="ref1Name" placeholder="เช่น สมปอง ใจดี">
+          </div>
+          <div class="form-group">
+            <label for="ref1Nickname">ชื่อเล่น</label>
+            <input type="text" id="ref1Nickname" placeholder="เช่น ปอง">
+          </div>
+          <div class="form-group">
+            <label for="ref1Phone">เบอร์โทร *</label>
+            <input type="tel" id="ref1Phone" placeholder="เช่น 086-111-2222">
+          </div>
+          <div class="form-group">
+            <label for="ref1Job">อาชีพ</label>
+            <input type="text" id="ref1Job" placeholder="เช่น ค้าขาย">
+          </div>
+          <div class="form-group">
+            <label for="ref1Relation">ความสัมพันธ์ *</label>
+            <input type="text" id="ref1Relation" placeholder="เช่น พี่ชาย">
+          </div>
+        </div>
+
+        <!-- อ้างอิง 2 -->
+        <div class="section-title">👥 บุคคลอ้างอิง 2</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="ref2Name">ชื่อ-สกุล *</label>
+            <input type="text" id="ref2Name" placeholder="เช่น วิชัย มั่นคง">
+          </div>
+          <div class="form-group">
+            <label for="ref2Nickname">ชื่อเล่น</label>
+            <input type="text" id="ref2Nickname" placeholder="เช่น ชัย">
+          </div>
+          <div class="form-group">
+            <label for="ref2Phone">เบอร์โทร *</label>
+            <input type="tel" id="ref2Phone" placeholder="เช่น 087-333-4444">
+          </div>
+          <div class="form-group">
+            <label for="ref2Job">อาชีพ</label>
+            <input type="text" id="ref2Job" placeholder="เช่น พนักงานบริษัท">
+          </div>
+          <div class="form-group">
+            <label for="ref2Relation">ความสัมพันธ์ *</label>
+            <input type="text" id="ref2Relation" placeholder="เช่น เพื่อน">
+          </div>
+        </div>
+
+        <!-- คนค้ำ -->
+        <div class="section-title">🛡️ คนค้ำ</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="guarantorName">ชื่อ-สกุล *</label>
+            <input type="text" id="guarantorName" placeholder="เช่น สมหญิง ใจดี">
+          </div>
+          <div class="form-group">
+            <label for="guarantorNickname">ชื่อเล่น</label>
+            <input type="text" id="guarantorNickname" placeholder="เช่น หญิง">
+          </div>
+          <div class="form-group">
+            <label for="guarantorPhone">เบอร์โทร *</label>
+            <input type="tel" id="guarantorPhone" placeholder="เช่น 089-555-6666">
+          </div>
+          <div class="form-group">
+            <label for="guarantorJob">อาชีพ</label>
+            <input type="text" id="guarantorJob" placeholder="เช่น ข้าราชการ">
+          </div>
+          <div class="form-group">
+            <label for="guarantorIncome">รายได้ *</label>
+            <input type="text" id="guarantorIncome" placeholder="เช่น 25,000 บาท/เดือน">
+          </div>
+          <div class="form-group">
+            <label for="guarantorRelation">ความสัมพันธ์ *</label>
+            <input type="text" id="guarantorRelation" placeholder="เช่น มารดา">
+          </div>
+        </div>
+
+        <!-- โซเชียลมีเดีย -->
+        <div class="section-title">🌐 โซเชียลมีเดีย</div>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="socialLinks">แนบ Link Facebook / TikTok / IG</label>
+            <input type="url" id="socialLinks" placeholder="เช่น https://www.facebook.com/somchai.jaidee">
+          </div>
+        </div>
+
+        <!-- ข้อมูลเครื่อง & การผ่อน : แอดมินกรอกเท่านั้น -->
+        <div id="admin-device-section" class="admin-only">
+          <div class="section-title">
+            📱 ข้อมูลเครื่อง &amp; การผ่อน
+            <span class="admin-badge">แอดมินกรอก</span>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="deviceModel">รุ่น &amp; ความจุ</label>
+              <input type="text" id="deviceModel" placeholder="เช่น iPhone 15 Pro 256GB">
+            </div>
+            <div class="form-group">
+              <label for="deviceColor">สีเครื่อง</label>
+              <input type="text" id="deviceColor" placeholder="เช่น Natural Titanium">
+            </div>
+            <div class="form-group">
+              <label for="deviceCondition">มือ 1 &amp; 2 (โปรดระบุ)</label>
+              <select id="deviceCondition">
+                <option value="">-- เลือก --</option>
+                <option value="มือ 1">มือ 1</option>
+                <option value="มือ 2">มือ 2</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="devicePrice">ราคาเครื่อง</label>
+              <input type="text" id="devicePrice" placeholder="เช่น 25,000 บาท">
+            </div>
+            <div class="form-group">
+              <label for="downPayment">เงินดาวน์</label>
+              <input type="text" id="downPayment" placeholder="เช่น 5,000 บาท">
+            </div>
+            <div class="form-group">
+              <label for="installmentRate">เรทผ่อน/เดือน</label>
+              <input type="text" id="installmentRate" placeholder="เช่น 2,500 บาท">
+            </div>
+            <div class="form-group">
+              <label for="installmentMonths">จำนวนงวด</label>
+              <input type="text" id="installmentMonths" placeholder="เช่น 12 งวด">
+            </div>
+            <div class="form-group">
+              <label for="shopAmount">ยอดที่ร้านจัด &amp; เรท %</label>
+              <input type="text" id="shopAmount" placeholder="เช่น 25,000 บาท / 5%">
+            </div>
+            <div class="form-group">
+              <label for="simProvider">ลูกค้าใช้ซิมอะไร</label>
+              <input type="text" id="simProvider" placeholder="เช่น AIS, True, DTAC">
+            </div>
+          </div>
+        </div>
+
+        <!-- ข้อความแจ้งสำหรับผู้กรอกทั่วไป -->
+        <div id="device-pending-note" class="admin-pending-note">
+          ℹ️ ข้อมูลเครื่อง ราคา เงินดาวน์ และจำนวนงวด จะถูกกรอกโดยแอดมินภายหลัง
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">💾 บันทึกใบสมัคร</button>
+          <button type="reset" class="btn btn-secondary">🔄 ล้างฟอร์ม</button>
+          <a href="admin.html" id="cancel-edit" class="btn btn-secondary" style="display:none;">↩️ ยกเลิกการแก้ไข</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 CustomerApp — ระบบบันทึกใบสมัครลูกค้า</p>
+  </footer>
+
+  <script src="js/samples.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
