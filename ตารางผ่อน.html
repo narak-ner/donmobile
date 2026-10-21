@@ -1,7 +1,31 @@
 <!DOCTYPE html>
 <!-- saved from url=(0029)https://donmobile.vercel.app/ -->
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style id="pageCss">@page{size:210mm 297mm}
-.paper{width:210mm;min-height:277mm}</style></head><body>
+<html data-theme="light"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style id="pageCss">@page{size:210mm 297mm}
+.paper{width:210mm;min-height:277mm}</style>
+<style>
+#grid tbody tr{cursor:grab}
+#grid tbody tr:active{cursor:grabbing}
+#grid tbody tr.row-dragging{opacity:.35}
+#grid tbody tr.drag-above{box-shadow:inset 0 2px 0 var(--accent)}
+#grid tbody tr.drag-below{box-shadow:inset 0 -2px 0 var(--accent)}
+.save-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border-radius:10px}
+.save-opt .opt-ic{font-size:24px;line-height:1;flex:0 0 auto}
+.save-opt .opt-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.save-opt .opt-tx small{color:var(--ink-3);font-size:12px}
+::selection{background:color-mix(in srgb, var(--bg-base) 55%, white);color:var(--ink)}
+.bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--ground);pointer-events:none}
+.bgfx span{position:absolute;border-radius:50%;filter:blur(52px);opacity:.95;will-change:transform;background:var(--brand-wash)}
+.bgfx span:nth-child(1){top:-15vmax;left:-10vmax;width:55vmax;height:55vmax;background:radial-gradient(circle, color-mix(in srgb, var(--bg-base) 87%, white) 0%, transparent 70%);animation:bgdrift1 26s ease-in-out infinite alternate}
+.bgfx span:nth-child(2){bottom:-18vmax;right:-12vmax;width:60vmax;height:60vmax;background:radial-gradient(circle, color-mix(in srgb, var(--bg-base) 73%, white) 0%, transparent 70%);animation:bgdrift2 32s ease-in-out infinite alternate}
+.bgfx span:nth-child(3){top:28%;left:52%;width:42vmax;height:42vmax;background:radial-gradient(circle, color-mix(in srgb, var(--bg-base) 63%, white) 0%, transparent 67%);animation:bgdrift3 22s ease-in-out infinite alternate}
+.bgfx span:nth-child(4){top:52%;left:4%;width:36vmax;height:36vmax;background:radial-gradient(circle, color-mix(in srgb, var(--bg-base) 67%, white) 0%, transparent 67%);animation:bgdrift4 28s ease-in-out infinite alternate}
+@keyframes bgdrift1{from{transform:translate(0,0) scale(1)}to{transform:translate(14vmax,10vmax) scale(1.15)}}
+@keyframes bgdrift2{from{transform:translate(0,0) scale(1)}to{transform:translate(-12vmax,-14vmax) scale(1.2)}}
+@keyframes bgdrift3{from{transform:translate(0,0)}to{transform:translate(-10vmax,12vmax) scale(1.1)}}
+@keyframes bgdrift4{from{transform:translate(0,0)}to{transform:translate(12vmax,-8vmax) scale(1.18)}}
+.bgpicks{display:flex;gap:8px;flex-wrap:wrap}
+@media print{.bgfx{display:none!important}}
+</style></head><body>
 <title>ตารางผ่อน ดลโมบาย</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
@@ -266,12 +290,13 @@
   --brand:#2C71B8;
   --brand-deep:#1B4E85;
   --brand-wash:#EAF1F9;
+  --bg-base:#2C71B8;
   --ink:#15202E;
   --ink-2:#44566B;
   --ink-3:#7A8CA0;
   --ground:#F2F5F9;
-  --surface:#FFFFFF;
-  --surface-2:#F7FAFD;
+  --surface:color-mix(in srgb, var(--bg-base) 13%, white);
+  --surface-2:color-mix(in srgb, var(--bg-base) 21%, white);
   --line:#DDE5EE;
   --line-strong:#C3D0DE;
   --accent:#D9822B;
@@ -281,7 +306,7 @@
   --danger-wash:#FBEDEC;
   --shadow:0 1px 2px rgba(21,32,46,.06), 0 8px 24px -12px rgba(21,32,46,.18);
   --radius:10px;
-  color-scheme:light dark;
+  color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -316,18 +341,18 @@
 
 *{box-sizing:border-box}
 body{
-  margin:0; background:var(--ground); color:var(--ink);
+  margin:0; background:transparent; color:var(--ink);
   font-family:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:14px; line-height:1.55; -webkit-text-size-adjust:100%;
 }
 h1,h2,h3,.display{font-family:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;text-wrap:balance}
 button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+:focus-visible{outline:2px solid var(--bg-base);outline-offset:2px;border-radius:4px}
 
 /* ---------- top bar ---------- */
 .topbar{
   position:sticky; top:env(safe-area-inset-top,0px); z-index:40;
-  background:var(--surface); border-bottom:1px solid var(--line);
+  background:color-mix(in srgb, var(--bg-base) 31%, white); border-bottom:1px solid var(--line);
 }
 .topbar-in{
   max-width:1400px;margin:0 auto;padding-block:10px;padding-inline:16px;
@@ -350,7 +375,7 @@ button,input,select,textarea{font:inherit;color:inherit}
   font-weight:500;font-size:13px;transition:background .12s,border-color .12s;
 }
 .btn:hover{background:var(--surface-2);border-color:var(--brand)}
-.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary{background:color-mix(in srgb, var(--brand) 55%, #15202E);border-color:color-mix(in srgb, var(--brand) 55%, #15202E);color:#fff}
 .btn.primary:hover{background:var(--brand-deep);border-color:var(--brand-deep)}
 .btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
 .btn.ghost:hover{background:var(--surface-2);color:var(--ink)}
@@ -378,7 +403,7 @@ a.btn{text-decoration:none}
 .tab:hover .tabx,.tab[aria-selected="true"] .tabx{opacity:.75}
 .tabx:hover{opacity:1;background:var(--danger-wash);color:var(--danger)}
 .tab[aria-selected="true"] .tabx:hover{background:rgba(255,255,255,.24);color:#fff}
-.tab[aria-selected="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.tab[aria-selected="true"]{background:color-mix(in srgb, var(--bg-base) 40%, #15202E);border-color:color-mix(in srgb, var(--bg-base) 40%, #15202E);color:#fff}
 .tab .n{font-family:"Bai Jamjuree",sans-serif;font-weight:600;font-size:13.5px;white-space:nowrap}
 .tab .d{font-size:11px;opacity:.75;white-space:nowrap;font-variant-numeric:tabular-nums}
 
@@ -410,7 +435,7 @@ a.btn{text-decoration:none}
 .hint{font-size:11.5px;color:var(--ink-3)}
 
 .check{display:inline-flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;padding:4px 0}
-.check input{width:15px;height:15px;accent-color:var(--brand);margin:0}
+.check input{width:15px;height:15px;accent-color:var(--bg-base);margin:0}
 
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chip{
@@ -443,11 +468,11 @@ a.btn{text-decoration:none}
 
 /* ---------- data grid ---------- */
 .gridwrap{overflow-x:auto;border-top:1px solid var(--line)}
-table.grid{border-collapse:separate;border-spacing:0;width:100%;min-width:900px}
+table.grid{border-collapse:separate;border-spacing:0;width:100%;min-width:0;max-width:100%}
 table.grid th,table.grid td{border-bottom:1px solid var(--line);padding:0;text-align:left}
 table.grid thead th{
   position:sticky;top:0;z-index:2;background:var(--surface-2);
-  padding:9px 10px;font-size:11.5px;font-weight:700;color:var(--ink-2);
+  padding:9px 7px;font-size:11.5px;font-weight:700;color:var(--ink-2);
   letter-spacing:.02em;white-space:nowrap;border-bottom:1px solid var(--line-strong);
 }
 table.grid thead th .sub{display:block;font-weight:500;font-size:10.5px;color:var(--ink-3);letter-spacing:.04em}
@@ -455,7 +480,7 @@ th.g-internal,td.g-internal{background:var(--accent-wash)}
 :root[data-theme="dark"] th.g-internal, :root[data-theme="dark"] td.g-internal{background:var(--accent-wash)}
 th.g-tenor,td.g-tenor{background:var(--brand-wash)}
 table.grid td input{
-  width:100%;border:0;background:transparent;padding:8px 10px;
+  width:8ch;max-width:12ch;border:0;background:transparent;padding:8px 6px;
   font-variant-numeric:tabular-nums;
 }
 table.grid td.sel select{
@@ -464,17 +489,17 @@ table.grid td.sel select{
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'><path d='M1 1l4 4 4-4' fill='none' stroke='%238A9AAB' stroke-width='1.6' stroke-linecap='round'/></svg>");
   background-repeat:no-repeat;background-position:right 8px center;
 }
-table.grid td.sel select:focus{outline:2px solid var(--brand);outline-offset:-2px;background-color:var(--surface)}
+table.grid td.sel select:focus{outline:2px solid var(--bg-base);outline-offset:-2px;background-color:var(--surface)}
 table.grid select option,table.grid select optgroup{background:var(--surface);color:var(--ink)}
 table.grid td.txt input{font-variant-numeric:normal}
-table.grid td input:focus{outline:2px solid var(--brand);outline-offset:-2px;background:var(--surface)}
-table.grid td.num input{text-align:right}
+table.grid td input:focus{outline:2px solid var(--bg-base);outline-offset:-2px;background:var(--surface)}
+table.grid td.num input{text-align:left;width:8ch;min-width:3ch;max-width:11ch}
 table.grid tbody tr:hover td{box-shadow:inset 0 0 0 9999px rgba(44,113,184,.035)}
 td.rowtools{white-space:nowrap;padding:0 8px}
-td.calc{padding:8px 16px 8px 10px;text-align:right;color:var(--ink-3);font-variant-numeric:tabular-nums;font-size:13px}
-table.grid td.txt input{min-width:130px}
-table.grid td.sel-model select{min-width:178px}
-table.grid td.sel-cap select{min-width:104px}
+td.calc{padding:8px 16px 8px 10px;text-align:left;color:var(--ink-3);font-variant-numeric:tabular-nums;font-size:13px}
+table.grid td.txt input{min-width:100px}
+table.grid td.sel-model select{min-width:0;width:100%}
+table.grid td.sel-cap select{min-width:0;width:100%}
 .colmove{display:inline-flex;align-items:center;gap:1px}
 .colmove .colname{white-space:nowrap}
 .movebtn{
@@ -527,12 +552,12 @@ table.grid thead th.drag-right{box-shadow:inset -3px 0 0 var(--brand)}
 table.paper-table{width:100%;border-collapse:collapse;margin-top:7px;font-variant-numeric:tabular-nums}
 table.paper-table th{
   background:var(--pd);color:#fff;font-weight:600;font-size:9.5pt;
-  padding:5px 6px;border:.6px solid var(--pd);text-align:right;white-space:nowrap;
+  padding:5px 6px;border:.6px solid var(--pd);text-align:left;white-space:nowrap;
 }
 table.paper-table th.l{text-align:left}
 table.paper-table th .sub{display:block;font-weight:400;font-size:7.5pt;opacity:.85}
 table.paper-table td{
-  padding:4.5px 6px;border:.6px solid #C3D0DE;font-size:10pt;text-align:right;white-space:nowrap;
+  padding:4.5px 6px;border:.6px solid #C3D0DE;font-size:10pt;text-align:left;white-space:nowrap;
 }
 table.paper-table td.l{text-align:left;font-weight:600}
 table.paper-table tbody tr:nth-child(even) td{background:var(--pwash)}
@@ -637,23 +662,17 @@ table.paper-table td.dash{color:#9AA9B8}
   .f input,.f select,.f textarea,.search input,.pick-search,
   table.grid td input,table.grid td select,.modal-card textarea{font-size:16px}
 
-  .gridwrap{overflow:visible;border-top:0}
-  table.grid{min-width:0;display:block}
-  table.grid thead{display:none}
-  table.grid tbody{display:block;padding:10px 10px 0}
-  table.grid tr{
-    display:block;position:relative;margin-bottom:10px;padding:8px 10px 6px;
-    background:var(--surface-2);border:1px solid var(--line);border-radius:12px;
-  }
-  table.grid td{display:flex;align-items:center;gap:10px;border:0;padding:5px 0;min-height:34px}
-  table.grid td:not([data-label])::before{content:none}
-  table.grid td[data-label]::before{
-    content:attr(data-label);flex:0 0 92px;font-size:12px;font-weight:600;color:var(--ink-2);
-  }
-  table.grid td input,table.grid td select{flex:1 1 auto;min-width:0;width:auto}
-  table.grid td.num input{text-align:right}
-  table.grid td.calc{font-size:15px;font-weight:700;color:var(--ink)}
-  td.rowtools{justify-content:flex-end;gap:6px;margin-top:6px;padding:8px 0 2px;border-top:1px dashed var(--line)}
+  .gridwrap{overflow-x:auto;border-top:1px solid var(--line);-webkit-overflow-scrolling:touch}
+  table.grid{min-width:0;width:auto;display:table}
+  table.grid thead{display:table-header-group}
+  table.grid tbody{display:table-row-group;padding:0}
+  table.grid tr{display:table-row;position:static;margin:0;padding:0;background:none;border:0;border-radius:0}
+  table.grid td{display:table-cell;gap:0;border-bottom:1px solid var(--line);padding:0;min-height:0}
+  table.grid td[data-label]::before{content:none}
+  table.grid td input,table.grid td select{min-width:0;width:100%}
+  table.grid td.num input{text-align:left;width:8ch;min-width:3ch;max-width:11ch}
+  table.grid td.calc{font-size:13px;font-weight:600;color:var(--ink)}
+  td.rowtools{display:table-cell;justify-content:initial;gap:0;margin-top:0;padding:2px 4px;border-top:0}
 
   .modal{align-items:flex-end;padding:0}
   .modal-card{width:100%!important;max-width:none!important;border-radius:16px 16px 0 0;max-height:94vh}
@@ -677,7 +696,17 @@ table.paper-table td.dash{color:#9AA9B8}
   .pick-search{margin-bottom:8px}
 
   #printCols{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px}
-  #printCols .check{min-height:40px}
+    #printCols .check{min-height:40px}
+
+  /* มือถือ: ตารางเลื่อนซ้าย-ขวา — เรียบ หัวตารางติดบน แตะง่าย กัน iOS ซูม */
+  .tablebar .search{flex:1 1 100%}
+  #grid thead th{padding:8px 6px;font-size:10.5px;white-space:normal;line-height:1.25}
+  #grid thead th .sub{font-size:9px}
+  #grid td input,#grid td select{min-height:42px;padding:8px 6px;font-size:16px;box-sizing:border-box}
+  #grid td select{font-size:14px}
+  #grid td,#grid th{border-right:1px solid var(--line)}
+  #grid td.rowtools{min-width:76px}
+  #grid .rowbtn{min-width:36px;min-height:36px}
 }
 
 @media screen and (max-width:640px){
@@ -711,6 +740,8 @@ table.paper-table td.dash{color:#9AA9B8}
 }
 </style>
 
+<div class="bgfx" id="bgfx"><span></span><span></span><span></span><span></span></div>
+
 <div class="app" id="app">
   <div class="topbar">
     <div class="topbar-in">
@@ -726,20 +757,13 @@ table.paper-table td.dash{color:#9AA9B8}
         หน้าหลัก
       </a>
       <div class="spacer"></div>
-      <button class="btn ghost morebtn" id="btnMore" type="button" aria-expanded="false" aria-controls="moreGroup" title="เมนูเพิ่มเติม" aria-label="เมนูเพิ่มเติม">⋯</button>
-      <div class="bar-actions">
-        <div class="more-group" id="moreGroup">
-          <button class="btn ghost" id="btnShop" type="button">ข้อมูลร้าน</button>
-          <button class="btn ghost" id="btnData" type="button">สำรอง / กู้คืนข้อมูล</button>
-          <label class="check" title="ใช้กับการดูตัวอย่าง การพิมพ์ และการบันทึก PDF"><input type="checkbox" id="prevAll"> ทุกตาราง</label>
-          <label class="fld-inline"><span>กระดาษ</span>
-            <select class="btn paper-sel" id="paperSel" title="ตั้งค่ากระดาษ / แนวกระดาษ" aria-label="ตั้งค่ากระดาษ"><option value="A4-portrait">A4 · แนวตั้ง</option><option value="A4-landscape">A4 · แนวนอน</option><option value="A5-portrait">A5 · แนวตั้ง</option><option value="A5-landscape">A5 · แนวนอน</option><option value="Letter-portrait">Letter · แนวตั้ง</option><option value="Letter-landscape">Letter · แนวนอน</option></select>
-          </label>
-        </div>
+            <div class="bar-actions">
+        
+        <button class="btn" id="btnBg" type="button" title="เปลี่ยนสีพื้นหลังเว็บ">🎨 พื้นหลัง</button>
         <div class="main-group">
           <button class="btn" id="btnPreview" type="button">ดูตัวอย่าง</button>
           <button class="btn" id="btnPrint" type="button">พิมพ์</button>
-          <button class="btn primary" id="btnPdf" type="button">บันทึก PDF</button>
+          <button class="btn primary" id="btnPdf" type="button" title="บันทึกเป็น PDF / PNG / Excel">บันทึกไฟล์</button>
         </div>
       </div>
     </div>
@@ -785,10 +809,6 @@ table.paper-table td.dash{color:#9AA9B8}
             <label for="m-date">วันที่อัปเดต</label>
             <input id="m-date" type="date" readonly="" title="อัปเดตอัตโนมัติทุกวัน" style="background:var(--surface-2);color:var(--ink-3);cursor:default">
           </div>
-          <div class="f">
-            <label for="m-by">ผู้อัปเดต</label>
-            <input id="m-by" placeholder="ชื่อผู้กรอก">
-          </div>
         </div>
 
         <div class="fields" style="margin-top:14px">
@@ -823,7 +843,8 @@ table.paper-table td.dash{color:#9AA9B8}
         <span class="eyebrow">ราคาแต่ละรุ่น</span>
         <div class="spacer"></div>
         <div class="search"><input id="q" placeholder="ค้นหารุ่น…" aria-label="ค้นหารุ่น"></div>
-        <button class="btn sm" id="btnAddRow" type="button">+ เพิ่มรุ่น</button>
+        <button class="btn sm primary" id="btnFetchSheet" type="button" title="ดึงข้อมูลจาก Google Sheets">⇩ ดึงข้อมูลจากชีต</button>
+        <button class="btn sm" id="btnAddRow" type="button" title="เพิ่มรุ่นชั่วคราวในแอป — ไม่รวมใน Google Sheets และจะหายไปเมื่อดึงข้อมูลจากชีตใหม่">+ เพิ่มรุ่นชั่วคราว</button>
       </div>
       <div class="gridwrap"><table class="grid" id="grid"><thead><tr><th class="" draggable="true" data-drag="model">
       <span class="colmove">
@@ -1070,32 +1091,12 @@ table.paper-table td.dash{color:#9AA9B8}
       <div class="panel-body" style="border-top:1px solid var(--line)">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
           <span class="eyebrow">คอลัมน์ที่จะแสดงบนใบพิมพ์</span>
-          <div class="spacer"></div>
-          <button class="btn sm" id="btnResetOrder" type="button">คืนลำดับคอลัมน์เดิม</button>
         </div>
         <div id="printCols"><label class="check"><input type="checkbox" id="pc-sysDown" checked=""> ดาวน์ระบบ</label><label class="check"><input type="checkbox" id="pc-down" checked=""> ดาวน์หน้าร้าน</label><label class="check"><input type="checkbox" id="pc-finance" checked=""> ยอดจัด</label><label class="check"><input type="checkbox" id="pc-entitle" checked=""> ยอดสุทธิ</label><label class="check"><input type="checkbox" id="pc-cash" checked=""> ราคาเงินสด</label><label class="check"><input type="checkbox" id="pc-total"> ยอดรวมที่จ่ายทั้งหมด</label></div>
         <p class="hint" style="margin:10px 0 0">
-          สลับตำแหน่งคอลัมน์ด้วยปุ่ม <b>‹ ›</b> บนหัวตาราง — ลำดับที่จัดไว้จะใช้กับใบพิมพ์ด้วย และแยกกันของแต่ละตาราง<br>
+          ลำดับคอลัมน์เรียงตามชีต Google Sheets เสมอ<br>
           ช่องพื้นหลังส้มคือ <b>ข้อมูลต้นทุนภายใน</b> — ปิดไว้ตอนพิมพ์เพื่อไม่ให้ลูกค้าเห็น
         </p>
-      </div>
-    </section>
-
-    <!-- conditions -->
-    <section class="panel">
-      <div class="panel-head"><span class="eyebrow">ท้ายใบพิมพ์</span></div>
-      <div class="panel-body">
-        <div class="fields">
-          <div class="f" style="grid-column:span 2;min-width:260px">
-            <label for="m-cond">เงื่อนไข / เอกสารที่ใช้ (บรรทัดละ 1 ข้อ)</label>
-            <textarea id="m-cond" placeholder="ใช้บัตรประชาชนใบเดียว ไม่ต้องมีคนค้ำ"></textarea>
-          </div>
-          <div class="f">
-            <label for="m-note">หมายเหตุเฉพาะตารางนี้</label>
-            <textarea id="m-note" placeholder="เช่น สีและความจุตามสต๊อกที่มี"></textarea>
-          </div>
-        </div>
-        <label class="check" style="margin-top:8px"><input type="checkbox" id="m-sign"> แสดงช่องลงชื่อพนักงาน / ผู้อนุมัติ บนใบพิมพ์</label>
       </div>
     </section>
   </div>
@@ -1115,13 +1116,7 @@ table.paper-table td.dash{color:#9AA9B8}
       </div>
     </div>
     <table class="paper-table"><thead><tr><th class="l">รุ่น</th><th class="l">ความจุ</th><th class="">ยอดจัด</th><th class="">ดาวน์ระบบ</th><th class="">ดาวน์<span class="sub">จ่ายวันรับเครื่อง</span></th><th class="">12 เดือน<span class="sub">บาท / เดือน</span></th><th class="">15 เดือน<span class="sub">บาท / เดือน</span></th><th class="">18 เดือน<span class="sub">บาท / เดือน</span></th><th class="">ยอดสุทธิ</th><th class="">ราคาเงินสด</th></tr></thead><tbody><tr><td class="l">iPhone 12</td><td class="l">64GB</td><td class=" ">9,000</td><td class=" ">2,250</td><td class="hero ">0</td><td class=" ">1,586</td><td class=" ">1</td><td class=" ">1</td><td class=" ">1</td><td class=" ">1</td></tr><tr><td class="l">iPhone 12</td><td class="l">128GB</td><td class=" ">10,000</td><td class=" ">2,500</td><td class="hero ">0</td><td class=" ">1,500</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 12 Pro</td><td class="l">128GB</td><td class=" ">12,500</td><td class=" ">3,125</td><td class="hero ">0</td><td class=" ">1,875</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 12 Pro</td><td class="l">256GB</td><td class=" ">13,500</td><td class=" ">3,375</td><td class="hero ">0</td><td class=" ">2,025</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 12 Pro Max</td><td class="l">128GB</td><td class=" ">15,000</td><td class=" ">3,750</td><td class="hero ">0</td><td class=" ">2,205</td><td class=" ">2,025</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 12 Pro Max</td><td class="l">256GB</td><td class=" ">16,000</td><td class=" ">4,000</td><td class="hero ">0</td><td class=" ">2,400</td><td class=" ">2,160</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 13</td><td class="l">128GB</td><td class=" ">12,500</td><td class=" ">3,125</td><td class="hero ">1,590</td><td class=" ">2,100</td><td class=" ">1,890</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 13 Pro</td><td class="l">128GB</td><td class=" ">15,000</td><td class=" ">3,750</td><td class="hero ">2,490</td><td class=" ">2,400</td><td class=" ">2,160</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 13 Pro</td><td class="l">256GB</td><td class=" ">16,000</td><td class=" ">4,000</td><td class="hero ">2,490</td><td class=" ">2,550</td><td class=" ">2,295</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 13 Pro Max</td><td class="l">128GB</td><td class=" ">17,500</td><td class=" ">4,375</td><td class="hero ">2,490</td><td class=" ">2,550</td><td class=" ">2,295</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 13 Pro Max</td><td class="l">256GB</td><td class=" ">18,500</td><td class=" ">4,625</td><td class="hero ">2,490</td><td class=" ">2,700</td><td class=" ">2,430</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 14</td><td class="l">128GB</td><td class=" ">14,000</td><td class=" ">3,500</td><td class="hero ">1,990</td><td class=" ">2,475</td><td class=" ">2,228</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 14 Plus</td><td class="l">128GB</td><td class=" ">16,000</td><td class=" ">4,000</td><td class="hero ">1,990</td><td class=" ">2,625</td><td class=" ">2,363</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 14 Pro</td><td class="l">128GB</td><td class=" ">19,500</td><td class=" ">4,875</td><td class="hero ">2,990</td><td class=" ">2,956</td><td class=" ">2,688</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 14 Pro</td><td class="l">256GB</td><td class=" ">20,500</td><td class=" ">5,125</td><td class="hero ">2,999</td><td class=" ">3,094</td><td class=" ">2,813</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 14 Pro Max</td><td class="l">128GB</td><td class=" ">22,500</td><td class=" ">5,625</td><td class="hero ">2,990</td><td class=" ">3,300</td><td class=" ">3,000</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 14 Pro Max</td><td class="l">256GB</td><td class=" ">23,500</td><td class=" ">5,875</td><td class="hero ">2,990</td><td class=" ">3,438</td><td class=" ">3,125</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 15</td><td class="l">128GB</td><td class=" ">19,000</td><td class=" ">4,750</td><td class="hero ">1,990</td><td class=" ">3,000</td><td class=" ">2,700</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 15</td><td class="l">256GB</td><td class=" ">21,000</td><td class=" ">5,250</td><td class="hero ">1,990</td><td class=" ">2,888</td><td class=" ">2,625</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 15 Plus</td><td class="l">128GB</td><td class=" ">21,000</td><td class=" ">5,250</td><td class="hero ">2,490</td><td class=" ">3,094</td><td class=" ">2,813</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 15 Pro</td><td class="l">128GB</td><td class=" ">23,000</td><td class=" ">5,750</td><td class="hero ">2,990</td><td class=" ">3,300</td><td class=" ">3,000</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 15 Pro</td><td class="l">256GB</td><td class=" ">24,000</td><td class=" ">6,000</td><td class="hero ">2,990</td><td class=" ">3,575</td><td class=" ">3,250</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 15 Pro Max</td><td class="l">256GB</td><td class=" ">30,000</td><td class=" ">7,500</td><td class="hero ">3,990</td><td class=" ">4,125</td><td class=" ">3,750</td><td class=" ">3,375</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 16</td><td class="l">128GB</td><td class=" ">22,000</td><td class=" ">5,500</td><td class="hero ">3,990</td><td class=" ">3,163</td><td class=" ">2,875</td><td class=" ">2,588</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 16</td><td class="l">256GB</td><td class=" ">23,000</td><td class=" ">5,750</td><td class="hero ">3,990</td><td class=" ">3,300</td><td class=" ">3,000</td><td class=" dash">—</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 16 Plus</td><td class="l">128GB</td><td class=" ">27,000</td><td class=" ">6,750</td><td class="hero ">3,990</td><td class=" ">3,713</td><td class=" ">3,375</td><td class=" ">3,038</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 16 Plus</td><td class="l">256GB</td><td class=" ">29,000</td><td class=" ">7,250</td><td class="hero ">3,990</td><td class=" ">3,850</td><td class=" ">3,500</td><td class=" ">3,150</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 16 Pro</td><td class="l">128GB</td><td class=" ">30,000</td><td class=" ">7,500</td><td class="hero ">4,990</td><td class=" ">3,988</td><td class=" ">3,625</td><td class=" ">3,263</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 16 Pro</td><td class="l">256GB</td><td class=" ">33,000</td><td class=" ">8,250</td><td class="hero ">4,990</td><td class=" ">4,125</td><td class=" ">3,750</td><td class=" ">3,375</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 16 Pro Max</td><td class="l">256GB</td><td class=" ">34,000</td><td class=" ">8,500</td><td class="hero ">4,990</td><td class=" ">4,500</td><td class=" ">3,960</td><td class=" ">3,750</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 16 Pro Max</td><td class="l">512GB</td><td class=" ">36,000</td><td class=" ">9,000</td><td class="hero ">4,990</td><td class=" ">4,750</td><td class=" ">4,180</td><td class=" ">3,958</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 16 Pro Max</td><td class="l">1TB</td><td class=" ">40,000</td><td class=" ">10,000</td><td class="hero ">5,990</td><td class=" ">5,200</td><td class=" ">4,501</td><td class=" ">4,350</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 17</td><td class="l">256GB</td><td class=" ">28,000</td><td class=" ">7,000</td><td class="hero ">4,990</td><td class=" ">3,850</td><td class=" ">3,500</td><td class=" ">3,150</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 17 Pro</td><td class="l">256GB</td><td class=" ">38,000</td><td class=" ">9,500</td><td class="hero ">6,990</td><td class=" ">5,000</td><td class=" ">4,400</td><td class=" ">4,167</td><td class=" dash">—</td><td class=" dash">—</td></tr><tr><td class="l">iPhone 17 Pro Max</td><td class="l">256GB</td><td class=" ">42,500</td><td class=" ">10,625</td><td class="hero ">4,990</td><td class=" ">5,344</td><td class=" ">4,500</td><td class=" ">4,313</td><td class=" dash">—</td><td class=" dash">—</td></tr></tbody></table>
-    <div class="paper-foot">
-      <div class="paper-cond">
-        <div class="ttl">เงื่อนไข</div><ul><li>.</li></ul>
-        <div style="margin-top:4px">.</div>
-      </div>
-      
-    </div>
+
   </section></div>
 
 <!-- shop modal -->
@@ -1140,6 +1135,49 @@ table.paper-table td.dash{color:#9AA9B8}
   </div>
 </div>
 
+<!-- save format -->
+<div class="modal" id="saveModal" hidden="">
+  <div class="modal-card" style="width:min(430px,100%)" role="dialog" aria-modal="true" aria-labelledby="saveTitle">
+    <header><h2 id="saveTitle">บันทึกไฟล์</h2><div class="spacer"></div><button class="btn ghost" data-close="saveModal" type="button">ปิด</button></header>
+    <div class="body" style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn save-opt" id="optPdf" type="button"><span class="opt-ic">📄</span><span class="opt-tx"><b>PDF รวมทุกตาราง</b><small>ไฟล์เดียว เก็บ/แชร์ง่าย เปิดอ่านได้ทุกเครื่อง</small></span></button>
+      <button class="btn save-opt" id="optPng" type="button"><span class="opt-ic">🖼️</span><span class="opt-tx"><b>PNG รูปภาพ</b><small>ตารางละ 1 รูป คมชัด ส่งไลน์ให้ลูกค้า</small></span></button>
+      <button class="btn save-opt" id="optXlsx" type="button"><span class="opt-ic">📊</span><span class="opt-tx"><b>Excel (.xlsx)</b><small>ทุกตารางในไฟล์เดียว เปิดแก้ใน Excel ได้</small></span></button>
+    </div>
+  </div>
+</div>
+
+<!-- notice -->
+<div class="modal" id="noticeModal" hidden="">
+  <div class="modal-card" style="width:min(480px,100%)" role="dialog" aria-modal="true" aria-labelledby="noticeTitle">
+    <header><h2 id="noticeTitle">📌 ข้อมูลอัปเดตจาก Google Sheet เท่านั้น</h2></header>
+    <div class="body">
+      <p style="margin:0;line-height:1.8;font-size:14px">
+        รุ่นที่เพิ่มมาบนหน้าเว็บทั้งหมดจะหายไป หลังจากกดปุ่ม <b>“⇩ ดึงข้อมูลจากชีต”</b>
+      </p>
+    </div>
+    <footer style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <label class="check"><input type="checkbox" id="noticeHide"> ไม่ต้องแสดงข้อความนี้อีก</label>
+      <button class="btn primary" id="noticeOk" type="button">เข้าใจแล้ว</button>
+    </footer>
+  </div>
+</div>
+
+<!-- background -->
+<div class="modal" id="bgModal" hidden="">
+  <div class="modal-card" style="width:min(480px,100%)" role="dialog" aria-modal="true" aria-labelledby="bgTitle">
+    <header><h2 id="bgTitle">พื้นหลังเว็บ</h2><div class="spacer"></div><button class="btn ghost" data-close="bgModal" type="button">ปิด</button></header>
+    <div class="body" style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div class="eyebrow" style="margin-bottom:8px">เลือกสีพื้นหลัง</div>
+        <div class="bgpicks" id="bgPicks"></div>
+        <label class="fld-inline" style="margin-top:10px"><span>สีกำหนดเอง</span> <input type="color" id="bgCustom" aria-label="เลือกสีพื้นหลังเอง" style="width:54px;height:36px;padding:0;border:1px solid var(--line-strong);border-radius:8px;background:var(--surface)"></label>
+      </div>
+      <label class="check"><input type="checkbox" id="bgAnim"> เปิดเอฟเฟกต์เคลื่อนไหว (แบบสายน้ำ)</label>
+    </div>
+  </div>
+</div>
+
 <!-- preview -->
 <div class="modal" id="prevModal" hidden="">
   <div class="modal-card" style="width:min(1100px,100%);height:90vh;max-height:90vh" role="dialog" aria-modal="true" aria-labelledby="prevTitle">
@@ -1147,8 +1185,6 @@ table.paper-table td.dash{color:#9AA9B8}
       <h2 id="prevTitle">ตัวอย่างใบพิมพ์</h2>
       <span class="hint" id="prevMeta">A4 · แนวตั้ง · 1 ตาราง</span>
       <div class="spacer"></div>
-      <label class="check" title="แสดงทุกตาราง ไม่ใช่เฉพาะตารางที่กำลังแก้ไข"><input type="checkbox" id="prevAllM"> ทุกตาราง</label>
-      <select class="btn paper-sel" style="padding:6px 8px" title="ตั้งค่ากระดาษ / แนวกระดาษ" aria-label="ตั้งค่ากระดาษ"><option value="A4-portrait">A4 · แนวตั้ง</option><option value="A4-landscape">A4 · แนวนอน</option><option value="A5-portrait">A5 · แนวตั้ง</option><option value="A5-landscape">A5 · แนวนอน</option><option value="Letter-portrait">Letter · แนวตั้ง</option><option value="Letter-landscape">Letter · แนวนอน</option></select>
       <button class="btn" id="btnPrint2" type="button">พิมพ์</button>
       <button class="btn ghost" data-close="prevModal" type="button">ปิด</button>
     </header>
@@ -1276,19 +1312,11 @@ const COLDEF = {
   cash:    {label:'เงินสด',        type:'num', pLabel:'ราคาเงินสด'},
   total:   {label:'รวมจ่าย',       sub:'ดาวน์+ค่างวด', type:'calc', pLabel:'รวมจ่ายทั้งหมด'}
 };
-const baseOrder = s => ['model','cap','sysDown','down', ...s.tenors.map(t=>'p'+t), 'total','finance','entitle','cash'];
+const baseOrder = s => ['model','cap','finance','sysDown','down', ...s.tenors.map(t=>'p'+t), 'entitle','cash','total'];
 
-/* ลำดับคอลัมน์เก็บไว้ต่อตาราง — เพิ่ม/ลบงวดแล้วจะซิงก์ให้เอง */
+/* ลำดับคอลัมน์ฟิกตามชีต Google Sheets เสมอ — ห้ามสลับ */
 function syncOrder(s){
-  const want = baseOrder(s);
-  if(!Array.isArray(s.order)) s.order = want.slice();
-  s.order = s.order.filter(k=>want.includes(k));
-  want.forEach((k,i)=>{
-    if(s.order.includes(k)) return;
-    const prev = want[i-1];
-    const at = prev!=null ? s.order.indexOf(prev)+1 : 0;
-    s.order.splice(at>0?at:s.order.length, 0, k);
-  });
+  s.order = baseOrder(s).slice();
   return s.order;
 }
 function colInfo(key){
@@ -1317,7 +1345,7 @@ function todayISO(){ const d=new Date(); return new Date(d.getTime()-d.getTimezo
 
 const SEED = {
   shop:{name:'ดลโมบาย', branch:'ฉะเชิงเทรา · ชลบุรี · สมุทรปราการ', phone:'', line:''},
-  printCols:{sysDown:false, down:true, finance:false, entitle:false, cash:true, total:false},
+  printCols:{sysDown:true, down:true, finance:true, entitle:true, cash:false, total:false},
   pdfMode:'combined',
   activeId:null,
   sheets:[
@@ -1369,10 +1397,7 @@ const sheet = () => S.sheets.find(s=>s.id===S.activeId) || S.sheets[0];
 
 /* ============ ตั้งค่ากระดาษ ============ */
 const PAPERS={A4:[297,210], A5:[210,148], Letter:[279,216]};
-S.paper = Object.assign({size:'A4', orient:'portrait'}, S.paper||{});
-if(S.paper.orient!=='portrait' && S.paper.orient!=='landscape') S.paper.orient='portrait';
-if(!(S.paper.size in PAPERS)) S.paper.size='A4';
-if(!S.paperPicked){ S.paper.orient='portrait'; S.paperPicked=true; }
+S.paper = {size:'A4', orient:'portrait'};
 
 function paperDims(){
   const d = PAPERS[S.paper.size] || PAPERS.A4;
@@ -1418,14 +1443,21 @@ function rowTotal(s,r,t){ const p=r.pay?.[t]; if(p==null||r.down==null) return n
 
 /* ============ สีของตาราง ============ */
 const SHEET_COLORS = {
-  blue:  {label:'น้ำเงิน',      pc:'#2C71B8', pd:'#1B4E85', wash:'#F2F6FB', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
-  teal:  {label:'เขียวน้ำทะเล', pc:'#0F7F8C', pd:'#0A5B65', wash:'#EFF7F8', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
-  green: {label:'เขียว',        pc:'#1C7F57', pd:'#136041', wash:'#F0F7F3', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
-  red:   {label:'แดง',          pc:'#BE3B33', pd:'#8D2A24', wash:'#FBF2F1', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
-  orange:{label:'ส้ม',          pc:'#D9822B', pd:'#A45E17', wash:'#FDF6EE', hero:'#EAF1F9', hero2:'#DCE7F4', hink:'#1B4E85'},
-  purple:{label:'ม่วง',         pc:'#6D4AAE', pd:'#4E3282', wash:'#F5F2FB', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
-  pink:  {label:'ชมพู',         pc:'#C2447E', pd:'#8E2E5C', wash:'#FCF2F6', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
-  slate: {label:'เทาเข้ม',      pc:'#44566B', pd:'#2A3949', wash:'#F4F6F8', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'}
+  red:      {label:'แดง',          pc:'#D32F2F', pd:'#9E1F1B', wash:'#FDEBE9', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  crimson:  {label:'แดงเข้ม',      pc:'#B71C1C', pd:'#7F0E0E', wash:'#FBE9E7', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  orange:   {label:'ส้ม',          pc:'#C75000', pd:'#8C3600', wash:'#FEF2E5', hero:'#EAF1F9', hero2:'#DCE7F4', hink:'#1B4E85'},
+  gold:     {label:'ทอง',          pc:'#8A6D00', pd:'#5E4B00', wash:'#FBF4DE', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  brown:    {label:'น้ำตาล',       pc:'#6D4C41', pd:'#4A3229', wash:'#F1E9E6', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  pink:     {label:'ชมพู',         pc:'#D81B60', pd:'#8F1B4D', wash:'#FBE9F1', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  purple:   {label:'ม่วง',         pc:'#9C27B0', pd:'#6A1B8F', wash:'#F3EBFB', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  green:    {label:'เขียว',        pc:'#188038', pd:'#0F5E28', wash:'#E7F6EC', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  greenDark:{label:'เขียวเข้ม',    pc:'#2E7D32', pd:'#1B4D21', wash:'#E9F5EA', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  teal:     {label:'เขียวน้ำทะเล', pc:'#00838F', pd:'#005A66', wash:'#E0F4F5', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  cyan:     {label:'ฟ้า',          pc:'#0277BD', pd:'#01579B', wash:'#E1F3FB', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  blue:     {label:'น้ำเงิน',      pc:'#1A73E8', pd:'#1257A8', wash:'#E8F1FE', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  indigo:   {label:'คราม',         pc:'#3F51B5', pd:'#283593', wash:'#E8EAF9', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  slate:    {label:'เทาเข้ม',      pc:'#546E7A', pd:'#34424E', wash:'#EDF1F4', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'},
+  black:    {label:'ดำ',           pc:'#37474F', pd:'#1F2A30', wash:'#ECEFF1', hero:'#FDF2E4', hero2:'#FBE9D2', hink:'#A8611A'}
 };
 function hex2rgb(h){
   h=String(h||'').replace('#','');
@@ -1542,16 +1574,13 @@ function esc(v){ return String(v??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&
 function renderMeta(){
   const s=sheet();
   bind('m-provider','provider'); bind('m-condition','condition');
-  bind('m-rate','rate',true); bind('m-by','by');
+  bind('m-rate','rate',true);
   const today = todayISO();
   s.date = today;
   document.getElementById('m-date').value = today;
   save(); renderRail();
-  bind('m-cond','cond'); bind('m-note','note');
   const a=document.getElementById('m-autodown'); a.checked=!!s.autoDown;
   a.onchange=()=>{ s.autoDown=a.checked; save(); renderGrid(); renderPrint(); };
-  const g=document.getElementById('m-sign'); g.checked=!!s.sign;
-  g.onchange=()=>{ s.sign=g.checked; save(); renderPrint(); };
 
   const chips=document.getElementById('tenorChips'); chips.innerHTML='';
   s.tenors.forEach(t=>{
@@ -1617,24 +1646,18 @@ function renderGrid(){
   let head='<thead><tr>';
   cols.forEach((c,i)=>{
     const cls=[c.internal?'g-internal':'', c.tenorCol?'g-tenor':''].filter(Boolean).join(' ');
-    const align = c.l ? '' : ' style="text-align:right"';
-    head+=`<th class="${cls}"${align} draggable="true" data-drag="${c.key}">
-      <span class="colmove">
-        <button class="movebtn" type="button" title="ย้ายไปทางซ้าย" data-move="left" data-col="${c.key}"${i===0?' disabled':''}>‹</button>
-        <span class="colname">${esc(c.label)}</span>
-        <button class="movebtn" type="button" title="ย้ายไปทางขวา" data-move="right" data-col="${c.key}"${i===cols.length-1?' disabled':''}>›</button>
-      </span>
-      ${c.sub?`<span class="sub">${esc(c.sub)}</span>`:''}</th>`;
+    head+=`<th class="${cls}">
+      <span class="colname">${esc(c.label)}</span></th>`;
   });
   head+='<th></th></tr></thead>';
 
   const rows = s.rows.filter(r=> !q || (r.model+' '+r.cap).toLowerCase().includes(q));
   let body='<tbody>';
   if(!rows.length){
-    body+=`<tr><td colspan="${cols.length+1}"><div class="empty">${q?'ไม่พบรุ่นที่ค้นหา':'ยังไม่มีข้อมูล กด “+ เพิ่มรุ่น” เพื่อเริ่ม'}</div></td></tr>`;
+    body+=`<tr><td colspan="${cols.length+1}"><div class="empty">${q?'ไม่พบรุ่นที่ค้นหา':'ยังไม่มีข้อมูล กด “+ เพิ่มรุ่นชั่วคราว” เพื่อเริ่ม'}</div></td></tr>`;
   }
   rows.forEach(r=>{
-    body+='<tr>';
+    body+=`<tr data-row="${r.id}">`;
     cols.forEach(c=>{
       const zone=[c.internal?'g-internal':'', c.tenorCol?'g-tenor':''].filter(Boolean).join(' ');
       if(c.type==='pick'){ body+=`<td class="txt sel sel-${c.key} ${zone}" data-label="${esc(c.label)}">${pickHTML(r,c.key)}</td>`; return; }
@@ -1649,14 +1672,13 @@ function renderGrid(){
     });
     body+=`<td class="rowtools">
       <button class="rowbtn" type="button" title="เพิ่มแถวด้านล่าง" data-act="dup" data-row="${r.id}">⧉</button>
-      <button class="rowbtn" type="button" title="เลื่อนขึ้น" data-act="up" data-row="${r.id}">↑</button>
-      <button class="rowbtn" type="button" title="เลื่อนลง" data-act="down" data-row="${r.id}">↓</button>
       <button class="rowbtn del" type="button" title="ลบรุ่นนี้" data-act="del" data-row="${r.id}">✕</button>
     </td></tr>`;
   });
   body+='</tbody>';
   t.innerHTML=head+body;
 
+  const fitInput = inp => { const v = inp.value || inp.placeholder || ''; inp.style.width = Math.max(2, Math.min(12, v.length + 1)) + 'ch'; };
   t.querySelectorAll('input').forEach(inp=>{
     inp.addEventListener('input', ()=>{
       const r = s.rows.find(x=>x.id===inp.dataset.row); if(!r) return;
@@ -1669,54 +1691,10 @@ function renderGrid(){
       }
       const cell = inp.closest('tr')?.querySelector('td.calc');
       if(cell){ const tt=rowTotal(s,r,s.tenors[0]); cell.textContent = tt!=null?fmt(tt):'—'; }
+      fitInput(inp);
     });
-    inp.addEventListener('blur', ()=>{ if(inp.dataset.type==='num'){ const n=num(inp.value); inp.value = n==null?'':fmt(n);} });
-  });
-
-  t.querySelectorAll('button[data-move]').forEach(b=>{
-    b.onclick=()=>{
-      const i=s.order.indexOf(b.dataset.col); if(i<0) return;
-      const j = b.dataset.move==='left' ? i-1 : i+1;
-      if(j<0 || j>=s.order.length) return;
-      [s.order[i],s.order[j]]=[s.order[j],s.order[i]];
-      save(); renderGrid(); renderPrint();
-    };
-  });
-
-  let dragKey=null;
-  const dropAt=(targetKey,before)=>{
-    if(!dragKey || dragKey===targetKey) return;
-    const from=s.order.indexOf(dragKey);
-    if(from<0) return;
-    s.order.splice(from,1);
-    let at=s.order.indexOf(targetKey)+(before?0:1);
-    if(at<0) at=s.order.length;
-    s.order.splice(at,0,dragKey);
-    dragKey=null;
-    save(); renderGrid(); renderPrint();
-  };
-  t.querySelectorAll('th[data-drag]').forEach(th=>{
-    th.addEventListener('dragstart',e=>{
-      dragKey=th.dataset.drag;
-      e.dataTransfer.effectAllowed='move';
-      try{ e.dataTransfer.setData('text/plain',dragKey); }catch(_){}
-      th.style.opacity='.35';
-    });
-    th.addEventListener('dragend',()=>{ th.style.opacity=''; dragKey=null; t.querySelectorAll('th').forEach(x=>x.classList.remove('drag-over')); });
-    th.addEventListener('dragover',e=>{
-      e.preventDefault(); e.dataTransfer.dropEffect='move';
-      const r=th.getBoundingClientRect();
-      const before = e.clientX < r.left + r.width/2;
-      th.classList.toggle('drag-left', before);
-      th.classList.toggle('drag-right', !before);
-    });
-    th.addEventListener('dragleave',()=>th.classList.remove('drag-left','drag-right'));
-    th.addEventListener('drop',e=>{
-      e.preventDefault();
-      const r=th.getBoundingClientRect();
-      dropAt(th.dataset.drag, e.clientX < r.left + r.width/2);
-      t.querySelectorAll('th').forEach(x=>x.classList.remove('drag-left','drag-right'));
-    });
+    inp.addEventListener('blur', ()=>{ if(inp.dataset.type==='num'){ const n=num(inp.value); inp.value = n==null?'':fmt(n);} fitInput(inp); });
+    fitInput(inp);
   });
 
   t.querySelectorAll('select[data-pick]').forEach(sel=>{
@@ -1730,14 +1708,57 @@ function renderGrid(){
     });
   });
 
+  t.querySelectorAll('tbody tr').forEach(tr=>{
+    tr.addEventListener('pointerdown', e=>{
+      if(e.button!==0) return;
+      if(e.target.closest('input,select,textarea,button')) return;
+      const startY=e.clientY, rowId=tr.dataset.row;
+      let dragging=false;
+      const onMove=ev=>{
+        if(!dragging && Math.abs(ev.clientY-startY)<6) return;
+        if(!dragging){ dragging=true; tr.classList.add('row-dragging'); }
+        ev.preventDefault();
+        const el=document.elementFromPoint(ev.clientX,ev.clientY);
+        const over=el? el.closest('tr[data-row]') : null;
+        t.querySelectorAll('tbody tr').forEach(x=>x.classList.remove('drag-above','drag-below'));
+        if(over && over!==tr){
+          const r=over.getBoundingClientRect();
+          const before = ev.clientY < r.top + r.height/2;
+          over.classList.toggle('drag-above', before);
+          over.classList.toggle('drag-below', !before);
+        }
+      };
+      const onUp=ev=>{
+        document.removeEventListener('pointermove',onMove);
+        document.removeEventListener('pointerup',onUp);
+        if(!dragging) return;
+        const el=document.elementFromPoint(ev.clientX,ev.clientY);
+        const over=el? el.closest('tr[data-row]') : null;
+        t.querySelectorAll('tbody tr').forEach(x=>x.classList.remove('row-dragging','drag-above','drag-below'));
+        if(over && over!==tr){
+          const from=s.rows.findIndex(x=>x.id===rowId);
+          const tid=s.rows.findIndex(x=>x.id===over.dataset.row);
+          if(from>=0 && tid>=0){
+            const r=over.getBoundingClientRect();
+            const before = ev.clientY < r.top + r.height/2;
+            const [row]=s.rows.splice(from,1);
+            let at=s.rows.findIndex(x=>x.id===over.dataset.row);
+            if(!before) at+=1;
+            s.rows.splice(at,0,row);
+            save(); renderGrid(); renderRail(); renderPrint();
+          }
+        }
+      };
+      document.addEventListener('pointermove',onMove);
+      document.addEventListener('pointerup',onUp);
+    });
+  });
   t.querySelectorAll('button[data-act]').forEach(b=>{
     b.onclick=()=>{
       const i = s.rows.findIndex(x=>x.id===b.dataset.row); if(i<0) return;
       const act=b.dataset.act;
       if(act==='del'){ if(s.rows.length===1){ s.rows=[blankRow()]; } else s.rows.splice(i,1); }
       if(act==='dup'){ const c=structuredClone(s.rows[i]); c.id=uid(); s.rows.splice(i+1,0,c); }
-      if(act==='up' && i>0){ [s.rows[i-1],s.rows[i]]=[s.rows[i],s.rows[i-1]]; }
-      if(act==='down' && i<s.rows.length-1){ [s.rows[i+1],s.rows[i]]=[s.rows[i],s.rows[i+1]]; }
       save(); renderGrid(); renderRail(); renderPrint();
     };
   });
@@ -1771,11 +1792,7 @@ function paperHTML(s){
     .filter(k => k==='model' || k==='cap' || isTenor(k) || !!pc[k])
     .map(k=>{
       const c=colInfo(k);
-      let sub='';
-      if(c.tenorCol) sub='บาท / เดือน';
-      else if(k==='down') sub='จ่ายวันรับเครื่อง';
-      else if(k==='total') sub=`ที่ ${s.tenors[0]||''} งวด`;
-      return {k, l:c.pLabel||c.label, sub, text:(k==='model'||k==='cap'), hero:c.hero, tenor:isTenor(k)};
+      return {k, l:c.pLabel||c.label, sub:'', text:(k==='model'||k==='cap'), hero:c.hero, tenor:isTenor(k)};
     });
 
   const dataRows = s.rows.filter(r=>r.model||r.cap);
@@ -1786,7 +1803,7 @@ function paperHTML(s){
   const dense = isPortrait ? (shown.length>=9?' xdense':shown.length>=7?' dense':'') : '';
   const paperCls = `paper ${isPortrait?'portrait':'landscape'}${dense}`;
 
-  const th = shown.map(c=>`<th class="${c.text?'l':''}">${esc(c.l)}${c.sub?`<span class="sub">${esc(c.sub)}</span>`:''}</th>`).join('');
+  const th = shown.map(c=>`<th class="${c.text?'l':''}">${esc(c.l)}</th>`).join('');
   const body = dataRows.map(r=>{
     const tds = shown.map(c=>{
       const v = shownVal(r,c);
@@ -1796,37 +1813,26 @@ function paperHTML(s){
     }).join('');
     return `<tr>${tds}</tr>`;
   }).join('') || `<tr><td class="l" colspan="${shown.length}">ยังไม่มีข้อมูล</td></tr>`;
-
-  const conds = (s.cond||'').split('\n').map(x=>x.trim()).filter(Boolean);
   const shop=S.shop;
-  const contact=[shop.branch, shop.phone?'โทร '+shop.phone:'', shop.line?'LINE '+shop.line:''].filter(Boolean).join('  ·  ');
 
   return `<section class="${paperCls}" style="--pc:${theme.pc};--pd:${theme.pd};--pwash:${theme.wash};--phe:${theme.hero};--phe2:${theme.hero2};--phink:${theme.hink}">
     <div class="paper-head">
       <img class="paper-logo" src="${LOGO}" alt="">
       <div class="paper-id">
         <div class="paper-shop">${esc(shop.name||'ดลโมบาย')}</div>
-        <div class="paper-contact">${esc(contact)}</div>
       </div>
       <div class="paper-meta">
         <div class="paper-title">${esc(sheetTitle(s))}</div>
         ${s.rate!==''&&s.rate!=null?`<div class="paper-rate">ดาวน์ระบบ ${esc(s.rate)}%</div>`:''}
-        <div class="paper-date">อัปเดตล่าสุด <b>${thDateShort(s.date)}</b> (${thDateLong(s.date)})${s.by?' · '+esc(s.by):''}</div>
+        <div class="paper-date">อัปเดตล่าสุด <b>${thDateShort(s.date)}</b> (${thDateLong(s.date)})</div>
       </div>
     </div>
     <table class="paper-table"><thead><tr>${th}</tr></thead><tbody>${body}</tbody></table>
-    <div class="paper-foot">
-      <div class="paper-cond">
-        ${conds.length?`<div class="ttl">เงื่อนไข</div><ul>${conds.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`:''}
-        ${s.note?`<div style="margin-top:4px">${esc(s.note)}</div>`:''}
-      </div>
-      ${s.sign?`<div class="paper-sign"><div class="line"></div>ผู้จัดทำ / ผู้อนุมัติ</div>`:''}
-    </div>
   </section>`;
 }
 
 function renderPrint(){
-  const all = document.getElementById('prevAll').checked;
+  const all = true;
   const list = all ? S.sheets : [sheet()];
   const html = list.map(paperHTML).join('');
   document.getElementById('printRoot').innerHTML = html;
@@ -1887,9 +1893,6 @@ document.getElementById('btnAddTenor').onclick=()=>{
   const s=sheet(); if(s.tenors.includes(n)){ toast('มีงวดนี้อยู่แล้ว'); return; }
   s.tenors.push(n); s.tenors.sort((a,b)=>a-b); el.value=''; save(); renderMeta(); renderGrid(); renderPrint();
 };
-document.getElementById('btnResetOrder').onclick=()=>{
-  const s=sheet(); s.order=baseOrder(s); save(); renderGrid(); renderPrint(); toast('คืนลำดับคอลัมน์เดิมแล้ว');
-};
 document.getElementById('btnRecalc').onclick=()=>{
   const s=sheet(); let n=0;
   s.rows.forEach(r=>{ const v=autoSysDown(s,r); if(v!=null){ r.sysDown=v; n++; } });
@@ -1945,13 +1948,6 @@ window.addEventListener('resize',()=>{
   if(!document.getElementById('prevModal').hidden) fitPreview();
 });
 document.getElementById('btnPrint2').onclick=doPrint;
-function setPrevAll(v){
-  document.getElementById('prevAll').checked=v;
-  document.getElementById('prevAllM').checked=v;
-  renderPrint();
-}
-document.getElementById('prevAll').onchange=()=>setPrevAll(document.getElementById('prevAll').checked);
-document.getElementById('prevAllM').onchange=()=>setPrevAll(document.getElementById('prevAllM').checked);
 function doPrint(){
   renderPrint();
   try{ window.print(); }catch(e){}
@@ -2173,10 +2169,89 @@ document.querySelectorAll('#pdfModeBar .segbtn').forEach(b=>{
 });
 document.getElementById('pdfSave').onclick=()=>{ if(pdfFiles.length) saveAllPdfs(); };
 document.getElementById('pdfMore').onclick=()=>{
-  document.getElementById('prevAll').checked=true;
   exportPDF();
 };
 
+function safeFname(t){
+  return String(t).replaceAll(':','-').replaceAll('/','-').replaceAll('*','-').replaceAll('?','-').replaceAll('"','-').replaceAll('<','-').replaceAll('>','-').replaceAll('|','-').replaceAll(' ','-');
+}
+function downloadBlob(blob, fname){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=fname;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function exportPNG(){
+  const btn=document.getElementById('btnPdf');
+  const label=btn.textContent;
+  btn.disabled=true; btn.textContent='กำลังสร้างรูป…';
+  let stage=null;
+  try{
+    await ensureLibs();
+    renderPrint();
+    if(!window.html2canvas) throw new Error('โหลดไลบรารีไม่ได้ ตรวจอินเทอร์เน็ต');
+    const dims=paperDims();
+    stage=document.createElement('div');
+    stage.style.cssText=`position:fixed;left:-20000px;top:0;width:${dims.w}mm;background:#fff;z-index:-1`;
+    stage.innerHTML=document.getElementById('printRoot').innerHTML;
+    stage.querySelectorAll('.paper').forEach(el=>{
+      el.style.width=dims.w+'mm'; el.style.minHeight=dims.h+'mm'; el.style.margin='0';
+      el.style.border='0'; el.style.borderRadius='0'; el.style.boxShadow='none';
+    });
+    document.body.appendChild(stage);
+    if(document.fonts && document.fonts.ready) await document.fonts.ready;
+    const papers=[...stage.querySelectorAll('.paper')];
+    if(!papers.length) throw new Error('ยังไม่มีข้อมูลให้พิมพ์');
+    for(let i=0;i<papers.length;i++){
+      const sh=S.sheets[i]||sheet();
+      const canvas=await html2canvas(papers[i],{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
+      downloadBlob(blob, safeFname(sh.provider+' '+sh.condition+' '+sh.rate+'%')+'.png');
+    }
+    toast('บันทึกรูปแล้ว '+papers.length+' รูป (ตารางละ 1 รูป)');
+  }catch(e){
+    const msg=(e&&e.message)?e.message:'ลองใหม่อีกครั้ง';
+    toast('บันทึกรูปไม่สำเร็จ — '+msg);
+  }finally{
+    if(stage) stage.remove();
+    btn.disabled=false; btn.textContent=label;
+  }
+}
+function ensureXlsx(){
+  return new Promise((resolve,reject)=>{
+    if(window.XLSX){ resolve(); return; }
+    const sc=document.createElement('script');
+    sc.src='https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+    sc.onload=()=> window.XLSX ? resolve() : reject(new Error('โหลดไลบรารีไม่ได้'));
+    sc.onerror=()=>reject(new Error('โหลดไลบรารีไม่ได้ ตรวจอินเทอร์เน็ต'));
+    document.head.appendChild(sc);
+  });
+}
+async function exportXlsx(){
+  const btn=document.getElementById('btnPdf');
+  const label=btn.textContent;
+  btn.disabled=true; btn.textContent='กำลังสร้าง…';
+  try{
+    await ensureXlsx();
+    const wb=XLSX.utils.book_new();
+    S.sheets.forEach((sh,i)=>{
+      const head=['รุ่น','ความจุ','ยอดจัด','ดาวน์ระบบ','ดาวน์หน้าร้าน',...sh.tenors.map(t=>String(t)),'ยอดสุทธิ','เงินสด'];
+      const rows=sh.rows.map(r=>[r.model,r.cap, r.finance??'', r.sysDown??'', r.down??'', ...sh.tenors.map(t=>r.pay?.[t]??''), r.entitle??'', r.cash??'']);
+      const ws=XLSX.utils.aoa_to_sheet([head,...rows]);
+      ws['!cols']=head.map((h,idx)=> idx<2?{wch:18}:{wch:10});
+      let nm=safeFname(sh.provider+' '+sh.condition+' '+sh.rate+'%').slice(0,31) || ('ตาราง'+(i+1));
+      XLSX.utils.book_append_sheet(wb,ws,nm);
+    });
+    XLSX.writeFile(wb,'ตารางผ่อน-'+todayISO()+'.xlsx');
+    toast('บันทึก Excel แล้ว ('+S.sheets.length+' ตาราง)');
+  }catch(e){
+    const msg=(e&&e.message)?e.message:'ลองใหม่อีกครั้ง';
+    toast('บันทึก Excel ไม่สำเร็จ — '+msg);
+  }finally{
+    btn.disabled=false; btn.textContent=label;
+  }
+}
 async function exportPDF(){
   const btn=document.getElementById('btnPdf');
   const label=btn.textContent;
@@ -2201,7 +2276,7 @@ async function exportPDF(){
     const papers=[...stage.querySelectorAll('.paper')];
     if(!papers.length) throw new Error('ยังไม่มีข้อมูลให้พิมพ์');
 
-    const list = document.getElementById('prevAll').checked ? S.sheets : [sheet()];
+    const list = S.sheets;
     pdfSheets = papers.length;
 
     pdfItems=[];
@@ -2231,23 +2306,10 @@ async function exportPDF(){
     btn.disabled=false; btn.textContent=label;
   }
 }
-document.getElementById('btnPdf').onclick=exportPDF;
-
-/* ---------- เมนู ⋯ บนมือถือ ---------- */
-const moreBtn=document.getElementById('btnMore');
-const moreGroup=document.getElementById('moreGroup');
-function closeMore(){ moreGroup.classList.remove('open'); moreBtn.setAttribute('aria-expanded','false'); }
-moreBtn.onclick=e=>{
-  e.stopPropagation();
-  const on=moreGroup.classList.toggle('open');
-  moreBtn.setAttribute('aria-expanded', on?'true':'false');
-};
-moreGroup.addEventListener('click',e=>{ if(e.target.closest('button')) closeMore(); });
-document.addEventListener('click',e=>{
-  if(!moreGroup.classList.contains('open')) return;
-  if(moreGroup.contains(e.target)||moreBtn.contains(e.target)) return;
-  closeMore();
-});
+document.getElementById('btnPdf').onclick=()=>{ document.getElementById('saveModal').hidden=false; };
+document.getElementById('optPdf').onclick=()=>{ document.getElementById('saveModal').hidden=true; exportPDF(); };
+document.getElementById('optPng').onclick=()=>{ document.getElementById('saveModal').hidden=true; exportPNG(); };
+document.getElementById('optXlsx').onclick=()=>{ document.getElementById('saveModal').hidden=true; exportXlsx(); };
 
 /* modals */
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>{ document.getElementById(b.dataset.close).hidden=true; });
@@ -2255,20 +2317,9 @@ document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{ i
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     document.querySelectorAll('.modal').forEach(m=>m.hidden=true);
-    confirmCb=null; closeMore();
+    confirmCb=null;
   }
 });
-
-document.getElementById('btnShop').onclick=()=>{
-  ['name','branch','phone','line'].forEach(k=>{
-    const el=document.getElementById('s-'+k); el.value=S.shop[k]||'';
-    el.oninput=()=>{ S.shop[k]=el.value; save(); renderPrint(); };
-  });
-  document.getElementById('shopModal').hidden=false;
-};
-document.getElementById('btnData').onclick=()=>{
-  document.getElementById('dataModal').hidden=false;
-};
 
 /* ---------- บันทึกไฟล์ .json ---------- */
 document.getElementById('btnSaveFile').onclick = () => {
@@ -2308,6 +2359,145 @@ document.getElementById('btnUploadFile').onchange = (e) => {
   reader.readAsText(file);
 };
 
+/* ---------- ดึงข้อมูลจาก Google Sheets (ทุกแผ่นงาน) ---------- */
+const SHEET_CSV_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQddMtyJDO7ALPMqiYCuWIjkjB2tdcTgsp3ExWzjrdaVriC0H_qCo2zggnND7QVYGygJXEtMUUDY71y/pub?gid=GID&single=true&output=csv';
+
+function parseCSV(text){
+  const rows=[]; let row=[], cell='', q=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){ cell+='"'; i++; } else q=false; }
+      else cell+=c;
+    } else if(c==='"') q=true;
+    else if(c===','){ row.push(cell); cell=''; }
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&text[i+1]==='\n') i++; row.push(cell); cell=''; rows.push(row); row=[]; }
+    else cell+=c;
+  }
+  if(cell!==''||row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r=>r.some(x=>String(x).trim()!==''));
+}
+
+function sheetRowsFromCSV(text){
+  const rows=parseCSV(text.replace(/^\uFEFF/,''));
+  if(rows.length<2) return [];
+  const head=rows[0].map(h=>String(h).trim());
+  const colKey={'รุ่น':'model','ความจุ':'cap','ยอดจัด':'finance','ดาวน์ระบบ':'sysDown','ดาวน์หน้าร้าน':'down','ยอดสุทธิ':'entitle','เงินสด':'cash'};
+  const payCols=[];
+  head.forEach((h,idx)=>{ if(/^\d+$/.test(h)) payCols.push({idx,tenor:+h}); });
+  const out=[];
+  rows.slice(1).forEach(r=>{
+    const o={model:'',cap:'',sysDown:null,down:null,finance:null,entitle:null,cash:null,pay:{}};
+    head.forEach((h,idx)=>{
+      if(!(h in colKey)) return;
+      const v=String(r[idx]??'').trim();
+      const k=colKey[h];
+      o[k]=(k==='model'||k==='cap')?v:(v===''?null:num(v));
+    });
+    payCols.forEach(pc=>{ const v=String(r[pc.idx]??'').trim(); o.pay[pc.tenor]=v===''?null:num(v); });
+    if(o.model) out.push(o);
+  });
+  return out;
+}
+
+function parseSheetName(name){
+  const m=String(name).trim().match(/^(.+?)\s*มือ\s*(\d)\s*(\d+(?:\.\d+)?)\s*%?$/);
+  if(m) return {provider:m[1].trim(), condition:'มือ '+m[2], rate:+m[3]};
+  return {provider:String(name).trim()||'สินเชื่อ', condition:'มือ 1', rate:25};
+}
+
+async function fetchSheetMeta(){
+  const res=await fetch('/sheet-meta',{cache:'no-store'});
+  if(!res.ok) throw new Error('ไม่สามารถอ่านรายชื่อแผ่นงาน (HTTP '+res.status+')');
+  return await res.json();
+}
+
+async function fetchAllSheetData(){
+  const meta=await fetchSheetMeta();
+  return await Promise.all(meta.map(async m=>{
+    const res=await fetch(SHEET_CSV_BASE.replace('GID',m.gid)+'&_='+Date.now(),{cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP '+res.status+' (gid '+m.gid+')');
+    return {name:m.name, gid:m.gid, rows:sheetRowsFromCSV(await res.text())};
+  }));
+}
+
+document.getElementById('btnFetchSheet').onclick = async ()=>{
+  const btn=document.getElementById('btnFetchSheet');
+  btn.disabled=true; const old=btn.textContent; btn.textContent='กำลังดึงข้อมูล…';
+  try{
+    const items=await fetchAllSheetData();
+    const filled=items.filter(it=>it.rows.length);
+    if(!filled.length){ toast('ยังไม่มีข้อมูลในทุกแผ่นงานของชีต'); return; }
+    const skipped=items.length-filled.length;
+    const msg='นำเข้าข้อมูลจาก Google Sheets ทั้งหมด '+filled.length+' ตาราง'+(skipped?' (ข้าม '+skipped+' แผ่นงานที่ยังว่าง)':'')+' และแทนที่ตารางเดิม '+S.sheets.length+' ตารางหรือไม่?';
+    if(!confirm(msg)) return;
+    const palette=Object.keys(SHEET_COLORS);
+    const sheets=filled.map((it,idx)=>{
+      const nm=parseSheetName(it.name);
+      const tenorSet={};
+      it.rows.forEach(r=>{ Object.keys(r.pay).forEach(t=>{ const v=r.pay[t]; if(v!=null&&v>=10) tenorSet[t]=true; }); });
+      const tenors=Object.keys(tenorSet).map(Number).sort((a,b)=>a-b);
+      if(!tenors.length) tenors.push(12,15,18);
+      const rows=it.rows.map(r=>({id:uid(), model:r.model, cap:r.cap, sysDown:r.sysDown, down:r.down, finance:r.finance, entitle:r.entitle, cash:r.cash, pay:Object.fromEntries(tenors.map(t=>[t, r.pay[t]??null]))}));
+      return {id:uid(), provider:nm.provider, condition:nm.condition, rate:nm.rate, date:todayISO(), by:'', tenors, autoDown:true, cond:'', note:'', sign:false, color:palette[idx%palette.length], rows};
+    });
+    S.sheets=sheets; S.activeId=sheets[0].id;
+    save(); renderAll();
+    toast('ดึงข้อมูลสำเร็จ '+filled.length+' ตาราง'+(skipped?' · ข้าม '+skipped+' แผ่นงานว่าง':''));
+  }catch(err){
+    toast('ดึงข้อมูลไม่สำเร็จ — '+(err && err.message ? err.message : err));
+  }finally{
+    btn.disabled=false; btn.textContent=old;
+  }
+};
+
+
+/* ---------- พื้นหลังเว็บ (เคลื่อนไหว + เลือกสี) ---------- */
+const BG_PRESETS=['#2C71B8','#0F7F8C','#1C7F57','#D9822B','#BE3B33','#6D4AAE','#C2447E','#44566B','#0A84FF','#34C759'];
+let bgCfg={};
+try{ bgCfg=JSON.parse(localStorage.getItem('donmobile-bg-v1')||'{}'); }catch(_){ bgCfg={}; }
+function saveBg(){ try{ localStorage.setItem('donmobile-bg-v1', JSON.stringify(bgCfg)); }catch(_){} }
+function applyBg(color, animate){
+  document.documentElement.style.setProperty('--bg-base', color);
+  document.documentElement.style.setProperty('--ground', mixHex(color,'#FFFFFF',.63));
+  document.documentElement.style.setProperty('--brand', color);
+  document.documentElement.style.setProperty('--brand-deep', mixHex(color,'#15202E',.4));
+  document.documentElement.style.setProperty('--brand-wash', mixHex(color,'#FFFFFF',.88));
+  document.documentElement.style.setProperty('--accent', color);
+  document.documentElement.style.setProperty('--accent-wash', mixHex(color,'#FFFFFF',.82));
+  document.getElementById('bgfx').style.display = animate ? '' : 'none';
+}
+function initBg(){
+  const color=bgCfg.color||BG_PRESETS[0];
+  const animate=bgCfg.animate!==false;
+  applyBg(color, animate);
+  document.getElementById('bgAnim').checked=animate;
+  const box=document.getElementById('bgPicks'); box.innerHTML='';
+  BG_PRESETS.forEach(c=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='swatch'; b.style.background=c;
+    b.title=c; b.setAttribute('aria-label','สี '+c);
+    b.onclick=()=>{ bgCfg.color=c; saveBg(); applyBg(c, document.getElementById('bgAnim').checked); };
+    box.appendChild(b);
+  });
+  document.getElementById('bgCustom').value=color;
+  document.getElementById('bgCustom').oninput=e=>{ bgCfg.color=e.target.value; saveBg(); applyBg(e.target.value, document.getElementById('bgAnim').checked); };
+  document.getElementById('bgAnim').onchange=e=>{ bgCfg.animate=e.target.checked; saveBg(); applyBg(bgCfg.color||BG_PRESETS[0], e.target.checked); };
+}
+document.getElementById('btnBg').onclick=()=>{ document.getElementById('bgModal').hidden=false; };
+/* ---------- ป๊อปอัพแจ้งเตือนข้อมูล ---------- */
+function initNotice(){
+  const modal=document.getElementById('noticeModal');
+  if(!modal) return;
+  try{ if(localStorage.getItem('donmobile-notice-v1')==='1') return; }catch(_){}
+  modal.hidden=false;
+  document.getElementById('noticeOk').onclick=()=>{
+    modal.hidden=true;
+    try{ if(document.getElementById('noticeHide').checked) localStorage.setItem('donmobile-notice-v1','1'); }catch(_){}
+  };
+}
+initBg();
+initNotice();
 renderAll();
 applyPaper();
 </script>
