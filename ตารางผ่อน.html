@@ -24,6 +24,12 @@
 @keyframes bgdrift3{from{transform:translate(0,0)}to{transform:translate(-10vmax,12vmax) scale(1.1)}}
 @keyframes bgdrift4{from{transform:translate(0,0)}to{transform:translate(12vmax,-8vmax) scale(1.18)}}
 .bgpicks{display:flex;gap:8px;flex-wrap:wrap}
+.empty-app{display:flex;align-items:center;justify-content:center;min-height:60vh;padding:24px 16px}
+.empty-card{max-width:430px;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:36px 28px;box-shadow:var(--shadow)}
+.empty-ic{font-size:44px;line-height:1;margin-bottom:12px}
+.empty-card h2{font-size:20px;margin:0 0 8px}
+.empty-card p{color:var(--ink-2);margin:0 0 20px;line-height:1.7}
+.empty-card .btn{font-size:15px;padding:12px 22px}
 @media print{.bgfx{display:none!important}}
 </style></head><body>
 <title>ตารางผ่อน ดลโมบาย</title>
@@ -773,6 +779,15 @@ table.paper-table td.dash{color:#9AA9B8}
     <div class="rail-in" id="rail" role="tablist" aria-label="ตารางผ่อนทั้งหมด"><div class="tab" role="tab" tabindex="0" aria-selected="true"><span class="n"><i class="cdot" style="background:#ff0000"></i>VNC · มือ 2 25%</span><span class="d">35 รุ่น · อัปเดต 17/10/69</span><button type="button" class="tabx" title="ลบตาราง VNC · มือ 2 25%" aria-label="ลบตาราง VNC · มือ 2 25%">✕</button></div><div class="tab" role="tab" tabindex="0" aria-selected="false"><span class="n"><i class="cdot" style="background:#ff7b00"></i>TTRS ONLINE · มือ 1 40%</span><span class="d">5 รุ่น · อัปเดต 17/10/69</span><button type="button" class="tabx" title="ลบตาราง TTRS ONLINE · มือ 1 40%" aria-label="ลบตาราง TTRS ONLINE · มือ 1 40%">✕</button></div><div class="tab" role="tab" tabindex="0" aria-selected="false"><span class="n"><i class="cdot" style="background:#0033ff"></i>GFINN · 2 25%</span><span class="d">23 รุ่น · อัปเดต 16/10/69</span><button type="button" class="tabx" title="ลบตาราง GFINN · 2 25%" aria-label="ลบตาราง GFINN · 2 25%">✕</button></div><div class="tab" role="tab" tabindex="0" aria-selected="false"><span class="n"><i class="cdot" style="background:#00eeff"></i>GFINN · 2 25%</span><span class="d">1 รุ่น · อัปเดต 16/10/69</span><button type="button" class="tabx" title="ลบตาราง GFINN · 2 25%" aria-label="ลบตาราง GFINN · 2 25%">✕</button></div><button type="button" class="btn sm" style="flex: 0 0 auto;">+ ตารางใหม่</button></div>
   </div>
 
+  <div class="empty-app" id="emptyApp" hidden="">
+    <div class="empty-card">
+      <div class="empty-ic">📥</div>
+      <h2>หน้าเว็บยังไม่มีข้อมูล</h2>
+      <p>ข้อมูลทั้งหมดอยู่ที่ Google Sheets — กดปุ่มด้านล่างเพื่อโหลดข้อมูลล่าสุด</p>
+      <button class="btn primary" id="btnEmptyFetch" type="button">⇩ ดึงข้อมูลจากชีต</button>
+    </div>
+  </div>
+
   <div class="wrap">
     <!-- sheet meta -->
     <section class="panel">
@@ -1150,10 +1165,10 @@ table.paper-table td.dash{color:#9AA9B8}
 <!-- notice -->
 <div class="modal" id="noticeModal" hidden="">
   <div class="modal-card" style="width:min(480px,100%)" role="dialog" aria-modal="true" aria-labelledby="noticeTitle">
-    <header><h2 id="noticeTitle">📌 ข้อมูลอัปเดตจาก Google Sheet เท่านั้น</h2></header>
+    <header><h2 id="noticeTitle">⚠️ การแก้ไขเป็นแบบชั่วคราว</h2></header>
     <div class="body">
       <p style="margin:0;line-height:1.8;font-size:14px">
-        รุ่นที่เพิ่มมาบนหน้าเว็บทั้งหมดจะหายไป หลังจากกดปุ่ม <b>“⇩ ดึงข้อมูลจากชีต”</b>
+        การแก้ไขทั้งหมดบนหน้าเว็บนี้จะเป็นการแก้ไขชั่วคราวเท่านั้น — ต้องการบันทึกถาวร ให้แจ้ง <b>บิ๊ก</b> (ผู้ดูแล Google Sheets)
       </p>
     </div>
     <footer style="justify-content:space-between;flex-wrap:wrap;gap:8px">
@@ -1380,6 +1395,7 @@ try{
   S = raw ? JSON.parse(raw) : structuredClone(SEED);
 }catch(e){ S = structuredClone(SEED); }
 if(!S || !Array.isArray(S.sheets) || !S.sheets.length) S = structuredClone(SEED);
+S.sheets = []; S.activeId = null;
 S.printCols = Object.assign({}, SEED.printCols, S.printCols||{});
 S.shop = Object.assign({}, SEED.shop, S.shop||{});
 if(S.pdfMode!=='combined' && S.pdfMode!=='separate') S.pdfMode='combined';
@@ -1843,7 +1859,14 @@ function renderPrint(){
 }
 
 /* ============ wire up ============ */
-function renderAll(){ renderRail(); renderMeta(); renderColorPick(); renderGrid(); renderPrintCols(); renderPrint(); }
+function renderAll(){
+  const empty = !S.sheets.length;
+  document.getElementById('emptyApp').hidden = !empty;
+  document.querySelectorAll('#app > .wrap').forEach(w=>w.hidden=empty);
+  document.getElementById('rail').hidden = empty;
+  if(empty) return;
+  renderRail(); renderMeta(); renderColorPick(); renderGrid(); renderPrintCols(); renderPrint();
+}
 
 document.getElementById('q').addEventListener('input', renderGrid);
 function renderPickList(){
@@ -2406,10 +2429,30 @@ function parseSheetName(name){
   return {provider:String(name).trim()||'สินเชื่อ', condition:'มือ 1', rate:25};
 }
 
+const SHEET_PUBHTML='https://docs.google.com/spreadsheets/d/e/2PACX-1vQddMtyJDO7ALPMqiYCuWIjkjB2tdcTgsp3ExWzjrdaVriC0H_qCo2zggnND7QVYGygJXEtMUUDY71y/pubhtml';
+const SHEET_META_PROXIES=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?url=','https://api.codetabs.com/v1/proxy?quest='];
+function parseSheetItems(html){
+  const items=[]; const re=/items\.push\(\{name: \"([^\"]+)\", pageUrl: \"[^\"]*?gid=(\d+)\"/g; let m;
+  while((m=re.exec(html))) items.push({name:m[1], gid:m[2]});
+  return items;
+}
 async function fetchSheetMeta(){
-  const res=await fetch('/sheet-meta',{cache:'no-store'});
-  if(!res.ok) throw new Error('ไม่สามารถอ่านรายชื่อแผ่นงาน (HTTP '+res.status+')');
-  return await res.json();
+  try{
+    const res=await fetch('/sheet-meta',{cache:'no-store'});
+    if(res.ok) return await res.json();
+  }catch(_){}
+  for(const px of SHEET_META_PROXIES){
+    try{
+      const ctl=new AbortController();
+      const t=setTimeout(()=>ctl.abort(),12000);
+      const res=await fetch(px+encodeURIComponent(SHEET_PUBHTML),{cache:'no-store',signal:ctl.signal});
+      clearTimeout(t);
+      if(!res.ok) continue;
+      const items=parseSheetItems(await res.text());
+      if(items.length) return items;
+    }catch(_){}
+  }
+  throw new Error('ไม่สามารถอ่านรายชื่อแผ่นงานได้ — เช็กอินเทอร์เน็ต หรือเปิดผ่านลิงก์ http://127.0.0.1:8799/ผ่อน.html แล้วลองใหม่');
 }
 
 async function fetchAllSheetData(){
@@ -2429,8 +2472,6 @@ document.getElementById('btnFetchSheet').onclick = async ()=>{
     const filled=items.filter(it=>it.rows.length);
     if(!filled.length){ toast('ยังไม่มีข้อมูลในทุกแผ่นงานของชีต'); return; }
     const skipped=items.length-filled.length;
-    const msg='นำเข้าข้อมูลจาก Google Sheets ทั้งหมด '+filled.length+' ตาราง'+(skipped?' (ข้าม '+skipped+' แผ่นงานที่ยังว่าง)':'')+' และแทนที่ตารางเดิม '+S.sheets.length+' ตารางหรือไม่?';
-    if(!confirm(msg)) return;
     const palette=Object.keys(SHEET_COLORS);
     const sheets=filled.map((it,idx)=>{
       const nm=parseSheetName(it.name);
@@ -2444,6 +2485,7 @@ document.getElementById('btnFetchSheet').onclick = async ()=>{
     S.sheets=sheets; S.activeId=sheets[0].id;
     save(); renderAll();
     toast('ดึงข้อมูลสำเร็จ '+filled.length+' ตาราง'+(skipped?' · ข้าม '+skipped+' แผ่นงานว่าง':''));
+    showNotice();
   }catch(err){
     toast('ดึงข้อมูลไม่สำเร็จ — '+(err && err.message ? err.message : err));
   }finally{
@@ -2485,16 +2527,19 @@ function initBg(){
   document.getElementById('bgAnim').onchange=e=>{ bgCfg.animate=e.target.checked; saveBg(); applyBg(bgCfg.color||BG_PRESETS[0], e.target.checked); };
 }
 document.getElementById('btnBg').onclick=()=>{ document.getElementById('bgModal').hidden=false; };
+document.getElementById('btnEmptyFetch').onclick=()=>{ document.getElementById('btnFetchSheet').onclick(); };
 /* ---------- ป๊อปอัพแจ้งเตือนข้อมูล ---------- */
 function initNotice(){
   const modal=document.getElementById('noticeModal');
   if(!modal) return;
-  try{ if(localStorage.getItem('donmobile-notice-v1')==='1') return; }catch(_){}
-  modal.hidden=false;
   document.getElementById('noticeOk').onclick=()=>{
     modal.hidden=true;
     try{ if(document.getElementById('noticeHide').checked) localStorage.setItem('donmobile-notice-v1','1'); }catch(_){}
   };
+}
+function showNotice(){
+  try{ if(localStorage.getItem('donmobile-notice-v1')==='1') return; }catch(_){}
+  document.getElementById('noticeModal').hidden=false;
 }
 initBg();
 initNotice();
