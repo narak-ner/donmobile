@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>⚡ Live HTML Tester — ลาก/ขยาย + Export</title>
+<title>⚡ Live HTML Tester — Undo/Redo + Guides</title>
 <style>
   :root{
     --bg:#1e1e2e; --panel:#181825; --panel2:#252538; --border:#313244;
@@ -38,13 +38,15 @@
     padding:6px 11px; border-radius:7px; font-size:12.5px; cursor:pointer;
     transition:.15s; font-family:inherit; white-space:nowrap;
   }
-  .btn:hover{ background:#35354d; }
+  .btn:hover:not(:disabled){ background:#35354d; }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
   .btn.primary{ background:var(--accent); color:#11111b; border-color:var(--accent); font-weight:600; }
   .btn.primary:hover{ filter:brightness(1.1); }
   .btn.tiny{ padding:4px 8px; font-size:11px; border-radius:5px; }
   .btn.active{ background:var(--accent); color:#11111b; border-color:var(--accent); font-weight:600; }
   .btn.export{ background:var(--green); color:#11111b; border-color:var(--green); font-weight:600; }
   .btn.export:hover{ filter:brightness(1.1); }
+  .btn.icon{ padding:6px 9px; font-size:14px; }
 
   main{ flex:1; display:flex; min-height:0; }
   .pane{ display:flex; flex-direction:column; min-width:0; min-height:0; }
@@ -65,7 +67,6 @@
   .tab:hover{ color:var(--text); }
   .tab.active{ color:var(--accent); border-bottom-color:var(--accent); }
 
-  /* ---- selection bar ---- */
   .selection-bar{
     display:flex; flex-wrap:wrap; align-items:center; gap:5px;
     padding:7px 9px; background:var(--panel2);
@@ -93,45 +94,33 @@
   }
   .close-btn:hover{ color:var(--red); background:rgba(243,139,168,.1); }
 
-  /* ===== Editor with line numbers + highlight ===== */
   .editors{ position:relative; flex:1; min-height:0; }
-
   .editor-wrap{
     position:absolute; inset:0;
     display:none; background:var(--panel);
   }
   .editor-wrap.active{ display:flex; }
-
   .gutter{
     flex:0 0 auto; width:46px;
     background:var(--gutter);
     border-right:1px solid var(--border);
-    overflow:hidden;
-    position:relative;
+    overflow:hidden; position:relative;
   }
   .gutter-inner{
     position:absolute; top:0; right:0; left:0;
     padding:14px 8px 14px 0;
-    text-align:right;
-    white-space:pre;
+    text-align:right; white-space:pre;
     font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    color:#4a4a5e;
-    user-select:none;
+    color:#4a4a5e; user-select:none;
     will-change:transform;
   }
-
-  .code-container{
-    position:relative; flex:1; min-width:0; overflow:hidden;
-  }
+  .code-container{ position:relative; flex:1; min-width:0; overflow:hidden; }
   .code-container .highlight{
     position:absolute; inset:0; margin:0;
-    padding:14px 16px;
-    overflow:hidden;
+    padding:14px 16px; overflow:hidden;
     pointer-events:none;
     font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    color:var(--text);
-    white-space:pre;
-    tab-size:2;
+    color:var(--text); white-space:pre; tab-size:2;
     background:transparent; border:0;
     word-break:normal; overflow-wrap:normal;
   }
@@ -140,20 +129,16 @@
     width:100%; height:100%;
     padding:14px 16px; margin:0;
     border:0; outline:0; resize:none;
-    background:transparent;
-    color:transparent;
+    background:transparent; color:transparent;
     caret-color:var(--text);
     font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    white-space:pre; tab-size:2;
-    overflow:auto;
+    white-space:pre; tab-size:2; overflow:auto;
     word-break:normal; overflow-wrap:normal;
   }
   .code-container textarea::selection{
-    background:rgba(137,180,250,0.30);
-    color:transparent;
+    background:rgba(137,180,250,0.30); color:transparent;
   }
 
-  /* token colors */
   .tk-tag   { color:#f38ba8; }
   .tk-attr  { color:#f9e2af; }
   .tk-str   { color:#a6e3a1; }
@@ -164,7 +149,6 @@
   .tk-val   { color:#a6e3a1; }
   .tk-punc  { color:#9399b2; }
 
-  /* ---- preview ---- */
   .preview-head{
     display:flex; align-items:center; gap:8px; flex:0 0 auto;
     padding:6px 12px; background:var(--panel);
@@ -186,7 +170,6 @@
   .console .error{ color:var(--red); }
   .console .empty{ color:#45475a; font-style:italic; }
 
-  /* ---- modal ---- */
   .modal-backdrop{
     position:fixed; inset:0; background:rgba(0,0,0,.55);
     display:flex; align-items:center; justify-content:center;
@@ -261,8 +244,10 @@
     <button class="btn" id="selectModeBtn">🎯 เลือก element</button>
     <span class="status" id="status">พร้อม</span>
     <div class="spacer"></div>
-    <button class="btn" id="saveBtn" title="บันทึกโค้ดลงเครื่อง (localStorage)">💾 บันทึก</button>
-    <button class="btn export" id="exportBtn" title="Export เป็นไฟล์ .html">⬇ Export HTML</button>
+    <button class="btn icon" id="undoBtn" title="Undo (Ctrl+Z)" disabled>↶</button>
+    <button class="btn icon" id="redoBtn" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" disabled>↷</button>
+    <button class="btn" id="saveBtn" title="บันทึกโค้ด (Ctrl+S)">💾 บันทึก</button>
+    <button class="btn export" id="exportBtn" title="Export .html (Ctrl+Shift+S)">⬇ Export</button>
     <button class="btn primary" id="runBtn">▶ รัน (Ctrl+Enter)</button>
     <button class="btn" id="resetBtn">รีเซ็ต</button>
   </header>
@@ -353,6 +338,8 @@ const els = {
   reset: document.getElementById('resetBtn'),
   save: document.getElementById('saveBtn'),
   export: document.getElementById('exportBtn'),
+  undoBtn: document.getElementById('undoBtn'),
+  redoBtn: document.getElementById('redoBtn'),
   clear: document.getElementById('clearConsole'),
   splitter: document.getElementById('splitter'),
   editorPane: document.getElementById('editorPane'),
@@ -364,25 +351,25 @@ const els = {
 };
 
 /* ================= Defaults / Storage ================= */
-const STORAGE_KEY = 'live-html-tester-v5';
+const STORAGE_KEY = 'live-html-tester-v6';
 
 const DEFAULTS = {
   html:
 `<h1>สวัสดี 👋</h1>
-<p>เปิด "เลือก element" → คลิกที่ element → ลาก/ขยายได้เลย</p>
+<p>เปิด "เลือก element" → คลิก → ลาก/ขยาย มีเส้นไกด์ช่วยจัดตำแหน่ง</p>
 
 <button id="btn">คลิกฉัน</button>
 <p id="out"></p>
 
 <div class="card">
   <h2>การ์ดตัวอย่าง</h2>
-  <p>ดับเบิ้ลคลิกที่ element ใน preview เพื่อกระโดดไปที่โค้ด</p>
+  <p>ดับเบิ้ลคลิก = กระโดดไปโค้ด + hilight</p>
 </div>
 
 <ul>
-  <li>ลากจาก element เพื่อย้าย</li>
-  <li>ลากจุดมุม/ขอบเพื่อขยาย</li>
-  <li>ดับเบิ้ลคลิก = ไปที่ code + hilight</li>
+  <li>ลากเพื่อย้าย เห็นเส้นไกด์ตอนจัดกลาง</li>
+  <li>ลากขอบเพื่อขยาย เห็นขนาด W×H</li>
+  <li>Ctrl+Z / Ctrl+Shift+Z = ย้อนกลับ/ทำซ้ำ</li>
 </ul>`,
   css:
 `body {
@@ -436,26 +423,94 @@ function saveState(){
   }, 400);
 }
 
+/* ================= History (Undo/Redo) ================= */
+const history = {
+  stack: [],
+  index: -1,
+  maxSize: 120,
+  debounceTimer: null,
+  isRestoring: false,
+};
+
+function snapshot(){
+  return JSON.stringify({ h: els.html.value, c: els.css.value, j: els.js.value });
+}
+
+function pushHistory(){
+  if (history.isRestoring) return;
+  const s = snapshot();
+  if (history.index >= 0 && history.stack[history.index] === s) return;
+  history.stack = history.stack.slice(0, history.index + 1);
+  history.stack.push(s);
+  if (history.stack.length > history.maxSize) history.stack.shift();
+  history.index = history.stack.length - 1;
+  updateHistoryButtons();
+}
+
+function scheduleHistoryPush(){
+  if (history.isRestoring) return;
+  clearTimeout(history.debounceTimer);
+  history.debounceTimer = setTimeout(pushHistory, 450);
+}
+
+function applyHistoryState(str){
+  history.isRestoring = true;
+  try {
+    const s = JSON.parse(str);
+    els.html.value = s.h;
+    els.css.value = s.c;
+    els.js.value = s.j;
+    refreshEditor('html'); refreshEditor('css'); refreshEditor('js');
+    saveState();
+    clearSelection();
+    run();
+  } finally {
+    history.isRestoring = false;
+  }
+}
+
+function undo(){
+  clearTimeout(history.debounceTimer);
+  if (history.index <= 0){ toast('ไม่มีอะไรให้ย้อนกลับ', 'error'); return; }
+  history.index--;
+  applyHistoryState(history.stack[history.index]);
+  updateHistoryButtons();
+  toast('↶ ย้อนกลับ');
+}
+
+function redo(){
+  clearTimeout(history.debounceTimer);
+  if (history.index >= history.stack.length - 1){ toast('ไม่มีอะไรให้ทำซ้ำ', 'error'); return; }
+  history.index++;
+  applyHistoryState(history.stack[history.index]);
+  updateHistoryButtons();
+  toast('↷ ทำซ้ำ');
+}
+
+function updateHistoryButtons(){
+  els.undoBtn.disabled = history.index <= 0;
+  els.redoBtn.disabled = history.index >= history.stack.length - 1;
+  els.undoBtn.title = 'Undo (Ctrl+Z) — ' + Math.max(0, history.index) + ' ขั้น';
+  els.redoBtn.title = 'Redo (Ctrl+Shift+Z) — ' + Math.max(0, history.stack.length - 1 - history.index) + ' ขั้น';
+}
+
 /* ================= State ================= */
 let selectMode = false;
 let selection = { info: null, sourceLoc: null };
 let pendingDuplicate = false;
 
-/* ================= Syntax highlighters ================= */
+/* ================= Syntax highlight ================= */
 function escHTML(s){
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
 function hlHTML(code){
-  let out = '';
-  let i = 0;
+  let out = ''; let i = 0;
   while (i < code.length){
     if (code.slice(i, i+4) === '<!--'){
       const end = code.indexOf('-->', i+4);
       if (end !== -1){
         out += '<span class="tk-com">' + escHTML(code.slice(i, end+3)) + '</span>';
-        i = end + 3;
-        continue;
+        i = end + 3; continue;
       }
     }
     if (code[i] === '<'){
@@ -463,76 +518,45 @@ function hlHTML(code){
       if (end !== -1){
         const tag = code.slice(i, end+1);
         let inner = escHTML(tag);
-        inner = inner.replace(
-          /([a-zA-Z][\w-]*)\s*=\s*("[^"]*"|'[^']*')/g,
-          '<span class="tk-attr">$1</span>=<span class="tk-str">$2</span>'
-        );
-        inner = inner.replace(
-          /^(&lt;\/?)([a-zA-Z][\w-]*)/,
-          '$1<span class="tk-tag">$2</span>'
-        );
-        out += inner;
-        i = end + 1;
-        continue;
+        inner = inner.replace(/([a-zA-Z][\w-]*)\s*=\s*("[^"]*"|'[^']*')/g,
+          '<span class="tk-attr">$1</span>=<span class="tk-str">$2</span>');
+        inner = inner.replace(/^(&lt;\/?)([a-zA-Z][\w-]*)/, '$1<span class="tk-tag">$2</span>');
+        out += inner; i = end + 1; continue;
       }
     }
-    out += escHTML(code[i]);
-    i++;
+    out += escHTML(code[i]); i++;
   }
   return out;
 }
-
 function hlCSS(code){
   let s = escHTML(code);
   const blocks = [];
-  // comments → placeholder
-  s = s.replace(/\/\*[\s\S]*?\*\//g, m => {
-    blocks.push(m);
-    return '\x00C' + (blocks.length-1) + '\x00';
-  });
-  // strings
+  s = s.replace(/\/\*[\s\S]*?\*\//g, m => { blocks.push(m); return '\x00C' + (blocks.length-1) + '\x00'; });
   const strs = [];
-  s = s.replace(/("[^"]*"|'[^']*')/g, m => {
-    strs.push(m);
-    return '\x00S' + (strs.length-1) + '\x00';
-  });
-  // property : value
+  s = s.replace(/("[^"]*"|'[^']*')/g, m => { strs.push(m); return '\x00S' + (strs.length-1) + '\x00'; });
   s = s.replace(/([a-zA-Z-]+)(\s*:\s*)([^;{}]+)/g,
     '<span class="tk-prop">$1</span><span class="tk-punc">$2</span><span class="tk-val">$3</span>');
-  // restore
   s = s.replace(/\x00S(\d+)\x00/g, (m,i) => '<span class="tk-str">' + strs[i] + '</span>');
   s = s.replace(/\x00C(\d+)\x00/g, (m,i) => '<span class="tk-com">' + blocks[i] + '</span>');
   return s;
 }
-
 const JS_KEYWORDS = 'function|const|let|var|if|else|for|while|return|new|class|this|typeof|instanceof|true|false|null|undefined|async|await|try|catch|finally|throw|switch|case|break|continue|do|in|of|delete|void|yield|import|export|from|as|default|extends|super|static|get|set';
-
 function hlJS(code){
   let s = escHTML(code);
   const blocks = [];
-  s = s.replace(/\/\*[\s\S]*?\*\//g, m => {
-    blocks.push(m);
-    return '\x00C' + (blocks.length-1) + '\x00';
-  });
+  s = s.replace(/\/\*[\s\S]*?\*\//g, m => { blocks.push(m); return '\x00C' + (blocks.length-1) + '\x00'; });
   const strs = [];
-  s = s.replace(/(["'`])(?:(?!\1)[^\\]|\\.)*\1/g, m => {
-    strs.push(m);
-    return '\x00S' + (strs.length-1) + '\x00';
-  });
-  s = s.replace(/\/\/[^\n]*/g, m => {
-    blocks.push(m);
-    return '\x00C' + (blocks.length-1) + '\x00';
-  });
+  s = s.replace(/(["'`])(?:(?!\1)[^\\]|\\.)*\1/g, m => { strs.push(m); return '\x00S' + (strs.length-1) + '\x00'; });
+  s = s.replace(/\/\/[^\n]*/g, m => { blocks.push(m); return '\x00C' + (blocks.length-1) + '\x00'; });
   s = s.replace(new RegExp('\\b(' + JS_KEYWORDS + ')\\b', 'g'), '<span class="tk-kw">$1</span>');
   s = s.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="tk-num">$1</span>');
   s = s.replace(/\x00S(\d+)\x00/g, (m,i) => '<span class="tk-str">' + strs[i] + '</span>');
   s = s.replace(/\x00C(\d+)\x00/g, (m,i) => '<span class="tk-com">' + blocks[i] + '</span>');
   return s;
 }
-
 const HL = { html: hlHTML, css: hlCSS, js: hlJS };
 
-/* ================= Editor refs + refresh ================= */
+/* ================= Editor refs ================= */
 const editorRefs = {};
 ['html','css','js'].forEach(lang => {
   editorRefs[lang] = {
@@ -546,18 +570,14 @@ const editorRefs = {};
 function refreshEditor(lang){
   const { ta, pre, gutter } = editorRefs[lang];
   const val = ta.value;
-  if (val.length < 200000){
-    pre.innerHTML = HL[lang](val) + '\n';
-  } else {
-    pre.textContent = val + '\n';
-  }
+  if (val.length < 200000) pre.innerHTML = HL[lang](val) + '\n';
+  else pre.textContent = val + '\n';
   const lineCount = val.split('\n').length;
   let g = '';
   for (let i = 1; i <= lineCount; i++) g += i + '\n';
   gutter.textContent = g;
   syncEditorScroll(lang);
 }
-
 function syncEditorScroll(lang){
   const { ta, pre, gutter } = editorRefs[lang];
   pre.scrollTop = ta.scrollTop;
@@ -573,20 +593,22 @@ const SELECTOR_SCRIPT = `
 
   var selectMode = false;
   var currentEl = null;
-  var overlay, badge, hoverOverlay, handlesLayer;
+  var overlay, badge, hoverOverlay, handlesLayer, guidesLayer;
   var potentialDrag = null;
   var dragState = null;
 
   function ensureOverlay(){
     if (overlay && overlay.isConnected) return;
     overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;pointer-events:none;border:2px solid #89b4fa;background:rgba(137,180,250,0.10);z-index:2147483646;display:none;box-sizing:border-box;';
+    overlay.style.cssText = 'position:fixed;pointer-events:none;border:2px solid #89b4fa;background:rgba(137,180,250,0.10);z-index:2147483644;display:none;box-sizing:border-box;';
     badge = document.createElement('div');
     badge.style.cssText = 'position:fixed;pointer-events:none;background:#89b4fa;color:#11111b;font:600 11px/1 system-ui,sans-serif;padding:3px 7px;border-radius:4px;z-index:2147483647;display:none;white-space:nowrap;';
     hoverOverlay = document.createElement('div');
-    hoverOverlay.style.cssText = 'position:fixed;pointer-events:none;border:1px dashed rgba(137,180,250,0.85);background:rgba(137,180,250,0.07);z-index:2147483645;display:none;box-sizing:border-box;';
+    hoverOverlay.style.cssText = 'position:fixed;pointer-events:none;border:1px dashed rgba(137,180,250,0.85);background:rgba(137,180,250,0.07);z-index:2147483643;display:none;box-sizing:border-box;';
     handlesLayer = document.createElement('div');
-    handlesLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483647;display:none;';
+    handlesLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483646;display:none;';
+    guidesLayer = document.createElement('div');
+    guidesLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483645;display:none;';
 
     var moveH = document.createElement('div');
     moveH.dataset.handle = 'move';
@@ -606,8 +628,9 @@ const SELECTOR_SCRIPT = `
     var root = document.body || document.documentElement;
     root.appendChild(hoverOverlay);
     root.appendChild(overlay);
-    root.appendChild(badge);
+    root.appendChild(guidesLayer);
     root.appendChild(handlesLayer);
+    root.appendChild(badge);
   }
 
   function positionOverlay(el){
@@ -650,11 +673,124 @@ const SELECTOR_SCRIPT = `
     });
   }
 
+  /* ---- Guides (alignment lines + measurements) ---- */
+  function clearGuides(){
+    if (guidesLayer){
+      guidesLayer.innerHTML = '';
+      guidesLayer.style.display = 'none';
+    }
+  }
+
+  function drawGuides(el){
+    ensureOverlay();
+    guidesLayer.innerHTML = '';
+    guidesLayer.style.display = 'block';
+
+    var r = el.getBoundingClientRect();
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var threshold = 6;
+
+    var centerX = r.left + r.width/2;
+    var centerY = r.top  + r.height/2;
+
+    var xTargets = [0, vw/2, vw];
+    var yTargets = [0, vh/2, vh];
+
+    var vLines = {};
+    [r.left, centerX, r.right].forEach(function(edge){
+      xTargets.forEach(function(t){
+        if (Math.abs(edge - t) < threshold) vLines[t] = true;
+      });
+    });
+    var hLines = {};
+    [r.top, centerY, r.bottom].forEach(function(edge){
+      yTargets.forEach(function(t){
+        if (Math.abs(edge - t) < threshold) hLines[t] = true;
+      });
+    });
+
+    Object.keys(vLines).forEach(function(x){
+      var g = document.createElement('div');
+      g.style.cssText = 'position:fixed;left:' + x + 'px;top:0;width:1px;height:100vh;background:#f38ba8;box-shadow:0 0 4px rgba(243,139,168,0.8);';
+      guidesLayer.appendChild(g);
+    });
+    Object.keys(hLines).forEach(function(y){
+      var g = document.createElement('div');
+      g.style.cssText = 'position:fixed;top:' + y + 'px;left:0;height:1px;width:100vw;background:#f38ba8;box-shadow:0 0 4px rgba(243,139,168,0.8);';
+      guidesLayer.appendChild(g);
+    });
+
+    // dimension badge
+    var dimY = r.bottom + 8;
+    if (dimY + 22 > vh) dimY = r.top - 28;
+    var dim = document.createElement('div');
+    dim.style.cssText = 'position:fixed;left:' + centerX + 'px;top:' + dimY + 'px;transform:translateX(-50%);background:#89b4fa;color:#11111b;font:600 11px/1 ui-monospace,monospace;padding:3px 8px;border-radius:4px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.4);';
+    dim.textContent = Math.round(r.width) + ' × ' + Math.round(r.height);
+    guidesLayer.appendChild(dim);
+
+    // distance badges
+    if (r.left > 24){
+      var dL = document.createElement('div');
+      dL.style.cssText = 'position:fixed;left:' + (r.left/2) + 'px;top:' + (centerY - 8) + 'px;transform:translateX(-50%);background:#f9e2af;color:#11111b;font:600 10px/1 ui-monospace,monospace;padding:2px 5px;border-radius:3px;white-space:nowrap;';
+      dL.textContent = Math.round(r.left);
+      guidesLayer.appendChild(dL);
+    }
+    if (r.top > 24){
+      var dT = document.createElement('div');
+      dT.style.cssText = 'position:fixed;left:' + (centerX - 10) + 'px;top:' + (r.top/2) + 'px;background:#f9e2af;color:#11111b;font:600 10px/1 ui-monospace,monospace;padding:2px 5px;border-radius:3px;white-space:nowrap;';
+      dT.textContent = Math.round(r.top);
+      guidesLayer.appendChild(dT);
+    }
+    if (vw - r.right > 24){
+      var dR = document.createElement('div');
+      dR.style.cssText = 'position:fixed;left:' + ((r.right + vw)/2) + 'px;top:' + (centerY - 8) + 'px;transform:translateX(-50%);background:#f9e2af;color:#11111b;font:600 10px/1 ui-monospace,monospace;padding:2px 5px;border-radius:3px;white-space:nowrap;';
+      dR.textContent = Math.round(vw - r.right);
+      guidesLayer.appendChild(dR);
+    }
+    if (vh - r.bottom > 24){
+      var dB = document.createElement('div');
+      dB.style.cssText = 'position:fixed;left:' + (centerX - 10) + 'px;top:' + ((r.bottom + vh)/2) + 'px;background:#f9e2af;color:#11111b;font:600 10px/1 ui-monospace,monospace;padding:2px 5px;border-radius:3px;white-space:nowrap;';
+      dB.textContent = Math.round(vh - r.bottom);
+      guidesLayer.appendChild(dB);
+    }
+  }
+
+  function applySnap(r){
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var threshold = 5;
+    var dx = 0, dy = 0;
+
+    var targetsX = [0, vw/2, vw];
+    var edgesX = [r.left, r.left + r.width/2, r.right];
+    var bestDX = null;
+    edgesX.forEach(function(edge){
+      targetsX.forEach(function(t){
+        var d = t - edge;
+        if (Math.abs(d) < threshold && (bestDX === null || Math.abs(d) < Math.abs(bestDX))) bestDX = d;
+      });
+    });
+    if (bestDX !== null) dx = bestDX;
+
+    var targetsY = [0, vh/2, vh];
+    var edgesY = [r.top, r.top + r.height/2, r.bottom];
+    var bestDY = null;
+    edgesY.forEach(function(edge){
+      targetsY.forEach(function(t){
+        var d = t - edge;
+        if (Math.abs(d) < threshold && (bestDY === null || Math.abs(d) < Math.abs(bestDY))) bestDY = d;
+      });
+    });
+    if (bestDY !== null) dy = bestDY;
+
+    return { dx: dx, dy: dy };
+  }
+
   function hideAll(){
     if (overlay) overlay.style.display = 'none';
     if (badge) badge.style.display = 'none';
     if (hoverOverlay) hoverOverlay.style.display = 'none';
     if (handlesLayer) handlesLayer.style.display = 'none';
+    clearGuides();
   }
 
   function describe(el){
@@ -683,7 +819,6 @@ const SELECTOR_SCRIPT = `
   function sendSelect(el){ post('select', { info: describe(el) }); }
   function sendUpdate(el, action){ post('updated', { info: describe(el), action: action || null }); }
 
-  /* --- drag / resize --- */
   function beginDrag(el, startX, startY){
     var cs = window.getComputedStyle(el);
     dragState = {
@@ -728,6 +863,11 @@ const SELECTOR_SCRIPT = `
       if (d.wasInline) d.el.style.display = 'inline-block';
       d.el.style.left = (d.startLeft + dx) + 'px';
       d.el.style.top  = (d.startTop  + dy) + 'px';
+      // snap to viewport guides
+      var r0 = d.el.getBoundingClientRect();
+      var snap = applySnap(r0);
+      if (snap.dx) d.el.style.left = (parseFloat(d.el.style.left) + snap.dx) + 'px';
+      if (snap.dy) d.el.style.top  = (parseFloat(d.el.style.top)  + snap.dy) + 'px';
     } else {
       if (d.wasStatic) d.el.style.position = 'relative';
       if (d.wasInline) d.el.style.display = 'inline-block';
@@ -744,8 +884,10 @@ const SELECTOR_SCRIPT = `
       if (h.indexOf('w') !== -1) d.el.style.left = newLeft + 'px';
       if (h.indexOf('n') !== -1) d.el.style.top  = newTop  + 'px';
     }
+
     positionOverlay(d.el);
     positionHandles();
+    drawGuides(d.el);
   }
 
   function onDragUp(e){
@@ -756,12 +898,12 @@ const SELECTOR_SCRIPT = `
     document.body.style.userSelect = '';
     document.removeEventListener('mousemove', onDragMove, true);
     document.removeEventListener('mouseup', onDragUp, true);
+    clearGuides();
     positionOverlay(d.el);
     positionHandles();
     sendUpdate(d.el, d.type);
   }
 
-  /* --- mouse --- */
   function onMouseDown(e){
     if (!selectMode) return;
     if (e.target.dataset && e.target.dataset.handle && currentEl){
@@ -1150,6 +1292,7 @@ function syncToSource(newHTML, opts){
   }
   refreshEditor('html');
   saveState();
+  pushHistory();
 }
 
 function removeFromSource(){
@@ -1159,6 +1302,7 @@ function removeFromSource(){
   els.html.value = src.slice(0, loc.start) + src.slice(loc.end);
   refreshEditor('html');
   saveState();
+  pushHistory();
 }
 
 /* ================= Clipboard ================= */
@@ -1191,7 +1335,6 @@ function buildSelector(info){
   }
   return sel;
 }
-
 function toJSX(html){
   let s = html;
   s = s.replace(/\bclass=/g, 'className=');
@@ -1446,6 +1589,8 @@ function actExport(){
 }
 
 function actSave(){
+  clearTimeout(history.debounceTimer);
+  pushHistory();
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       html: els.html.value, css: els.css.value, js: els.js.value
@@ -1472,13 +1617,11 @@ window.addEventListener('message', (e) => {
     return;
   }
   if (d.kind === 'dblclick'){
-    // ดับเบิ้ลคลิก = กระโดดไปที่โค้ด + hilight
     selection.info = d.info;
     selection.sourceLoc = locateInSource(d.info);
     showSelectionBar(d.info);
     if (selection.sourceLoc){
       selectRange(selection.sourceLoc.start, selection.sourceLoc.end);
-      // flash ขอบ editor
       els.editorPane.style.boxShadow = 'inset 0 0 0 2px var(--accent)';
       setTimeout(() => { els.editorPane.style.boxShadow = ''; }, 700);
       toast('กระโดดไปที่ <' + d.info.tag + '> ในโค้ดแล้ว');
@@ -1518,6 +1661,7 @@ window.addEventListener('message', (e) => {
       selection.sourceLoc = null;
     }
     saveState();
+    scheduleHistoryPush();
     if (!els.auto.checked){ els.status.textContent = 'โหมด manual — กด Run'; return; }
     clearTimeout(runTimer);
     runTimer = setTimeout(run, RUN_DELAY);
@@ -1530,6 +1674,7 @@ window.addEventListener('message', (e) => {
       ta.setRangeText('  ', s, en, 'end');
       refreshEditor(lang);
       saveState();
+      scheduleHistoryPush();
       if (els.auto.checked){
         clearTimeout(runTimer);
         runTimer = setTimeout(run, RUN_DELAY);
@@ -1553,6 +1698,8 @@ document.querySelectorAll('.tab').forEach(tab => {
 
 /* ================= Buttons ================= */
 els.run.addEventListener('click', run);
+els.undoBtn.addEventListener('click', undo);
+els.redoBtn.addEventListener('click', redo);
 els.save.addEventListener('click', actSave);
 els.export.addEventListener('click', actExport);
 els.clear.addEventListener('click', clearConsole);
@@ -1567,6 +1714,7 @@ els.reset.addEventListener('click', () => {
   els.js.value   = DEFAULTS.js;
   refreshEditor('html'); refreshEditor('css'); refreshEditor('js');
   saveState();
+  pushHistory();
   run();
 });
 els.selectModeBtn.addEventListener('click', () => setSelectMode(!selectMode));
@@ -1596,12 +1744,26 @@ els.selectionBar.addEventListener('click', (e) => {
 /* ================= Global shortcuts ================= */
 document.addEventListener('keydown', (e) => {
   const mod = e.ctrlKey || e.metaKey;
-  if (mod && e.key === 'Enter'){ e.preventDefault(); run(); }
+  const inModal = !!document.querySelector('.modal-backdrop');
+  if (inModal) return;
+
+  if (mod && e.key.toLowerCase() === 'z'){
+    e.preventDefault();
+    if (e.shiftKey) redo(); else undo();
+    return;
+  }
+  if (mod && e.key.toLowerCase() === 'y'){
+    e.preventDefault();
+    redo();
+    return;
+  }
+  if (mod && e.key === 'Enter'){ e.preventDefault(); run(); return; }
   if (mod && e.key.toLowerCase() === 's'){
     e.preventDefault();
-    if (mod && e.shiftKey) actExport(); else actSave();
+    if (e.shiftKey) actExport(); else actSave();
+    return;
   }
-  if (e.key === 'Escape' && selection.info && !document.querySelector('.modal-backdrop')){
+  if (e.key === 'Escape' && selection.info){
     clearSelection();
     sendToFrame({ cmd: 'deselect' });
   }
@@ -1635,6 +1797,7 @@ refreshEditor('html');
 refreshEditor('css');
 refreshEditor('js');
 clearConsole();
+pushHistory();
 requestAnimationFrame(run);
 </script>
 </body>
