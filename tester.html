@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>⚡ Live HTML Tester — เลือก element ได้</title>
+<title>⚡ Live HTML Tester — ลาก/ขยาย + Export</title>
 <style>
   :root{
     --bg:#1e1e2e; --panel:#181825; --panel2:#252538; --border:#313244;
     --text:#cdd6f4; --muted:#7f849c;
     --accent:#89b4fa; --green:#a6e3a1; --red:#f38ba8; --yellow:#f9e2af;
+    --gutter:#12121c;
   }
   *{ box-sizing:border-box; }
   html,body{ height:100%; margin:0; }
@@ -19,198 +20,232 @@
   }
   .app{ display:flex; flex-direction:column; height:100vh; }
 
-  /* ---------- Header ---------- */
   header{
     height:52px; flex:0 0 auto;
-    display:flex; align-items:center; gap:12px;
-    padding:0 16px; border-bottom:1px solid var(--border);
-    background:var(--panel);
-    overflow-x:auto;
+    display:flex; align-items:center; gap:8px;
+    padding:0 12px; border-bottom:1px solid var(--border);
+    background:var(--panel); overflow-x:auto;
   }
-  .brand{ font-weight:700; font-size:15px; letter-spacing:.3px; white-space:nowrap; }
-  .switch{ display:flex; align-items:center; gap:7px; font-size:13px; color:var(--muted); cursor:pointer; user-select:none; white-space:nowrap; }
-  .switch input{ accent-color:var(--accent); width:16px; height:16px; cursor:pointer; }
-  .status{ font-size:12px; color:var(--muted); transition:color .35s; white-space:nowrap; }
+  .brand{ font-weight:700; font-size:14.5px; white-space:nowrap; }
+  .switch{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); cursor:pointer; user-select:none; white-space:nowrap; }
+  .switch input{ accent-color:var(--accent); width:15px; height:15px; cursor:pointer; }
+  .status{ font-size:12px; color:var(--muted); white-space:nowrap; }
   .status.flash{ color:var(--green); }
   .spacer{ flex:1; }
 
   .btn{
     background:#2a2a3d; color:var(--text); border:1px solid var(--border);
-    padding:7px 13px; border-radius:8px; font-size:13px; cursor:pointer;
+    padding:6px 11px; border-radius:7px; font-size:12.5px; cursor:pointer;
     transition:.15s; font-family:inherit; white-space:nowrap;
   }
   .btn:hover{ background:#35354d; }
   .btn.primary{ background:var(--accent); color:#11111b; border-color:var(--accent); font-weight:600; }
   .btn.primary:hover{ filter:brightness(1.1); }
-  .btn.tiny{ padding:4px 9px; font-size:11.5px; border-radius:6px; }
+  .btn.tiny{ padding:4px 8px; font-size:11px; border-radius:5px; }
   .btn.active{ background:var(--accent); color:#11111b; border-color:var(--accent); font-weight:600; }
+  .btn.export{ background:var(--green); color:#11111b; border-color:var(--green); font-weight:600; }
+  .btn.export:hover{ filter:brightness(1.1); }
 
-  /* ---------- Layout ---------- */
   main{ flex:1; display:flex; min-height:0; }
   .pane{ display:flex; flex-direction:column; min-width:0; min-height:0; }
-  #editorPane{ width:50%; flex:0 0 auto; }
+  #editorPane{ width:50%; flex:0 0 auto; transition: box-shadow .3s; }
   #previewPane{ flex:1; }
-  .splitter{
-    width:6px; flex:0 0 auto; cursor:col-resize; background:var(--border);
-    transition:background .15s;
-  }
+  .splitter{ width:6px; flex:0 0 auto; cursor:col-resize; background:var(--border); transition:background .15s; }
   .splitter:hover{ background:var(--accent); }
 
-  /* ---------- Tabs ---------- */
   .tabs{
-    display:flex; gap:2px; padding:6px 8px 0; background:var(--panel);
+    display:flex; gap:2px; padding:5px 8px 0; background:var(--panel);
     border-bottom:1px solid var(--border); flex:0 0 auto;
   }
   .tab{
     background:transparent; border:0; border-bottom:2px solid transparent;
-    color:var(--muted); padding:8px 16px; font-size:13px; cursor:pointer;
+    color:var(--muted); padding:7px 14px; font-size:12.5px; cursor:pointer;
     font-family:ui-monospace,Menlo,Consolas,monospace; transition:.15s;
   }
   .tab:hover{ color:var(--text); }
   .tab.active{ color:var(--accent); border-bottom-color:var(--accent); }
 
-  /* ---------- Selection bar ---------- */
+  /* ---- selection bar ---- */
   .selection-bar{
-    display:flex; align-items:center; gap:6px;
-    padding:7px 10px; background:var(--panel2);
+    display:flex; flex-wrap:wrap; align-items:center; gap:5px;
+    padding:7px 9px; background:var(--panel2);
     border-bottom:1px solid var(--border);
-    flex:0 0 auto; overflow-x:auto; font-size:12px;
-    animation: slideDown .2s ease;
+    flex:0 0 auto; font-size:12px;
+    animation: slideDown .18s ease;
   }
   .selection-bar[hidden]{ display:none; }
-  @keyframes slideDown {
-    from { opacity:0; transform:translateY(-6px); }
-    to { opacity:1; transform:translateY(0); }
+  @keyframes slideDown{
+    from{ opacity:0; transform:translateY(-5px); }
+    to{ opacity:1; transform:translateY(0); }
   }
   .sel-tag{
     background:var(--accent); color:#11111b;
-    padding:3px 9px; border-radius:5px;
-    font-family:ui-monospace,monospace; font-weight:700; font-size:11.5px;
-    white-space:nowrap; flex:0 0 auto;
+    padding:3px 8px; border-radius:4px;
+    font-family:ui-monospace,monospace; font-weight:700; font-size:11px;
+    white-space:nowrap;
   }
   .sel-tag .sel-id{ opacity:.7; font-weight:500; }
-  .sel-sep{ width:1px; height:18px; background:var(--border); flex:0 0 auto; }
-  .selection-bar .close-btn{
+  .sel-sep{ width:1px; height:16px; background:var(--border); }
+  .close-btn{
     margin-left:auto; background:transparent; border:0;
-    color:var(--muted); font-size:16px; cursor:pointer;
-    padding:2px 8px; border-radius:5px; flex:0 0 auto;
+    color:var(--muted); font-size:15px; cursor:pointer;
+    padding:2px 7px; border-radius:4px;
   }
-  .selection-bar .close-btn:hover{ color:var(--red); background:rgba(243,139,168,.1); }
+  .close-btn:hover{ color:var(--red); background:rgba(243,139,168,.1); }
 
-  /* ---------- Editors ---------- */
+  /* ===== Editor with line numbers + highlight ===== */
   .editors{ position:relative; flex:1; min-height:0; }
-  .editors textarea{
-    position:absolute; inset:0; width:100%; height:100%;
-    display:none; border:0; outline:0; resize:none;
-    background:var(--panel); color:var(--text);
-    padding:14px 16px; tab-size:2;
-    font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  }
-  .editors textarea.active{ display:block; }
-  .editors textarea::selection{ background:#45475a; color:#fff; }
 
-  /* ---------- Preview ---------- */
+  .editor-wrap{
+    position:absolute; inset:0;
+    display:none; background:var(--panel);
+  }
+  .editor-wrap.active{ display:flex; }
+
+  .gutter{
+    flex:0 0 auto; width:46px;
+    background:var(--gutter);
+    border-right:1px solid var(--border);
+    overflow:hidden;
+    position:relative;
+  }
+  .gutter-inner{
+    position:absolute; top:0; right:0; left:0;
+    padding:14px 8px 14px 0;
+    text-align:right;
+    white-space:pre;
+    font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    color:#4a4a5e;
+    user-select:none;
+    will-change:transform;
+  }
+
+  .code-container{
+    position:relative; flex:1; min-width:0; overflow:hidden;
+  }
+  .code-container .highlight{
+    position:absolute; inset:0; margin:0;
+    padding:14px 16px;
+    overflow:hidden;
+    pointer-events:none;
+    font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    color:var(--text);
+    white-space:pre;
+    tab-size:2;
+    background:transparent; border:0;
+    word-break:normal; overflow-wrap:normal;
+  }
+  .code-container textarea{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    padding:14px 16px; margin:0;
+    border:0; outline:0; resize:none;
+    background:transparent;
+    color:transparent;
+    caret-color:var(--text);
+    font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    white-space:pre; tab-size:2;
+    overflow:auto;
+    word-break:normal; overflow-wrap:normal;
+  }
+  .code-container textarea::selection{
+    background:rgba(137,180,250,0.30);
+    color:transparent;
+  }
+
+  /* token colors */
+  .tk-tag   { color:#f38ba8; }
+  .tk-attr  { color:#f9e2af; }
+  .tk-str   { color:#a6e3a1; }
+  .tk-com   { color:#6c7086; font-style:italic; }
+  .tk-kw    { color:#cba6f7; }
+  .tk-num   { color:#fab387; }
+  .tk-prop  { color:#89b4fa; }
+  .tk-val   { color:#a6e3a1; }
+  .tk-punc  { color:#9399b2; }
+
+  /* ---- preview ---- */
   .preview-head{
     display:flex; align-items:center; gap:8px; flex:0 0 auto;
     padding:6px 12px; background:var(--panel);
     border-bottom:1px solid var(--border); font-size:12px; color:var(--muted);
   }
-  iframe{
-    flex:1; min-height:0; width:100%; border:0; background:#fff;
-  }
-  body.select-mode #preview{
-    box-shadow: inset 0 0 0 3px var(--accent);
-  }
+  iframe{ flex:1; min-height:0; width:100%; border:0; background:#fff; }
+  body.select-mode #preview{ box-shadow: inset 0 0 0 3px var(--accent); }
 
-  /* ---------- Console ---------- */
   .console{
-    height:130px; flex:0 0 auto; overflow:auto;
+    height:120px; flex:0 0 auto; overflow:auto;
     background:#11111b; border-top:1px solid var(--border);
     padding:6px 12px;
-    font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font:12px/1.55 ui-monospace,Menlo,Consolas,monospace;
   }
   .console .line{ padding:2px 0; white-space:pre-wrap; word-break:break-word; border-bottom:1px solid #1c1c2b; }
-  .console .line:empty{ display:none; }
   .console .log{ color:var(--text); }
   .console .info{ color:var(--accent); }
   .console .warn{ color:var(--yellow); }
   .console .error{ color:var(--red); }
   .console .empty{ color:#45475a; font-style:italic; }
 
-  /* ---------- Modal ---------- */
+  /* ---- modal ---- */
   .modal-backdrop{
     position:fixed; inset:0; background:rgba(0,0,0,.55);
     display:flex; align-items:center; justify-content:center;
     z-index:9999; padding:20px;
   }
-  .modal-backdrop[hidden]{ display:none; }
   .modal{
     background:var(--panel); border:1px solid var(--border);
-    border-radius:12px; width:min(500px,100%);
-    max-height:80vh; display:flex; flex-direction:column;
+    border-radius:12px; width:min(560px,100%);
+    max-height:82vh; display:flex; flex-direction:column;
     box-shadow:0 20px 60px rgba(0,0,0,.55);
-    animation: popIn .18s ease;
+    animation: popIn .16s ease;
   }
-  @keyframes popIn {
-    from { opacity:0; transform:scale(.96); }
-    to { opacity:1; transform:scale(1); }
-  }
+  @keyframes popIn{ from{ opacity:0; transform:scale(.96); } to{ opacity:1; transform:scale(1); } }
   .modal h3{
-    margin:0; padding:16px 20px; border-bottom:1px solid var(--border);
-    font-size:15px; display:flex; align-items:center; gap:8px;
+    margin:0; padding:14px 18px; border-bottom:1px solid var(--border);
+    font-size:14px; display:flex; align-items:center; gap:8px;
   }
-  .modal-body{ padding:16px 20px; overflow-y:auto; flex:1; }
-  .modal-body label{
-    display:block; margin-bottom:6px; font-size:12px; color:var(--muted);
-  }
-  .modal-body input[type="text"],
-  .modal-body textarea{
+  .modal-body{ padding:14px 18px; overflow-y:auto; flex:1; }
+  .modal-body label{ display:block; margin-bottom:5px; font-size:11.5px; color:var(--muted); }
+  .modal-body input[type="text"], .modal-body textarea, .modal-body select{
     width:100%; background:var(--bg); border:1px solid var(--border);
-    border-radius:6px; color:var(--text); padding:8px 10px;
-    font:13px ui-monospace,monospace; margin-bottom:10px;
+    border-radius:6px; color:var(--text); padding:7px 9px;
+    font:12.5px ui-monospace,monospace; margin-bottom:9px;
     resize:vertical; outline:0;
   }
-  .modal-body input:focus, .modal-body textarea:focus{ border-color:var(--accent); }
-  .modal-body textarea{ min-height:90px; }
+  .modal-body input:focus, .modal-body textarea:focus, .modal-body select:focus{ border-color:var(--accent); }
+  .modal-body textarea{ min-height:130px; }
   .modal-actions{
     display:flex; gap:8px; justify-content:flex-end;
-    padding:12px 20px; border-top:1px solid var(--border);
+    padding:11px 18px; border-top:1px solid var(--border);
   }
-  .attr-row{ display:flex; gap:6px; margin-bottom:6px; }
+  .attr-row{ display:flex; gap:5px; margin-bottom:5px; }
   .attr-row input{ margin-bottom:0 !important; }
-  .attr-row .attr-name{ flex:0 0 38%; }
+  .attr-row .attr-name{ flex:0 0 36%; }
   .attr-row .attr-value{ flex:1; }
   .attr-row .remove-attr{
-    flex:0 0 auto; background:transparent;
-    border:1px solid var(--border); color:var(--red);
-    border-radius:6px; width:34px; cursor:pointer; font-size:13px;
+    flex:0 0 auto; background:transparent; border:1px solid var(--border);
+    color:var(--red); border-radius:5px; width:32px; cursor:pointer; font-size:12px;
   }
   .attr-row .remove-attr:hover{ background:rgba(243,139,168,.12); }
 
-  /* ---------- Toast ---------- */
   .toast{
-    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
     background:var(--green); color:#11111b;
-    padding:10px 22px; border-radius:9px; font-size:13px; font-weight:600;
+    padding:9px 20px; border-radius:8px; font-size:12.5px; font-weight:600;
     z-index:10000; box-shadow:0 6px 24px rgba(0,0,0,.35);
-    animation: toastIn .25s cubic-bezier(.2,1.2,.4,1);
+    animation: toastIn .22s cubic-bezier(.2,1.2,.4,1);
     white-space:nowrap;
   }
   .toast.error{ background:var(--red); }
   .toast.fade{ opacity:0; transition:opacity .3s; }
-  @keyframes toastIn {
-    from { opacity:0; transform:translate(-50%, 16px); }
-    to { opacity:1; transform:translate(-50%, 0); }
-  }
+  @keyframes toastIn{ from{ opacity:0; transform:translate(-50%,14px); } to{ opacity:1; transform:translate(-50%,0); } }
 
-  /* ---------- Responsive ---------- */
   @media (max-width: 860px){
     main{ flex-direction:column; }
     #editorPane{ width:100% !important; height:45%; }
     .splitter{ display:none; }
     #previewPane{ height:55%; }
-    .console{ height:90px; }
-    .brand span{ display:none; }
+    .console{ height:80px; }
   }
 </style>
 </head>
@@ -218,18 +253,16 @@
 <div class="app">
 
   <header>
-    <div class="brand">⚡ <span>Live HTML Tester</span></div>
-
+    <div class="brand">⚡ Live HTML Tester</div>
     <label class="switch">
       <input type="checkbox" id="autoToggle" checked>
       <span>อัตโนมัติ</span>
     </label>
-
-    <button class="btn" id="selectModeBtn" title="เปิดโหมดคลิกเลือก element ใน preview">🎯 เลือก element</button>
-
+    <button class="btn" id="selectModeBtn">🎯 เลือก element</button>
     <span class="status" id="status">พร้อม</span>
     <div class="spacer"></div>
-
+    <button class="btn" id="saveBtn" title="บันทึกโค้ดลงเครื่อง (localStorage)">💾 บันทึก</button>
+    <button class="btn export" id="exportBtn" title="Export เป็นไฟล์ .html">⬇ Export HTML</button>
     <button class="btn primary" id="runBtn">▶ รัน (Ctrl+Enter)</button>
     <button class="btn" id="resetBtn">รีเซ็ต</button>
   </header>
@@ -243,15 +276,23 @@
         <button class="tab" data-target="js">JS</button>
       </div>
 
-      <!-- Selection bar (แสดงเมื่อเลือก element) -->
       <div class="selection-bar" id="selectionBar" hidden>
         <span class="sel-tag" id="selTag">&lt;div&gt;</span>
         <div class="sel-sep"></div>
-        <button class="btn tiny" data-action="copy-html">📋 Copy HTML</button>
-        <button class="btn tiny" data-action="copy-text">📋 Copy Text</button>
+        <button class="btn tiny" data-action="copy-html">📋 HTML</button>
+        <button class="btn tiny" data-action="copy-text">📋 Text</button>
+        <button class="btn tiny" data-action="copy-selector">📋 Selector</button>
+        <button class="btn tiny" data-action="copy-jsx">📋 JSX</button>
         <div class="sel-sep"></div>
-        <button class="btn tiny" data-action="edit-text">✏️ แก้ข้อความ</button>
-        <button class="btn tiny" data-action="edit-attrs">🎨 แก้ attr</button>
+        <button class="btn tiny" data-action="edit-text">✏️ Text</button>
+        <button class="btn tiny" data-action="edit-attrs">🎨 Attrs</button>
+        <button class="btn tiny" data-action="edit-style">💅 Style</button>
+        <button class="btn tiny" data-action="edit-html">🧩 HTML</button>
+        <button class="btn tiny" data-action="rename-tag">🏷️ Tag</button>
+        <div class="sel-sep"></div>
+        <button class="btn tiny" data-action="wrap">📦 Wrap</button>
+        <button class="btn tiny" data-action="duplicate">⧉ Duplicate</button>
+        <button class="btn tiny" data-action="reset-size">⟲ Size</button>
         <div class="sel-sep"></div>
         <button class="btn tiny" data-action="find">🔍 หาในโค้ด</button>
         <button class="btn tiny" data-action="delete">🗑️ ลบ</button>
@@ -259,9 +300,27 @@
       </div>
 
       <div class="editors">
-        <textarea id="html" class="active" spellcheck="false"></textarea>
-        <textarea id="css" spellcheck="false"></textarea>
-        <textarea id="js" spellcheck="false"></textarea>
+        <div class="editor-wrap active" data-lang="html">
+          <div class="gutter"><div class="gutter-inner" id="gutter-html"></div></div>
+          <div class="code-container">
+            <pre class="highlight" id="highlight-html" aria-hidden="true"></pre>
+            <textarea id="html" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          </div>
+        </div>
+        <div class="editor-wrap" data-lang="css">
+          <div class="gutter"><div class="gutter-inner" id="gutter-css"></div></div>
+          <div class="code-container">
+            <pre class="highlight" id="highlight-css" aria-hidden="true"></pre>
+            <textarea id="css" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          </div>
+        </div>
+        <div class="editor-wrap" data-lang="js">
+          <div class="gutter"><div class="gutter-inner" id="gutter-js"></div></div>
+          <div class="code-container">
+            <pre class="highlight" id="highlight-js" aria-hidden="true"></pre>
+            <textarea id="js" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -273,8 +332,7 @@
         <div class="spacer"></div>
         <button class="btn tiny" id="clearConsole">ล้าง console</button>
       </div>
-      <iframe id="preview"
-        sandbox="allow-scripts allow-modals allow-forms allow-popups allow-pointer-lock"></iframe>
+      <iframe id="preview" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-pointer-lock"></iframe>
       <div class="console" id="console"></div>
     </section>
 
@@ -282,9 +340,7 @@
 </div>
 
 <script>
-/* ===================================================================
-   Elements
-=================================================================== */
+/* ================= Elements ================= */
 const els = {
   html: document.getElementById('html'),
   css: document.getElementById('css'),
@@ -295,6 +351,8 @@ const els = {
   auto: document.getElementById('autoToggle'),
   run: document.getElementById('runBtn'),
   reset: document.getElementById('resetBtn'),
+  save: document.getElementById('saveBtn'),
+  export: document.getElementById('exportBtn'),
   clear: document.getElementById('clearConsole'),
   splitter: document.getElementById('splitter'),
   editorPane: document.getElementById('editorPane'),
@@ -305,27 +363,26 @@ const els = {
   selClose: document.getElementById('selClose'),
 };
 
-/* ===================================================================
-   Defaults / Storage
-=================================================================== */
-const STORAGE_KEY = 'live-html-tester-v2';
+/* ================= Defaults / Storage ================= */
+const STORAGE_KEY = 'live-html-tester-v5';
 
 const DEFAULTS = {
   html:
 `<h1>สวัสดี 👋</h1>
-<p>เปิดโหมด "เลือก element" แล้วคลิกที่ element ใน preview</p>
+<p>เปิด "เลือก element" → คลิกที่ element → ลาก/ขยายได้เลย</p>
 
 <button id="btn">คลิกฉัน</button>
 <p id="out"></p>
 
 <div class="card">
   <h2>การ์ดตัวอย่าง</h2>
-  <p>ลองคลิกที่การ์ดนี้ดูสิ</p>
+  <p>ดับเบิ้ลคลิกที่ element ใน preview เพื่อกระโดดไปที่โค้ด</p>
 </div>
 
 <ul>
-  <li>ไม่ต้องกดรีเฟรช</li>
-  <li>แก้ข้อความได้ทันที</li>
+  <li>ลากจาก element เพื่อย้าย</li>
+  <li>ลากจุดมุม/ขอบเพื่อขยาย</li>
+  <li>ดับเบิ้ลคลิก = ไปที่ code + hilight</li>
 </ul>`,
   css:
 `body {
@@ -379,16 +436,136 @@ function saveState(){
   }, 400);
 }
 
-/* ===================================================================
-   Selection state (parent)
-=================================================================== */
+/* ================= State ================= */
 let selectMode = false;
-let selection = { info: null };
-let pendingSync = null;   // { start, end } — เพื่อ sync ลง source
+let selection = { info: null, sourceLoc: null };
+let pendingDuplicate = false;
 
-/* ===================================================================
-   Injected selector script (รันใน iframe)
-=================================================================== */
+/* ================= Syntax highlighters ================= */
+function escHTML(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function hlHTML(code){
+  let out = '';
+  let i = 0;
+  while (i < code.length){
+    if (code.slice(i, i+4) === '<!--'){
+      const end = code.indexOf('-->', i+4);
+      if (end !== -1){
+        out += '<span class="tk-com">' + escHTML(code.slice(i, end+3)) + '</span>';
+        i = end + 3;
+        continue;
+      }
+    }
+    if (code[i] === '<'){
+      const end = code.indexOf('>', i);
+      if (end !== -1){
+        const tag = code.slice(i, end+1);
+        let inner = escHTML(tag);
+        inner = inner.replace(
+          /([a-zA-Z][\w-]*)\s*=\s*("[^"]*"|'[^']*')/g,
+          '<span class="tk-attr">$1</span>=<span class="tk-str">$2</span>'
+        );
+        inner = inner.replace(
+          /^(&lt;\/?)([a-zA-Z][\w-]*)/,
+          '$1<span class="tk-tag">$2</span>'
+        );
+        out += inner;
+        i = end + 1;
+        continue;
+      }
+    }
+    out += escHTML(code[i]);
+    i++;
+  }
+  return out;
+}
+
+function hlCSS(code){
+  let s = escHTML(code);
+  const blocks = [];
+  // comments → placeholder
+  s = s.replace(/\/\*[\s\S]*?\*\//g, m => {
+    blocks.push(m);
+    return '\x00C' + (blocks.length-1) + '\x00';
+  });
+  // strings
+  const strs = [];
+  s = s.replace(/("[^"]*"|'[^']*')/g, m => {
+    strs.push(m);
+    return '\x00S' + (strs.length-1) + '\x00';
+  });
+  // property : value
+  s = s.replace(/([a-zA-Z-]+)(\s*:\s*)([^;{}]+)/g,
+    '<span class="tk-prop">$1</span><span class="tk-punc">$2</span><span class="tk-val">$3</span>');
+  // restore
+  s = s.replace(/\x00S(\d+)\x00/g, (m,i) => '<span class="tk-str">' + strs[i] + '</span>');
+  s = s.replace(/\x00C(\d+)\x00/g, (m,i) => '<span class="tk-com">' + blocks[i] + '</span>');
+  return s;
+}
+
+const JS_KEYWORDS = 'function|const|let|var|if|else|for|while|return|new|class|this|typeof|instanceof|true|false|null|undefined|async|await|try|catch|finally|throw|switch|case|break|continue|do|in|of|delete|void|yield|import|export|from|as|default|extends|super|static|get|set';
+
+function hlJS(code){
+  let s = escHTML(code);
+  const blocks = [];
+  s = s.replace(/\/\*[\s\S]*?\*\//g, m => {
+    blocks.push(m);
+    return '\x00C' + (blocks.length-1) + '\x00';
+  });
+  const strs = [];
+  s = s.replace(/(["'`])(?:(?!\1)[^\\]|\\.)*\1/g, m => {
+    strs.push(m);
+    return '\x00S' + (strs.length-1) + '\x00';
+  });
+  s = s.replace(/\/\/[^\n]*/g, m => {
+    blocks.push(m);
+    return '\x00C' + (blocks.length-1) + '\x00';
+  });
+  s = s.replace(new RegExp('\\b(' + JS_KEYWORDS + ')\\b', 'g'), '<span class="tk-kw">$1</span>');
+  s = s.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="tk-num">$1</span>');
+  s = s.replace(/\x00S(\d+)\x00/g, (m,i) => '<span class="tk-str">' + strs[i] + '</span>');
+  s = s.replace(/\x00C(\d+)\x00/g, (m,i) => '<span class="tk-com">' + blocks[i] + '</span>');
+  return s;
+}
+
+const HL = { html: hlHTML, css: hlCSS, js: hlJS };
+
+/* ================= Editor refs + refresh ================= */
+const editorRefs = {};
+['html','css','js'].forEach(lang => {
+  editorRefs[lang] = {
+    ta: document.getElementById(lang),
+    pre: document.getElementById('highlight-' + lang),
+    gutter: document.getElementById('gutter-' + lang),
+    wrap: document.querySelector('.editor-wrap[data-lang="' + lang + '"]'),
+  };
+});
+
+function refreshEditor(lang){
+  const { ta, pre, gutter } = editorRefs[lang];
+  const val = ta.value;
+  if (val.length < 200000){
+    pre.innerHTML = HL[lang](val) + '\n';
+  } else {
+    pre.textContent = val + '\n';
+  }
+  const lineCount = val.split('\n').length;
+  let g = '';
+  for (let i = 1; i <= lineCount; i++) g += i + '\n';
+  gutter.textContent = g;
+  syncEditorScroll(lang);
+}
+
+function syncEditorScroll(lang){
+  const { ta, pre, gutter } = editorRefs[lang];
+  pre.scrollTop = ta.scrollTop;
+  pre.scrollLeft = ta.scrollLeft;
+  gutter.style.transform = 'translateY(-' + ta.scrollTop + 'px)';
+}
+
+/* ================= Selector script (in iframe) ================= */
 const SELECTOR_SCRIPT = `
 (function(){
   if (window.__liveSelectorInstalled) return;
@@ -396,20 +573,41 @@ const SELECTOR_SCRIPT = `
 
   var selectMode = false;
   var currentEl = null;
-  var overlay, badge, hoverOverlay;
+  var overlay, badge, hoverOverlay, handlesLayer;
+  var potentialDrag = null;
+  var dragState = null;
 
   function ensureOverlay(){
     if (overlay && overlay.isConnected) return;
     overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;pointer-events:none;border:2px solid #89b4fa;background:rgba(137,180,250,0.18);z-index:2147483646;display:none;box-sizing:border-box;border-radius:2px;';
+    overlay.style.cssText = 'position:fixed;pointer-events:none;border:2px solid #89b4fa;background:rgba(137,180,250,0.10);z-index:2147483646;display:none;box-sizing:border-box;';
     badge = document.createElement('div');
     badge.style.cssText = 'position:fixed;pointer-events:none;background:#89b4fa;color:#11111b;font:600 11px/1 system-ui,sans-serif;padding:3px 7px;border-radius:4px;z-index:2147483647;display:none;white-space:nowrap;';
     hoverOverlay = document.createElement('div');
     hoverOverlay.style.cssText = 'position:fixed;pointer-events:none;border:1px dashed rgba(137,180,250,0.85);background:rgba(137,180,250,0.07);z-index:2147483645;display:none;box-sizing:border-box;';
+    handlesLayer = document.createElement('div');
+    handlesLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483647;display:none;';
+
+    var moveH = document.createElement('div');
+    moveH.dataset.handle = 'move';
+    moveH.style.cssText = 'position:absolute;width:24px;height:24px;background:#89b4fa;border:2px solid #fff;border-radius:50%;cursor:move;pointer-events:auto;display:flex;align-items:center;justify-content:center;color:#11111b;font:bold 13px/1 sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.35);user-select:none;';
+    moveH.textContent = '✥';
+    handlesLayer.appendChild(moveH);
+
+    var positions = ['nw','n','ne','e','se','s','sw','w'];
+    var cursors = { nw:'nw-resize', n:'n-resize', ne:'ne-resize', e:'e-resize', se:'se-resize', s:'s-resize', sw:'sw-resize', w:'w-resize' };
+    positions.forEach(function(pos){
+      var h = document.createElement('div');
+      h.dataset.handle = pos;
+      h.style.cssText = 'position:absolute;width:10px;height:10px;background:#89b4fa;border:1px solid #fff;border-radius:2px;cursor:' + cursors[pos] + ';pointer-events:auto;box-shadow:0 1px 3px rgba(0,0,0,0.3);';
+      handlesLayer.appendChild(h);
+    });
+
     var root = document.body || document.documentElement;
     root.appendChild(hoverOverlay);
     root.appendChild(overlay);
     root.appendChild(badge);
+    root.appendChild(handlesLayer);
   }
 
   function positionOverlay(el){
@@ -428,10 +626,35 @@ const SELECTOR_SCRIPT = `
     badge.style.top = top + 'px';
   }
 
-  function hideOverlay(){
+  function positionHandles(){
+    if (!handlesLayer) return;
+    if (!currentEl || !selectMode){ handlesLayer.style.display = 'none'; return; }
+    handlesLayer.style.display = 'block';
+    var r = currentEl.getBoundingClientRect();
+    var mh = handlesLayer.querySelector('[data-handle="move"]');
+    mh.style.left = (r.left - 30) + 'px';
+    mh.style.top = (r.top - 30) + 'px';
+    var pos = {
+      nw: [r.left - 5, r.top - 5],
+      n:  [r.left + r.width/2 - 5, r.top - 5],
+      ne: [r.left + r.width - 5, r.top - 5],
+      e:  [r.left + r.width - 5, r.top + r.height/2 - 5],
+      se: [r.left + r.width - 5, r.top + r.height - 5],
+      s:  [r.left + r.width/2 - 5, r.top + r.height - 5],
+      sw: [r.left - 5, r.top + r.height - 5],
+      w:  [r.left - 5, r.top + r.height/2 - 5]
+    };
+    Object.keys(pos).forEach(function(k){
+      var h = handlesLayer.querySelector('[data-handle="' + k + '"]');
+      if (h){ h.style.left = pos[k][0] + 'px'; h.style.top = pos[k][1] + 'px'; }
+    });
+  }
+
+  function hideAll(){
     if (overlay) overlay.style.display = 'none';
     if (badge) badge.style.display = 'none';
     if (hoverOverlay) hoverOverlay.style.display = 'none';
+    if (handlesLayer) handlesLayer.style.display = 'none';
   }
 
   function describe(el){
@@ -444,28 +667,145 @@ const SELECTOR_SCRIPT = `
       id: el.id || '',
       className: (typeof el.className === 'string' ? el.className : ''),
       attrs: attrs,
-      outerHTML: el.outerHTML.slice(0, 50000),
-      innerHTML: el.innerHTML.slice(0, 50000),
-      text: (el.textContent || '').trim().slice(0, 1000)
+      outerHTML: el.outerHTML.slice(0, 100000),
+      innerHTML: el.innerHTML.slice(0, 100000),
+      text: (el.textContent || '').trim().slice(0, 2000)
     };
   }
 
-  function sendSelect(el){
+  function post(kind, payload){
     try {
-      parent.postMessage({ source:'live-html-tester', kind:'select', info: describe(el) }, '*');
+      var msg = { source:'live-html-tester', kind:kind };
+      if (payload) for (var k in payload) msg[k] = payload[k];
+      parent.postMessage(msg, '*');
     } catch(e){}
   }
+  function sendSelect(el){ post('select', { info: describe(el) }); }
+  function sendUpdate(el, action){ post('updated', { info: describe(el), action: action || null }); }
 
-  function onClick(e){
+  /* --- drag / resize --- */
+  function beginDrag(el, startX, startY){
+    var cs = window.getComputedStyle(el);
+    dragState = {
+      type: 'move', el: el,
+      startX: startX, startY: startY,
+      startLeft: parseFloat(cs.left) || 0,
+      startTop:  parseFloat(cs.top)  || 0,
+      wasStatic: cs.position === 'static',
+      wasInline: cs.display === 'inline'
+    };
+    document.body.style.cursor = 'move';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onDragMove, true);
+    document.addEventListener('mouseup', onDragUp, true);
+  }
+
+  function beginResize(el, handle, startX, startY){
+    var cs = window.getComputedStyle(el);
+    var r = el.getBoundingClientRect();
+    dragState = {
+      type: 'resize', handle: handle, el: el,
+      startX: startX, startY: startY,
+      startW: r.width, startH: r.height,
+      startLeft: parseFloat(cs.left) || 0,
+      startTop:  parseFloat(cs.top)  || 0,
+      wasStatic: cs.position === 'static',
+      wasInline: cs.display === 'inline'
+    };
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onDragMove, true);
+    document.addEventListener('mouseup', onDragUp, true);
+  }
+
+  function onDragMove(e){
+    if (!dragState) return;
+    var d = dragState;
+    var dx = e.clientX - d.startX;
+    var dy = e.clientY - d.startY;
+
+    if (d.type === 'move'){
+      if (d.wasStatic) d.el.style.position = 'relative';
+      if (d.wasInline) d.el.style.display = 'inline-block';
+      d.el.style.left = (d.startLeft + dx) + 'px';
+      d.el.style.top  = (d.startTop  + dy) + 'px';
+    } else {
+      if (d.wasStatic) d.el.style.position = 'relative';
+      if (d.wasInline) d.el.style.display = 'inline-block';
+      d.el.style.boxSizing = 'border-box';
+      var newW = d.startW, newH = d.startH;
+      var newLeft = d.startLeft, newTop = d.startTop;
+      var h = d.handle;
+      if (h.indexOf('e') !== -1) newW = Math.max(16, d.startW + dx);
+      if (h.indexOf('w') !== -1){ newW = Math.max(16, d.startW - dx); newLeft = d.startLeft + dx; }
+      if (h.indexOf('s') !== -1) newH = Math.max(16, d.startH + dy);
+      if (h.indexOf('n') !== -1){ newH = Math.max(16, d.startH - dy); newTop = d.startTop + dy; }
+      d.el.style.width  = newW + 'px';
+      d.el.style.height = newH + 'px';
+      if (h.indexOf('w') !== -1) d.el.style.left = newLeft + 'px';
+      if (h.indexOf('n') !== -1) d.el.style.top  = newTop  + 'px';
+    }
+    positionOverlay(d.el);
+    positionHandles();
+  }
+
+  function onDragUp(e){
+    if (!dragState) return;
+    var d = dragState;
+    dragState = null;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    document.removeEventListener('mousemove', onDragMove, true);
+    document.removeEventListener('mouseup', onDragUp, true);
+    positionOverlay(d.el);
+    positionHandles();
+    sendUpdate(d.el, d.type);
+  }
+
+  /* --- mouse --- */
+  function onMouseDown(e){
     if (!selectMode) return;
+    if (e.target.dataset && e.target.dataset.handle && currentEl){
+      e.preventDefault(); e.stopPropagation();
+      var h = e.target.dataset.handle;
+      if (h === 'move') beginDrag(currentEl, e.clientX, e.clientY);
+      else beginResize(currentEl, h, e.clientX, e.clientY);
+      return;
+    }
     var el = e.target;
     if (!el || el === document.body || el === document.documentElement) return;
     if (el === overlay || el === badge || el === hoverOverlay) return;
-    e.preventDefault();
-    e.stopPropagation();
+    if (handlesLayer && handlesLayer.contains(el)) return;
+
+    e.preventDefault(); e.stopPropagation();
     currentEl = el;
     positionOverlay(el);
+    positionHandles();
     sendSelect(el);
+
+    potentialDrag = { el: el, startX: e.clientX, startY: e.clientY };
+    document.addEventListener('mousemove', onPotentialMove, true);
+    document.addEventListener('mouseup', onPotentialUp, true);
+  }
+
+  function onPotentialMove(e){
+    if (!potentialDrag) return;
+    var dx = e.clientX - potentialDrag.startX;
+    var dy = e.clientY - potentialDrag.startY;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4){
+      var pd = potentialDrag;
+      potentialDrag = null;
+      document.removeEventListener('mousemove', onPotentialMove, true);
+      document.removeEventListener('mouseup', onPotentialUp, true);
+      beginDrag(pd.el, pd.startX, pd.startY);
+      onDragMove(e);
+    }
+  }
+
+  function onPotentialUp(e){
+    if (!potentialDrag) return;
+    potentialDrag = null;
+    document.removeEventListener('mousemove', onPotentialMove, true);
+    document.removeEventListener('mouseup', onPotentialUp, true);
   }
 
   function onHover(e){
@@ -473,7 +813,8 @@ const SELECTOR_SCRIPT = `
     if (!hoverOverlay) ensureOverlay();
     var el = e.target;
     if (!el || el === document.body || el === document.documentElement
-        || el === overlay || el === badge || el === hoverOverlay){
+        || el === overlay || el === badge || el === hoverOverlay
+        || (handlesLayer && handlesLayer.contains(el))){
       hoverOverlay.style.display = 'none';
       return;
     }
@@ -488,11 +829,28 @@ const SELECTOR_SCRIPT = `
   function onReposition(){
     if (currentEl && currentEl.isConnected && selectMode){
       positionOverlay(currentEl);
+      positionHandles();
     }
   }
 
-  document.addEventListener('click', onClick, true);
+  document.addEventListener('mousedown', onMouseDown, true);
   document.addEventListener('mousemove', onHover, true);
+  document.addEventListener('click', function(e){
+    if (selectMode){ e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  document.addEventListener('dblclick', function(e){
+    if (!selectMode) return;
+    var el = e.target;
+    if (!el || el === document.body || el === document.documentElement) return;
+    if (el === overlay || el === badge || el === hoverOverlay) return;
+    if (handlesLayer && handlesLayer.contains(el)) return;
+    e.preventDefault(); e.stopPropagation();
+    currentEl = el;
+    positionOverlay(el);
+    positionHandles();
+    sendSelect(el);
+    post('dblclick', { info: describe(el) });
+  }, true);
   window.addEventListener('scroll', onReposition, true);
   window.addEventListener('resize', onReposition);
 
@@ -502,67 +860,100 @@ const SELECTOR_SCRIPT = `
 
     if (d.cmd === 'selectMode'){
       selectMode = !!d.value;
-      if (!selectMode){
-        hideOverlay();
-        currentEl = null;
-      } else {
-        ensureOverlay();
-      }
+      if (!selectMode){ hideAll(); currentEl = null; }
+      else ensureOverlay();
     }
-
-    if (d.cmd === 'deselect'){
-      hideOverlay();
-      currentEl = null;
-    }
+    if (d.cmd === 'deselect'){ hideAll(); currentEl = null; }
 
     if (d.cmd === 'updateText' && currentEl){
       currentEl.textContent = d.value;
-      positionOverlay(currentEl);
-      sendSelect(currentEl);
+      positionOverlay(currentEl); positionHandles();
+      sendUpdate(currentEl, 'text');
     }
-
     if (d.cmd === 'setAttrs' && currentEl){
       var keep = d.attrs || {};
       var existing = [];
-      for (var i = 0; i < currentEl.attributes.length; i++){
-        existing.push(currentEl.attributes[i].name);
-      }
-      existing.forEach(function(n){
-        if (!(n in keep)) currentEl.removeAttribute(n);
-      });
-      Object.keys(keep).forEach(function(n){
-        try { currentEl.setAttribute(n, keep[n]); } catch(err){}
-      });
-      positionOverlay(currentEl);
-      sendSelect(currentEl);
+      for (var i = 0; i < currentEl.attributes.length; i++) existing.push(currentEl.attributes[i].name);
+      existing.forEach(function(n){ if (!(n in keep)) currentEl.removeAttribute(n); });
+      Object.keys(keep).forEach(function(n){ try { currentEl.setAttribute(n, keep[n]); } catch(err){} });
+      positionOverlay(currentEl); positionHandles();
+      sendUpdate(currentEl, 'attrs');
     }
-
+    if (d.cmd === 'setOuterHTML' && currentEl){
+      try {
+        var tmp = document.createElement('div');
+        tmp.innerHTML = d.value;
+        var newEl = tmp.firstElementChild;
+        if (newEl && currentEl.parentNode){
+          currentEl.parentNode.replaceChild(newEl, currentEl);
+          currentEl = newEl;
+          positionOverlay(currentEl); positionHandles();
+          sendUpdate(currentEl, 'html');
+        }
+      } catch(err){}
+    }
+    if (d.cmd === 'renameTag' && currentEl){
+      try {
+        var newEl2 = document.createElement(d.tag);
+        for (var j = 0; j < currentEl.attributes.length; j++)
+          newEl2.setAttribute(currentEl.attributes[j].name, currentEl.attributes[j].value);
+        while (currentEl.firstChild) newEl2.appendChild(currentEl.firstChild);
+        currentEl.parentNode.replaceChild(newEl2, currentEl);
+        currentEl = newEl2;
+        positionOverlay(currentEl); positionHandles();
+        sendUpdate(currentEl, 'rename');
+      } catch(err){}
+    }
+    if (d.cmd === 'duplicate' && currentEl){
+      try {
+        var clone = currentEl.cloneNode(true);
+        currentEl.parentNode.insertBefore(clone, currentEl.nextSibling);
+        currentEl = clone;
+        positionOverlay(currentEl); positionHandles();
+        sendUpdate(currentEl, 'duplicate');
+      } catch(err){}
+    }
+    if (d.cmd === 'wrap' && currentEl){
+      try {
+        var wrapper = document.createElement(d.tag || 'div');
+        if (d.id) wrapper.id = d.id;
+        if (d.className) wrapper.className = d.className;
+        currentEl.parentNode.insertBefore(wrapper, currentEl);
+        wrapper.appendChild(currentEl);
+        currentEl = wrapper;
+        positionOverlay(currentEl); positionHandles();
+        sendUpdate(currentEl, 'wrap');
+      } catch(err){}
+    }
+    if (d.cmd === 'resetSize' && currentEl){
+      currentEl.style.width = '';
+      currentEl.style.height = '';
+      currentEl.style.left = '';
+      currentEl.style.top = '';
+      if (currentEl.getAttribute('style') === '') currentEl.removeAttribute('style');
+      positionOverlay(currentEl); positionHandles();
+      sendUpdate(currentEl, 'reset-size');
+    }
     if (d.cmd === 'delete' && currentEl){
       var target = currentEl;
       currentEl = null;
-      hideOverlay();
+      hideAll();
       if (target.parentNode) target.parentNode.removeChild(target);
-      try { parent.postMessage({ source:'live-html-tester', kind:'deleted' }, '*'); } catch(err){}
+      post('deleted', {});
     }
   });
 
-  try { parent.postMessage({ source:'live-html-tester', kind:'ready' }, '*'); } catch(e){}
+  try { post('ready', {}); } catch(e){}
 })();
 `;
 
-/* ===================================================================
-   Build preview document
-=================================================================== */
+/* ================= Build preview ================= */
 function buildSrcdoc(){
   const safeJS  = els.js.value.replace(/<\/script/gi, '<\\/script');
   const safeCSS = els.css.value.replace(/<\/style/gi,  '<\\/style');
-
   return `<!DOCTYPE html>
 <html lang="th">
-<head>
-<meta charset="utf-8">
-<style>${safeCSS}</style>
-</head>
+<head><meta charset="utf-8"><style>${safeCSS}</style></head>
 <body>
 ${els.html.value}
 <script>
@@ -576,17 +967,14 @@ ${els.html.value}
       parent.postMessage({ source:'live-html-tester', kind:kind, msg:parts.join(' ') }, '*');
     }catch(e){}
   };
-
   ['log','info','warn','error'].forEach(function(m){
     var orig = console[m];
     console[m] = function(){ send(m, arguments); if(orig) orig.apply(console, arguments); };
   });
-
   window.onerror = function(msg, src, line, col){
     send('error', ['❌ ' + msg + (line ? '  (บรรทัด ' + line + ':' + col + ')' : '')]);
     return false;
   };
-
   window.addEventListener('unhandledrejection', function(e){
     send('error', ['❌ Unhandled Promise: ' + ((e.reason && e.reason.message) || e.reason)]);
   });
@@ -598,44 +986,30 @@ ${els.html.value}
 </html>`;
 }
 
-/* ===================================================================
-   Run / Schedule
-=================================================================== */
+/* ================= Run ================= */
 const RUN_DELAY = 450;
 let runTimer = null;
 
 function run(){
-  clearSelection();
   els.console.innerHTML = '';
   els.frame.srcdoc = buildSrcdoc();
-
-  els.status.textContent = 'อัปเดต ' +
-    new Date().toLocaleTimeString('th-TH', { hour12:false });
+  els.status.textContent = 'อัปเดต ' + new Date().toLocaleTimeString('th-TH', { hour12:false });
   els.status.classList.add('flash');
   setTimeout(() => els.status.classList.remove('flash'), 700);
 }
 
 function scheduleRun(){
   saveState();
-  if (!els.auto.checked){
-    els.status.textContent = 'โหมด manual — กด Run';
-    return;
-  }
+  if (!els.auto.checked){ els.status.textContent = 'โหมด manual — กด Run'; return; }
   clearTimeout(runTimer);
   runTimer = setTimeout(run, RUN_DELAY);
 }
 
-/* ===================================================================
-   Console
-=================================================================== */
+/* ================= Console ================= */
 let lineCount = 0;
-
 function addConsole(kind, msg){
   if (lineCount === 0) els.console.innerHTML = '';
-  if (lineCount > 300){
-    els.console.removeChild(els.console.firstChild);
-    lineCount--;
-  }
+  if (lineCount > 300){ els.console.removeChild(els.console.firstChild); lineCount--; }
   const div = document.createElement('div');
   const cls = (kind === 'error' || kind === 'warn' || kind === 'info') ? kind : 'log';
   div.className = 'line ' + cls;
@@ -644,15 +1018,12 @@ function addConsole(kind, msg){
   els.console.scrollTop = els.console.scrollHeight;
   lineCount++;
 }
-
 function clearConsole(){
   els.console.innerHTML = '<div class="line empty">— ยังไม่มีข้อความ —</div>';
   lineCount = 0;
 }
 
-/* ===================================================================
-   Toast
-=================================================================== */
+/* ================= Toast ================= */
 function toast(msg, type){
   const t = document.createElement('div');
   t.className = 'toast' + (type === 'error' ? ' error' : '');
@@ -662,57 +1033,37 @@ function toast(msg, type){
   setTimeout(() => t.remove(), 2000);
 }
 
-/* ===================================================================
-   Messaging
-=================================================================== */
+/* ================= Messaging ================= */
 function sendToFrame(msg){
-  try {
-    els.frame.contentWindow.postMessage({ source:'live-html-parent', ...msg }, '*');
-  } catch(e){}
+  try { els.frame.contentWindow.postMessage({ source:'live-html-parent', ...msg }, '*'); } catch(e){}
 }
-
 function setSelectMode(on){
   selectMode = !!on;
   document.body.classList.toggle('select-mode', selectMode);
   els.selectModeBtn.classList.toggle('active', selectMode);
-  els.selectModeBtn.textContent = selectMode
-    ? '🎯 กำลังเลือก (คลิกเพื่อปิด)'
-    : '🎯 เลือก element';
+  els.selectModeBtn.textContent = selectMode ? '🎯 กำลังเลือก (คลิกเพื่อปิด)' : '🎯 เลือก element';
   sendToFrame({ cmd: 'selectMode', value: selectMode });
   if (!selectMode) clearSelection();
 }
 
-/* ===================================================================
-   Selection UI
-=================================================================== */
+/* ================= Selection UI ================= */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
 function showSelectionBar(info){
   els.selectionBar.hidden = false;
-  const idPart = info.id
-    ? ` <span class="sel-id">#${escapeHtml(info.id)}</span>`
-    : '';
+  const idPart = info.id ? ` <span class="sel-id">#${escapeHtml(info.id)}</span>` : '';
   els.selTag.innerHTML = `&lt;${info.tag}&gt;${idPart}`;
 }
-
 function clearSelection(){
-  selection = { info: null };
+  selection = { info: null, sourceLoc: null };
   els.selectionBar.hidden = true;
+  pendingDuplicate = false;
 }
 
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  })[c]);
-}
-
-/* ===================================================================
-   Source locator
-=================================================================== */
-function escapeRe(s){
-  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-const VOID_TAGS = ['area','base','br','col','embed','hr','img','input',
-  'link','meta','param','source','track','wbr'];
+/* ================= Source locator ================= */
+function escapeRe(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+const VOID_TAGS = ['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'];
 
 function findElementEnd(src, startIdx, tag){
   const t = tag.toLowerCase();
@@ -720,27 +1071,19 @@ function findElementEnd(src, startIdx, tag){
     const gt = src.indexOf('>', startIdx);
     return gt === -1 ? src.length : gt + 1;
   }
-  // self-closing <tag ... />
   const gt = src.indexOf('>', startIdx);
   if (gt !== -1 && src[gt - 1] === '/') return gt + 1;
-
   const openRe  = new RegExp('<' + escapeRe(t) + '\\b', 'gi');
   const closeRe = new RegExp('</' + escapeRe(t) + '\\s*>', 'gi');
-
-  let depth = 0;
-  let pos = startIdx;
-
+  let depth = 0, pos = startIdx;
   while (pos < src.length){
     openRe.lastIndex = pos;
     closeRe.lastIndex = pos;
     const nextOpen  = openRe.exec(src);
     const nextClose = closeRe.exec(src);
-
     if (!nextClose) return src.length;
-
     if (nextOpen && nextOpen.index < nextClose.index){
-      depth++;
-      pos = nextOpen.index + nextOpen[0].length;
+      depth++; pos = nextOpen.index + nextOpen[0].length;
     } else {
       depth--;
       if (depth === 0) return nextClose.index + nextClose[0].length;
@@ -751,47 +1094,32 @@ function findElementEnd(src, startIdx, tag){
 }
 
 function locateInSource(info){
+  if (!info) return null;
   const src = els.html.value;
   const tag = info.tag.toLowerCase();
-
-  // 1) by id
   if (info.id){
-    const re = new RegExp('<([a-zA-Z][\\w-]*)\\b[^>]*\\bid\\s*=\\s*["\']' +
-      escapeRe(info.id) + '["\']', 'i');
+    const re = new RegExp('<([a-zA-Z][\\w-]*)\\b[^>]*\\bid\\s*=\\s*["\']' + escapeRe(info.id) + '["\']', 'i');
     const m = re.exec(src);
     if (m && m[1].toLowerCase() === tag){
       return { start: m.index, end: findElementEnd(src, m.index, tag) };
     }
   }
-
-  // 2) by class (first class)
   if (info.className){
     const cls = info.className.split(/\s+/).filter(Boolean)[0];
     if (cls){
-      const re = new RegExp('<(' + escapeRe(tag) + ')\\b[^>]*\\bclass\\s*=\\s*["\'][^"\']*\\b' +
-        escapeRe(cls) + '\\b[^"\']*["\']', 'i');
+      const re = new RegExp('<(' + escapeRe(tag) + ')\\b[^>]*\\bclass\\s*=\\s*["\'][^"\']*\\b' + escapeRe(cls) + '\\b[^"\']*["\']', 'i');
       const m = re.exec(src);
-      if (m){
-        return { start: m.index, end: findElementEnd(src, m.index, tag) };
-      }
+      if (m) return { start: m.index, end: findElementEnd(src, m.index, tag) };
     }
   }
-
-  // 3) by opening tag from outerHTML
   const openMatch = info.outerHTML.match(/^<[a-zA-Z][\w-]*[^>]*>/);
   if (openMatch){
-    let from = 0, idx;
-    while ((idx = src.indexOf(openMatch[0], from)) !== -1){
-      return { start: idx, end: findElementEnd(src, idx, tag) };
-    }
+    const idx = src.indexOf(openMatch[0]);
+    if (idx !== -1) return { start: idx, end: findElementEnd(src, idx, tag) };
   }
-
-  // 4) fallback: first <tag>
   const re = new RegExp('<' + escapeRe(tag) + '\\b', 'i');
   const m = re.exec(src);
-  if (m){
-    return { start: m.index, end: findElementEnd(src, m.index, tag) };
-  }
+  if (m) return { start: m.index, end: findElementEnd(src, m.index, tag) };
   return null;
 }
 
@@ -800,13 +1128,40 @@ function selectRange(start, end){
   els.html.focus();
   els.html.setSelectionRange(start, end);
   const linesBefore = els.html.value.slice(0, start).split('\n').length;
-  const lineHeight = 21;
-  els.html.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
+  els.html.scrollTop = Math.max(0, (linesBefore - 4) * 21);
+  syncEditorScroll('html');
 }
 
-/* ===================================================================
-   Clipboard
-=================================================================== */
+/* ================= Sync to source ================= */
+function syncToSource(newHTML, opts){
+  let loc = selection.sourceLoc;
+  if (!loc){
+    loc = locateInSource(selection.info);
+    if (loc) selection.sourceLoc = { start: loc.start, end: loc.end };
+  }
+  if (!loc){ toast('ซิงค์ลงโค้ดไม่ได้ (แก้ใน preview แล้ว)', 'error'); return; }
+  const src = els.html.value;
+  if (opts && opts.duplicate){
+    els.html.value = src.slice(0, loc.end) + '\n' + newHTML + src.slice(loc.end);
+    selection.sourceLoc = { start: loc.end + 1, end: loc.end + 1 + newHTML.length };
+  } else {
+    els.html.value = src.slice(0, loc.start) + newHTML + src.slice(loc.end);
+    selection.sourceLoc = { start: loc.start, end: loc.start + newHTML.length };
+  }
+  refreshEditor('html');
+  saveState();
+}
+
+function removeFromSource(){
+  let loc = selection.sourceLoc || locateInSource(selection.info);
+  if (!loc){ toast('ลบใน preview แล้ว (ลบในโค้ดไม่ได้)', 'error'); return; }
+  const src = els.html.value;
+  els.html.value = src.slice(0, loc.start) + src.slice(loc.end);
+  refreshEditor('html');
+  saveState();
+}
+
+/* ================= Clipboard ================= */
 async function copyText(text){
   try {
     if (navigator.clipboard && navigator.clipboard.writeText){
@@ -826,9 +1181,32 @@ async function copyText(text){
   } catch(e){ return false; }
 }
 
-/* ===================================================================
-   Modal system
-=================================================================== */
+/* ================= Selector / JSX ================= */
+function buildSelector(info){
+  if (info.id) return '#' + info.id;
+  let sel = info.tag;
+  if (info.className){
+    const cls = info.className.split(/\s+/).filter(Boolean);
+    if (cls.length) sel += '.' + cls.join('.');
+  }
+  return sel;
+}
+
+function toJSX(html){
+  let s = html;
+  s = s.replace(/\bclass=/g, 'className=');
+  s = s.replace(/\bfor=/g, 'htmlFor=');
+  s = s.replace(/\b(aria-[a-z]+)=/g, (m, a) => a.replace(/-([a-z])/g, (_, c) => c.toUpperCase()) + '=');
+  s = s.replace(/tabindex=/g, 'tabIndex=');
+  const VOID = ['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'];
+  VOID.forEach(t => {
+    const re = new RegExp('<' + t + '([^>]*[^/])>', 'gi');
+    s = s.replace(re, '<' + t + '$1 />');
+  });
+  return s;
+}
+
+/* ================= Modal ================= */
 function openModal(title, buildBody, onSave){
   const backdrop = document.createElement('div');
   backdrop.className = 'modal-backdrop';
@@ -851,67 +1229,62 @@ function openModal(title, buildBody, onSave){
   modal.querySelector('[data-act="save"]').onclick = () => {
     if (onSave() !== false) close();
   };
-  backdrop.addEventListener('mousedown', (e) => {
-    if (e.target === backdrop) close();
-  });
+  backdrop.addEventListener('mousedown', (e) => { if (e.target === backdrop) close(); });
   backdrop.tabIndex = -1;
   backdrop.focus();
   backdrop.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') close();
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){
-      modal.querySelector('[data-act="save"]').click();
-    }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) modal.querySelector('[data-act="save"]').click();
   });
-  const first = modal.querySelector('input, textarea');
+  const first = modal.querySelector('input, textarea, select');
   if (first) setTimeout(() => { first.focus(); first.select && first.select(); }, 30);
 }
 
-/* ===================================================================
-   Actions
-=================================================================== */
+/* ================= Actions ================= */
 function getElementSource(){
   if (!selection.info) return '';
-  const loc = locateInSource(selection.info);
+  const loc = selection.sourceLoc;
   if (loc) return els.html.value.slice(loc.start, loc.end);
+  const l = locateInSource(selection.info);
+  if (l) return els.html.value.slice(l.start, l.end);
   return selection.info.outerHTML;
 }
 
 async function actCopyHTML(){
-  const text = getElementSource();
-  const ok = await copyText(text);
+  const ok = await copyText(getElementSource());
   toast(ok ? 'คัดลอก HTML แล้ว ✓' : 'คัดลอกไม่สำเร็จ', ok ? '' : 'error');
 }
-
 async function actCopyText(){
   const text = selection.info ? selection.info.text : '';
   if (!text){ toast('element นี้ไม่มีข้อความ', 'error'); return; }
   const ok = await copyText(text);
   toast(ok ? 'คัดลอกข้อความแล้ว ✓' : 'คัดลอกไม่สำเร็จ', ok ? '' : 'error');
 }
+async function actCopySelector(){
+  if (!selection.info) return;
+  const ok = await copyText(buildSelector(selection.info));
+  toast(ok ? 'คัดลอก selector แล้ว ✓' : 'คัดลอกไม่สำเร็จ', ok ? '' : 'error');
+}
+async function actCopyJSX(){
+  const ok = await copyText(toJSX(getElementSource()));
+  toast(ok ? 'คัดลอก JSX แล้ว ✓' : 'คัดลอกไม่สำเร็จ', ok ? '' : 'error');
+}
 
 function actFindInCode(){
   if (!selection.info) return;
-  const loc = locateInSource(selection.info);
+  const loc = selection.sourceLoc || locateInSource(selection.info);
   if (!loc){ toast('หา element ในโค้ดไม่เจอ', 'error'); return; }
   selectRange(loc.start, loc.end);
-  toast('เลือกโค้ดให้แล้ว — แก้ไขได้เลย');
+  toast('เลือกโค้ดให้แล้ว');
 }
 
 function actEditText(){
   if (!selection.info) return;
   const body = document.createElement('div');
-  const lab = document.createElement('label');
-  lab.textContent = 'ข้อความใหม่ (textContent)';
-  const ta = document.createElement('textarea');
-  ta.value = selection.info.text;
-  body.appendChild(lab);
-  body.appendChild(ta);
-
-  openModal('✏️ แก้ข้อความของ <' + selection.info.tag + '>', (b) => {
-    b.appendChild(lab);
-    b.appendChild(ta);
-  }, () => {
-    pendingSync = locateInSource(selection.info);
+  const lab = document.createElement('label'); lab.textContent = 'ข้อความใหม่ (textContent)';
+  const ta = document.createElement('textarea'); ta.value = selection.info.text;
+  body.appendChild(lab); body.appendChild(ta);
+  openModal('✏️ แก้ข้อความของ <' + selection.info.tag + '>', (b) => { b.appendChild(body); }, () => {
     sendToFrame({ cmd: 'updateText', value: ta.value });
   });
 }
@@ -921,79 +1294,169 @@ function actEditAttrs(){
   const body = document.createElement('div');
   const rowsWrap = document.createElement('div');
   body.appendChild(rowsWrap);
-
   function addRow(name, value){
     const row = document.createElement('div');
     row.className = 'attr-row';
-    const n = document.createElement('input');
-    n.type = 'text'; n.className = 'attr-name'; n.placeholder = 'name'; n.value = name || '';
-    const v = document.createElement('input');
-    v.type = 'text'; v.className = 'attr-value'; v.placeholder = 'value'; v.value = value || '';
-    const del = document.createElement('button');
-    del.type = 'button'; del.className = 'remove-attr'; del.textContent = '✖';
+    const n = document.createElement('input'); n.type='text'; n.className='attr-name'; n.placeholder='name'; n.value = name || '';
+    const v = document.createElement('input'); v.type='text'; v.className='attr-value'; v.placeholder='value'; v.value = value || '';
+    const del = document.createElement('button'); del.type='button'; del.className='remove-attr'; del.textContent='✖';
     del.onclick = () => row.remove();
     row.appendChild(n); row.appendChild(v); row.appendChild(del);
     rowsWrap.appendChild(row);
   }
-
   Object.entries(selection.info.attrs || {}).forEach(([k, v]) => addRow(k, v));
-
   const addBtn = document.createElement('button');
-  addBtn.type = 'button';
-  addBtn.className = 'btn tiny';
-  addBtn.textContent = '+ เพิ่ม attribute';
-  addBtn.style.marginTop = '8px';
+  addBtn.type='button'; addBtn.className='btn tiny'; addBtn.textContent='+ เพิ่ม attribute'; addBtn.style.marginTop='6px';
   addBtn.onclick = () => addRow('', '');
   body.appendChild(addBtn);
-
-  openModal('🎨 แก้ attributes ของ <' + selection.info.tag + '>', (b) => {
-    b.appendChild(body);
-  }, () => {
+  openModal('🎨 แก้ attributes ของ <' + selection.info.tag + '>', (b) => { b.appendChild(body); }, () => {
     const newAttrs = {};
     rowsWrap.querySelectorAll('.attr-row').forEach(r => {
       const n = r.querySelector('.attr-name').value.trim();
       const v = r.querySelector('.attr-value').value;
       if (n) newAttrs[n] = v;
     });
-    pendingSync = locateInSource(selection.info);
     sendToFrame({ cmd: 'setAttrs', attrs: newAttrs });
   });
+}
+
+function actEditStyle(){
+  if (!selection.info) return;
+  const body = document.createElement('div');
+  const lab = document.createElement('label'); lab.textContent = 'Inline style (เช่น color: red; padding: 8px;)';
+  const ta = document.createElement('textarea');
+  ta.value = (selection.info.attrs && selection.info.attrs.style) || '';
+  body.appendChild(lab); body.appendChild(ta);
+  openModal('💅 แก้ inline style', (b) => { b.appendChild(body); }, () => {
+    const attrs = { ...selection.info.attrs };
+    const v = ta.value.trim();
+    if (v) attrs.style = v; else delete attrs.style;
+    sendToFrame({ cmd: 'setAttrs', attrs });
+  });
+}
+
+function actEditHTML(){
+  if (!selection.info) return;
+  const body = document.createElement('div');
+  const lab = document.createElement('label'); lab.textContent = 'แก้ outerHTML โดยตรง';
+  const ta = document.createElement('textarea'); ta.value = getElementSource();
+  body.appendChild(lab); body.appendChild(ta);
+  openModal('🧩 แก้ HTML ของ <' + selection.info.tag + '>', (b) => { b.appendChild(body); }, () => {
+    sendToFrame({ cmd: 'setOuterHTML', value: ta.value });
+  });
+}
+
+function actRenameTag(){
+  if (!selection.info) return;
+  const body = document.createElement('div');
+  const lab = document.createElement('label'); lab.textContent = 'ชื่อแท็กใหม่ (เช่น div, span, section)';
+  const inp = document.createElement('input'); inp.type='text'; inp.value = selection.info.tag;
+  body.appendChild(lab); body.appendChild(inp);
+  openModal('🏷️ เปลี่ยนแท็ก', (b) => { b.appendChild(body); }, () => {
+    const tag = inp.value.trim().toLowerCase();
+    if (!/^[a-z][a-z0-9-]*$/.test(tag)){ toast('ชื่อแท็กไม่ถูกต้อง', 'error'); return false; }
+    sendToFrame({ cmd: 'renameTag', tag });
+  });
+}
+
+function actWrap(){
+  if (!selection.info) return;
+  const body = document.createElement('div');
+  const lab1 = document.createElement('label'); lab1.textContent = 'แท็กที่ใช้ห่อ';
+  const inp1 = document.createElement('input'); inp1.type='text'; inp1.value='div'; inp1.placeholder='div';
+  const lab2 = document.createElement('label'); lab2.textContent = 'class (ไม่ใส่ก็ได้)';
+  const inp2 = document.createElement('input'); inp2.type='text'; inp2.placeholder='wrapper';
+  body.appendChild(lab1); body.appendChild(inp1); body.appendChild(lab2); body.appendChild(inp2);
+  openModal('📦 ห่อ element ด้วยแท็กใหม่', (b) => { b.appendChild(body); }, () => {
+    const tag = inp1.value.trim().toLowerCase() || 'div';
+    if (!/^[a-z][a-z0-9-]*$/.test(tag)){ toast('ชื่อแท็กไม่ถูกต้อง', 'error'); return false; }
+    sendToFrame({ cmd: 'wrap', tag, className: inp2.value.trim() });
+  });
+}
+
+function actDuplicate(){
+  if (!selection.info) return;
+  pendingDuplicate = true;
+  sendToFrame({ cmd: 'duplicate' });
+}
+
+function actResetSize(){
+  if (!selection.info) return;
+  sendToFrame({ cmd: 'resetSize' });
 }
 
 function actDelete(){
   if (!selection.info) return;
   if (!confirm('ลบ <' + selection.info.tag + '> ออกจาก preview?\n(ถ้าซิงค์ได้ จะลบออกจากโค้ดด้วย)')) return;
-  pendingSync = { remove: true, loc: locateInSource(selection.info) };
   sendToFrame({ cmd: 'delete' });
 }
 
-/* ===================================================================
-   Sync back to source
-=================================================================== */
-function applyPendingSync(newInfo){
-  if (!pendingSync) return;
-  const p = pendingSync;
-  pendingSync = null;
-
-  const src = els.html.value;
-  const loc = p.remove ? p.loc : p;
-
-  if (!loc){
-    toast('อัปเดตใน preview แล้ว (ซิงค์ลงโค้ดไม่ได้)', 'error');
-    return;
-  }
-
-  if (p.remove){
-    els.html.value = src.slice(0, loc.start) + src.slice(loc.end);
-  } else if (newInfo && newInfo.outerHTML){
-    els.html.value = src.slice(0, loc.start) + newInfo.outerHTML + src.slice(loc.end);
-  }
-  saveState();
+/* ================= Export / Save ================= */
+function downloadHTML(filename){
+  const cssEsc = els.css.value.replace(/<\/style/gi, '<\\/style');
+  const jsEsc  = els.js.value.replace(/<\/script/gi, '<\\/script');
+  const title  = filename.replace(/\.html?$/i, '');
+  const doc = `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title}</title>
+<style>
+${cssEsc}
+</style>
+</head>
+<body>
+${els.html.value}
+<script>
+${jsEsc}
+<\/script>
+</body>
+</html>`;
+  const blob = new Blob([doc], { type: 'text/html;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 
-/* ===================================================================
-   Message handler
-=================================================================== */
+function actExport(){
+  let filenameInput;
+  openModal('⬇ Export เป็นไฟล์ HTML', (b) => {
+    const lab = document.createElement('label');
+    lab.textContent = 'ชื่อไฟล์ (จะเติม .html ให้อัตโนมัติ)';
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.value = 'index';
+    inp.placeholder = 'my-page';
+    b.appendChild(lab);
+    b.appendChild(inp);
+    filenameInput = inp;
+  }, () => {
+    let name = (filenameInput.value || 'index').trim();
+    name = name.replace(/\.html?$/i, '').replace(/[\\/:*?"<>|]/g, '_').trim() || 'index';
+    const filename = name + '.html';
+    downloadHTML(filename);
+    toast('ดาวน์โหลดแล้ว: ' + filename);
+  });
+}
+
+function actSave(){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      html: els.html.value, css: els.css.value, js: els.js.value
+    }));
+    toast('บันทึกโค้ดลงเครื่องแล้ว ✓');
+  } catch(e){
+    toast('บันทึกไม่สำเร็จ', 'error');
+  }
+}
+
+/* ================= Message handler ================= */
 window.addEventListener('message', (e) => {
   const d = e.data;
   if (!d || d.source !== 'live-html-tester') return;
@@ -1002,73 +1465,112 @@ window.addEventListener('message', (e) => {
     if (selectMode) sendToFrame({ cmd: 'selectMode', value: true });
     return;
   }
-
-  if (d.kind === 'select' || d.kind === 'selected'){
+  if (d.kind === 'select'){
     selection.info = d.info;
+    selection.sourceLoc = locateInSource(d.info);
     showSelectionBar(d.info);
-    applyPendingSync(d.info);
     return;
   }
-
+  if (d.kind === 'dblclick'){
+    // ดับเบิ้ลคลิก = กระโดดไปที่โค้ด + hilight
+    selection.info = d.info;
+    selection.sourceLoc = locateInSource(d.info);
+    showSelectionBar(d.info);
+    if (selection.sourceLoc){
+      selectRange(selection.sourceLoc.start, selection.sourceLoc.end);
+      // flash ขอบ editor
+      els.editorPane.style.boxShadow = 'inset 0 0 0 2px var(--accent)';
+      setTimeout(() => { els.editorPane.style.boxShadow = ''; }, 700);
+      toast('กระโดดไปที่ <' + d.info.tag + '> ในโค้ดแล้ว');
+    } else {
+      toast('หา element ในโค้ดไม่เจอ', 'error');
+    }
+    return;
+  }
+  if (d.kind === 'updated'){
+    selection.info = d.info;
+    showSelectionBar(d.info);
+    if (d.action === 'duplicate' && pendingDuplicate){
+      pendingDuplicate = false;
+      syncToSource(d.info.outerHTML, { duplicate: true });
+    } else {
+      syncToSource(d.info.outerHTML);
+    }
+    return;
+  }
   if (d.kind === 'deleted'){
-    applyPendingSync(null);
+    removeFromSource();
     clearSelection();
     toast('ลบ element แล้ว');
     return;
   }
-
   if (d.kind === 'log' || d.kind === 'info' || d.kind === 'warn' || d.kind === 'error'){
     addConsole(d.kind, d.msg);
   }
 });
 
-/* ===================================================================
-   Events
-=================================================================== */
-[els.html, els.css, els.js].forEach(ta => {
-  ta.addEventListener('input', scheduleRun);
+/* ================= Editor events ================= */
+['html','css','js'].forEach(lang => {
+  const { ta } = editorRefs[lang];
+  ta.addEventListener('input', () => {
+    refreshEditor(lang);
+    if (lang === 'html' && selection.info){
+      selection.sourceLoc = null;
+    }
+    saveState();
+    if (!els.auto.checked){ els.status.textContent = 'โหมด manual — กด Run'; return; }
+    clearTimeout(runTimer);
+    runTimer = setTimeout(run, RUN_DELAY);
+  });
+  ta.addEventListener('scroll', () => syncEditorScroll(lang));
   ta.addEventListener('keydown', (e) => {
     if (e.key === 'Tab'){
       e.preventDefault();
       const s = ta.selectionStart, en = ta.selectionEnd;
       ta.setRangeText('  ', s, en, 'end');
-      scheduleRun();
+      refreshEditor(lang);
+      saveState();
+      if (els.auto.checked){
+        clearTimeout(runTimer);
+        runTimer = setTimeout(run, RUN_DELAY);
+      }
     }
   });
 });
 
+/* ================= Tabs ================= */
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
-    const id = tab.dataset.target;
-    [els.html, els.css, els.js].forEach(t => t.classList.toggle('active', t.id === id));
-    document.getElementById(id).focus();
+    const lang = tab.dataset.target;
+    document.querySelectorAll('.editor-wrap').forEach(w => {
+      w.classList.toggle('active', w.dataset.lang === lang);
+    });
+    editorRefs[lang].ta.focus();
+    refreshEditor(lang);
   });
 });
 
+/* ================= Buttons ================= */
 els.run.addEventListener('click', run);
+els.save.addEventListener('click', actSave);
+els.export.addEventListener('click', actExport);
 els.clear.addEventListener('click', clearConsole);
-
 els.auto.addEventListener('change', () => {
   els.status.textContent = els.auto.checked ? 'อัปเดตอัตโนมัติ' : 'โหมด manual';
   if (els.auto.checked) run();
 });
-
 els.reset.addEventListener('click', () => {
   if (!confirm('คืนค่าโค้ดตัวอย่างเริ่มต้น?')) return;
   els.html.value = DEFAULTS.html;
   els.css.value  = DEFAULTS.css;
   els.js.value   = DEFAULTS.js;
+  refreshEditor('html'); refreshEditor('css'); refreshEditor('js');
   saveState();
   run();
 });
-
 els.selectModeBtn.addEventListener('click', () => setSelectMode(!selectMode));
-
-els.selClose.addEventListener('click', () => {
-  clearSelection();
-  sendToFrame({ cmd: 'deselect' });
-});
+els.selClose.addEventListener('click', () => { clearSelection(); sendToFrame({ cmd: 'deselect' }); });
 
 els.selectionBar.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-action]');
@@ -1076,26 +1578,36 @@ els.selectionBar.addEventListener('click', (e) => {
   switch (btn.dataset.action){
     case 'copy-html': actCopyHTML(); break;
     case 'copy-text': actCopyText(); break;
+    case 'copy-selector': actCopySelector(); break;
+    case 'copy-jsx': actCopyJSX(); break;
     case 'edit-text': actEditText(); break;
     case 'edit-attrs': actEditAttrs(); break;
+    case 'edit-style': actEditStyle(); break;
+    case 'edit-html': actEditHTML(); break;
+    case 'rename-tag': actRenameTag(); break;
+    case 'wrap': actWrap(); break;
+    case 'duplicate': actDuplicate(); break;
+    case 'reset-size': actResetSize(); break;
     case 'find': actFindInCode(); break;
     case 'delete': actDelete(); break;
   }
 });
 
+/* ================= Global shortcuts ================= */
 document.addEventListener('keydown', (e) => {
   const mod = e.ctrlKey || e.metaKey;
   if (mod && e.key === 'Enter'){ e.preventDefault(); run(); }
-  if (mod && e.key.toLowerCase() === 's'){ e.preventDefault(); run(); }
+  if (mod && e.key.toLowerCase() === 's'){
+    e.preventDefault();
+    if (mod && e.shiftKey) actExport(); else actSave();
+  }
   if (e.key === 'Escape' && selection.info && !document.querySelector('.modal-backdrop')){
     clearSelection();
     sendToFrame({ cmd: 'deselect' });
   }
 });
 
-/* ===================================================================
-   Splitter drag
-=================================================================== */
+/* ================= Splitter ================= */
 let dragging = false;
 els.splitter.addEventListener('pointerdown', (e) => {
   dragging = true;
@@ -1117,10 +1629,11 @@ els.splitter.addEventListener('pointerup', (e) => {
   document.body.style.userSelect = '';
 });
 
-/* ===================================================================
-   Init
-=================================================================== */
+/* ================= Init ================= */
 loadState();
+refreshEditor('html');
+refreshEditor('css');
+refreshEditor('js');
 clearConsole();
 requestAnimationFrame(run);
 </script>
