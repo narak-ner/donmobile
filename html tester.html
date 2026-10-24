@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⚡ Live HTML Tester</title>
+<style>
+  :root{
+    --bg:#1e1e2e; --panel:#181825; --border:#313244; --text:#cdd6f4; --muted:#7f849c;
+    --accent:#89b4fa; --green:#a6e3a1; --red:#f38ba8; --yellow:#f9e2af;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    background:var(--bg); color:var(--text);
+    font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    overflow:hidden;
+  }
+  .app{ display:flex; flex-direction:column; height:100vh; }
+
+  /* ---------- Header ---------- */
+  header{
+    height:52px; flex:0 0 auto;
+    display:flex; align-items:center; gap:14px;
+    padding:0 16px; border-bottom:1px solid var(--border);
+    background:var(--panel);
+  }
+  .brand{ font-weight:700; font-size:15px; letter-spacing:.3px; }
+  .switch{ display:flex; align-items:center; gap:7px; font-size:13px; color:var(--muted); cursor:pointer; user-select:none; }
+  .switch input{ accent-color:var(--accent); width:16px; height:16px; cursor:pointer; }
+  .status{ font-size:12px; color:var(--muted); transition:color .35s; }
+  .status.flash{ color:var(--green); }
+  .spacer{ flex:1; }
+
+  .btn{
+    background:#2a2a3d; color:var(--text); border:1px solid var(--border);
+    padding:7px 13px; border-radius:8px; font-size:13px; cursor:pointer;
+    transition:.15s; font-family:inherit;
+  }
+  .btn:hover{ background:#35354d; }
+  .btn.primary{ background:var(--accent); color:#11111b; border-color:var(--accent); font-weight:600; }
+  .btn.primary:hover{ filter:brightness(1.1); }
+  .btn.tiny{ padding:4px 9px; font-size:11px; border-radius:6px; }
+
+  /* ---------- Layout ---------- */
+  main{ flex:1; display:flex; min-height:0; }
+  .pane{ display:flex; flex-direction:column; min-width:0; min-height:0; }
+  #editorPane{ width:50%; flex:0 0 auto; }
+  #previewPane{ flex:1; }
+  .splitter{
+    width:6px; flex:0 0 auto; cursor:col-resize; background:var(--border);
+    transition:background .15s;
+  }
+  .splitter:hover{ background:var(--accent); }
+
+  /* ---------- Tabs + Editors ---------- */
+  .tabs{
+    display:flex; gap:2px; padding:6px 8px 0; background:var(--panel);
+    border-bottom:1px solid var(--border); flex:0 0 auto;
+  }
+  .tab{
+    background:transparent; border:0; border-bottom:2px solid transparent;
+    color:var(--muted); padding:8px 16px; font-size:13px; cursor:pointer;
+    font-family:ui-monospace,Menlo,Consolas,monospace; transition:.15s;
+  }
+  .tab:hover{ color:var(--text); }
+  .tab.active{ color:var(--accent); border-bottom-color:var(--accent); }
+
+  .editors{ position:relative; flex:1; min-height:0; }
+  .editors textarea{
+    position:absolute; inset:0; width:100%; height:100%;
+    display:none; border:0; outline:0; resize:none;
+    background:var(--panel); color:var(--text);
+    padding:14px 16px; tab-size:2;
+    font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  .editors textarea.active{ display:block; }
+  .editors textarea::selection{ background:#45475a; }
+
+  /* ---------- Preview ---------- */
+  .preview-head{
+    display:flex; align-items:center; gap:8px; flex:0 0 auto;
+    padding:6px 12px; background:var(--panel);
+    border-bottom:1px solid var(--border); font-size:12px; color:var(--muted);
+  }
+  iframe{
+    flex:1; min-height:0; width:100%; border:0; background:#fff;
+  }
+
+  /* ---------- Console ---------- */
+  .console{
+    height:130px; flex:0 0 auto; overflow:auto;
+    background:#11111b; border-top:1px solid var(--border);
+    padding:6px 12px;
+    font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  .console .line{ padding:2px 0; white-space:pre-wrap; word-break:break-word; border-bottom:1px solid #1c1c2b; }
+  .console .line:empty{ display:none; }
+  .console .log{ color:var(--text); }
+  .console .info{ color:var(--accent); }
+  .console .warn{ color:var(--yellow); }
+  .console .error{ color:var(--red); }
+  .console .empty{ color:#45475a; font-style:italic; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 820px){
+    main{ flex-direction:column; }
+    #editorPane{ width:100% !important; height:45%; }
+    .splitter{ display:none; }
+    #previewPane{ height:55%; }
+    .console{ height:90px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="brand">⚡ Live HTML Tester</div>
+
+    <label class="switch">
+      <input type="checkbox" id="autoToggle" checked>
+      <span>อัปเดตอัตโนมัติ</span>
+    </label>
+
+    <span class="status" id="status">พร้อม</span>
+    <div class="spacer"></div>
+
+    <button class="btn primary" id="runBtn">▶ รันเลย (Ctrl+Enter)</button>
+    <button class="btn" id="resetBtn">รีเซ็ต</button>
+  </header>
+
+  <main id="main">
+
+    <section class="pane" id="editorPane">
+      <div class="tabs">
+        <button class="tab active" data-target="html">HTML</button>
+        <button class="tab" data-target="css">CSS</button>
+        <button class="tab" data-target="js">JS</button>
+      </div>
+      <div class="editors">
+        <textarea id="html" class="active" spellcheck="false"></textarea>
+        <textarea id="css" spellcheck="false"></textarea>
+        <textarea id="js" spellcheck="false"></textarea>
+      </div>
+    </section>
+
+    <div class="splitter" id="splitter"></div>
+
+    <section class="pane" id="previewPane">
+      <div class="preview-head">
+        <span>ผลลัพธ์</span>
+        <div class="spacer"></div>
+        <button class="btn tiny" id="clearConsole">ล้าง console</button>
+      </div>
+      <iframe id="preview"
+        sandbox="allow-scripts allow-modals allow-forms allow-popups allow-pointer-lock"></iframe>
+      <div class="console" id="console"></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ====================== Elements ====================== */
+const els = {
+  html: document.getElementById('html'),
+  css: document.getElementById('css'),
+  js: document.getElementById('js'),
+  frame: document.getElementById('preview'),
+  console: document.getElementById('console'),
+  status: document.getElementById('status'),
+  auto: document.getElementById('autoToggle'),
+  run: document.getElementById('runBtn'),
+  reset: document.getElementById('resetBtn'),
+  clear: document.getElementById('clearConsole'),
+  splitter: document.getElementById('splitter'),
+  editorPane: document.getElementById('editorPane'),
+  main: document.getElementById('main'),
+};
+
+/* ====================== Defaults ====================== */
+const STORAGE_KEY = 'live-html-tester-v1';
+
+const DEFAULTS = {
+  html:
+`<h1>สวัสดี 👋</h1>
+<p>พิมพ์โค้ดทางซ้ายได้เลย ผลลัพธ์จะอัปเดตเองอัตโนมัติ</p>
+
+<button id="btn">คลิกฉัน</button>
+<p id="out"></p>
+
+<ul>
+  <li>ไม่ต้องกดรีเฟรช</li>
+  <li>ไม่ต้องกดปุ่ม Run</li>
+</ul>`,
+  css:
+`body {
+  font-family: system-ui, sans-serif;
+  padding: 24px;
+  color: #1e1e2e;
+}
+h1 { color: #4f46e5; margin-top: 0; }
+button {
+  padding: 9px 18px;
+  border: 0; border-radius: 8px;
+  background: #4f46e5; color: #fff;
+  font-size: 14px; cursor: pointer;
+}
+button:hover { background: #4338ca; }
+ul { line-height: 1.9; }`,
+  js:
+`let n = 0;
+
+document.getElementById('btn').addEventListener('click', () => {
+  n++;
+  document.getElementById('out').textContent = 'คลิกแล้ว ' + n + ' ครั้ง';
+});
+
+console.log('สคริปต์ทำงานแล้ว ✅');`
+};
+
+/* ====================== State ====================== */
+let runTimer = null;
+let saveTimer = null;
+const RUN_DELAY = 450; // ms หลังหยุดพิมพ์
+
+/* ====================== Load / Save ====================== */
+function loadState(){
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch(e){}
+  const s = saved || DEFAULTS;
+  els.html.value = (s.html ?? DEFAULTS.html);
+  els.css.value  = (s.css  ?? DEFAULTS.css);
+  els.js.value   = (s.js   ?? DEFAULTS.js);
+}
+
+function saveState(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        html: els.html.value, css: els.css.value, js: els.js.value
+      }));
+    } catch(e){}
+  }, 400);
+}
+
+/* ====================== Build preview document ====================== */
+function buildSrcdoc(){
+  // กันไม่ให้โค้ดของผู้ใช้ไปปิด <script> ของเรา
+  const safeJS  = els.js.value.replace(/<\/script/gi, '<\\/script');
+  const safeCSS = els.css.value.replace(/<\/style/gi,  '<\\/style');
+
+  return `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<style>${safeCSS}</style>
+</head>
+<body>
+${els.html.value}
+<script>
+(function(){
+  var send = function(kind, args){
+    try{
+      var parts = Array.prototype.map.call(args, function(a){
+        if (typeof a === 'string') return a;
+        try { return JSON.stringify(a); } catch(e){ return String(a); }
+      });
+      parent.postMessage({ source:'live-html-tester', kind:kind, msg:parts.join(' ') }, '*');
+    }catch(e){}
+  };
+
+  ['log','info','warn','error'].forEach(function(m){
+    var orig = console[m];
+    console[m] = function(){ send(m, arguments); if(orig) orig.apply(console, arguments); };
+  });
+
+  window.onerror = function(msg, src, line, col){
+    send('error', ['❌ ' + msg + (line ? '  (บรรทัด ' + line + ':' + col + ')' : '')]);
+    return false;
+  };
+
+  window.addEventListener('unhandledrejection', function(e){
+    send('error', ['❌ Unhandled Promise: ' + ((e.reason && e.reason.message) || e.reason)]);
+  });
+})();
+<\/script>
+<script>${safeJS}<\/script>
+</body>
+</html>`;
+}
+
+/* ====================== Run ====================== */
+function run(){
+  els.console.innerHTML = '';
+  els.frame.srcdoc = buildSrcdoc();
+
+  els.status.textContent = 'อัปเดต ' +
+    new Date().toLocaleTimeString('th-TH', { hour12:false });
+  els.status.classList.add('flash');
+  setTimeout(() => els.status.classList.remove('flash'), 700);
+}
+
+function scheduleRun(){
+  saveState();
+  if (!els.auto.checked) {
+    els.status.textContent = 'โหมดmanual — กด Run';
+    return;
+  }
+  clearTimeout(runTimer);
+  runTimer = setTimeout(run, RUN_DELAY);
+}
+
+/* ====================== Console output ====================== */
+let lineCount = 0;
+function addConsole(kind, msg){
+  if (lineCount === 0) els.console.innerHTML = '';
+  if (lineCount > 300){                       // กันหน่วยความจำบวม
+    els.console.removeChild(els.console.firstChild);
+    lineCount--;
+  }
+  const div = document.createElement('div');
+  const cls = (kind === 'error' || kind === 'warn' || kind === 'info') ? kind : 'log';
+  div.className = 'line ' + cls;
+  div.textContent = msg;
+  els.console.appendChild(div);
+  els.console.scrollTop = els.console.scrollHeight;
+  lineCount++;
+}
+
+function clearConsole(){
+  els.console.innerHTML = '<div class="line empty">— ยังไม่มีข้อความ —</div>';
+  lineCount = 0;
+}
+
+window.addEventListener('message', (e) => {
+  const d = e.data;
+  if (!d || d.source !== 'live-html-tester') return;
+  addConsole(d.kind, d.msg);
+});
+
+/* ====================== Events ====================== */
+[els.html, els.css, els.js].forEach(ta => {
+  ta.addEventListener('input', scheduleRun);
+
+  // Tab = ย่อหน้า 2 เคาะ (ไม่กระโดดออกจากช่อง)
+  ta.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab'){
+      e.preventDefault();
+      const s = ta.selectionStart, en = ta.selectionEnd;
+      ta.setRangeText('  ', s, en, 'end');
+      scheduleRun();
+    }
+  });
+});
+
+// สลับแท็บ
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+    const id = tab.dataset.target;
+    [els.html, els.css, els.js].forEach(t => t.classList.toggle('active', t.id === id));
+    document.getElementById(id).focus();
+  });
+});
+
+// ปุ่ม / toggle
+els.run.addEventListener('click', run);
+els.clear.addEventListener('click', clearConsole);
+
+els.auto.addEventListener('change', () => {
+  els.status.textContent = els.auto.checked ? 'อัปเดตอัตโนมัติ' : 'โหมดmanual';
+  if (els.auto.checked) run();
+});
+
+els.reset.addEventListener('click', () => {
+  if (!confirm('คืนค่าโค้ดตัวอย่างเริ่มต้น?')) return;
+  els.html.value = DEFAULTS.html;
+  els.css.value  = DEFAULTS.css;
+  els.js.value   = DEFAULTS.js;
+  saveState();
+  run();
+});
+
+// คีย์ลัด
+document.addEventListener('keydown', (e) => {
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key === 'Enter'){ e.preventDefault(); run(); }
+  if (mod && e.key.toLowerCase() === 's'){ e.preventDefault(); run(); } // กัน Save Page
+});
+
+/* ====================== Splitter drag ====================== */
+let dragging = false;
+els.splitter.addEventListener('pointerdown', (e) => {
+  dragging = true;
+  els.splitter.setPointerCapture(e.pointerId);
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+});
+els.splitter.addEventListener('pointermove', (e) => {
+  if (!dragging) return;
+  const rect = els.main.getBoundingClientRect();
+  let pct = ((e.clientX - rect.left) / rect.width) * 100;
+  pct = Math.min(80, Math.max(20, pct));
+  els.editorPane.style.width = pct + '%';
+});
+els.splitter.addEventListener('pointerup', (e) => {
+  dragging = false;
+  els.splitter.releasePointerCapture(e.pointerId);
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+});
+
+/* ====================== Init ====================== */
+loadState();
+clearConsole();
+requestAnimationFrame(run);   // เรนเดอร์ครั้งแรกทันที (ไม่ต้องกดอะไร)
+</script>
+</body>
+</html>
