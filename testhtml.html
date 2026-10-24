@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ทดสอบโค้ด HTML ออนไลน์บนเว็บ - HTML Code Test</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&display=swap">
+<style>
+:root{
+  --primary:#45a2ff;
+  --dark:#22241f;
+  --text:#656565;
+  --white:#fff;
+  --border:#ebebf3;
+  --bg:#fbfff7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Kanit','Open Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  font-size:15px;
+}
+a{color:var(--primary);text-decoration:none;transition:opacity .2s}
+a:hover{opacity:.8}
+img{max-width:100%;height:auto;display:block}
+
+/* ===== Header ===== */
+header{
+  background:var(--dark);
+  height:70px;
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow:0 1px 4px rgba(0,0,0,.1);
+}
+.header-inner{
+  max-width:1230px;
+  margin:0 auto;
+  padding:0 20px;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+.logo{
+  color:#fff;
+  font-size:20px;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.logo i{color:var(--primary);font-size:24px}
+nav ul{list-style:none;display:flex;gap:5px}
+nav a{
+  color:#fff;
+  display:block;
+  padding:0 15px;
+  height:70px;
+  line-height:70px;
+  font-size:14px;
+  font-weight:500;
+  transition:background .2s;
+}
+nav a:hover{background:rgba(255,255,255,.05);opacity:1}
+.menu-toggle{
+  display:none;
+  background:none;
+  border:0;
+  color:#fff;
+  font-size:20px;
+  cursor:pointer;
+  padding:10px;
+}
+
+/* ===== Main ===== */
+main{
+  max-width:900px;
+  margin:40px auto;
+  padding:0 20px;
+}
+.post{
+  background:var(--white);
+  border-radius:8px;
+  padding:30px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+}
+.post-title{
+  font-size:32px;
+  color:var(--dark);
+  font-weight:600;
+  margin-bottom:12px;
+  line-height:1.3;
+}
+.post-meta{
+  color:#999;
+  font-size:13px;
+  margin-bottom:25px;
+  padding-bottom:20px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  gap:15px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.post-meta i{color:var(--primary);margin-right:5px}
+.post-meta .tag{
+  background:var(--primary);
+  color:#fff;
+  padding:2px 10px;
+  border-radius:3px;
+  font-size:11px;
+  text-transform:uppercase;
+  font-weight:600;
+}
+
+/* ===== Intro ===== */
+.tester-intro{text-align:center;margin-bottom:25px}
+.tester-intro h2{color:var(--primary);font-size:24px;margin-bottom:8px}
+.tester-intro p{color:var(--text)}
+
+/* ===== Tester ===== */
+.tester{
+  background:#f8fbf4;
+  border:1px solid #dbe5d3;
+  border-radius:8px;
+  overflow:hidden;
+}
+.tester-header{
+  background:var(--dark);
+  color:#fff;
+  padding:12px 20px;
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:14px;
+}
+.tester-header i{color:var(--primary)}
+.tester-body{padding:20px}
+textarea{
+  width:100%;
+  min-height:250px;
+  padding:15px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  font-family:'Consolas','Monaco','Courier New',monospace;
+  font-size:14px;
+  line-height:1.6;
+  background:#fff;
+  resize:vertical;
+  outline:none;
+  transition:border-color .2s;
+  color:#333;
+}
+textarea:focus{border-color:var(--primary)}
+.buttons{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+  flex-wrap:wrap;
+}
+button{
+  font-family:inherit;
+  font-size:14px;
+  font-weight:500;
+  padding:10px 20px;
+  border:0;
+  border-radius:6px;
+  cursor:pointer;
+  transition:all .2s;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:#2c8af5;transform:translateY(-1px)}
+.btn-secondary{background:#fff;color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:#f5f5f5}
+
+/* ===== Preview ===== */
+.preview-wrap{
+  margin-top:25px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  overflow:hidden;
+}
+.preview-header{
+  background:#f5f7f2;
+  padding:10px 15px;
+  font-size:13px;
+  font-weight:500;
+  color:var(--dark);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.preview-header i{color:var(--primary)}
+#preview{
+  width:100%;
+  height:350px;
+  border:0;
+  background:#fff;
+  display:block;
+}
+
+/* ===== Footer ===== */
+footer{
+  background:var(--dark);
+  color:#fff;
+  padding:25px 20px;
+  text-align:center;
+  margin-top:50px;
+}
+footer p{font-size:13px;color:#ccc}
+footer a{color:#fff}
+
+/* ===== Responsive ===== */
+@media (max-width:768px){
+  nav{
+    display:none;
+    position:absolute;
+    top:70px;left:0;right:0;
+    background:var(--dark);
+    padding:10px 0;
+    box-shadow:0 4px 8px rgba(0,0,0,.2);
+  }
+  nav.active{display:block}
+  nav ul{flex-direction:column;gap:0}
+  nav a{height:auto;line-height:normal;padding:12px 20px}
+  .menu-toggle{display:block}
+  .post-title{font-size:24px}
+  .post{padding:20px}
+  .buttons{flex-direction:column}
+  .buttons button{width:100%}
+  #preview{height:280px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">
+      <i class="fas fa-microchip"></i>
+      <span>ทดสอบโค้ด HTML</span>
+    </a>
+    <button class="menu-toggle" onclick="document.getElementById('nav').classList.toggle('active')" aria-label="เมนู">
+      <i class="fas fa-bars"></i>
+    </button>
+    <nav id="nav">
+      <ul>
+        <li><a href="#">หน้าแรก</a></li>
+        <li><a href="#">บทความ</a></li>
+        <li><a href="#">ติดต่อ</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <article class="post">
+    <h1 class="post-title">ทดสอบโค้ด HTML ออนไลน์บนเว็บ</h1>
+    <div class="post-meta">
+      <span><i class="fas fa-user"></i>AkeRemake</span>
+      <span><i class="fas fa-calendar"></i>18 กุมภาพันธ์ 2561</span>
+      <span class="tag">HTML</span>
+    </div>
+
+    <div class="tester-intro">
+      <h2>ทดสอบ ทดลอง CODE HTML</h2>
+      <p>สามารถทำการทดสอบโค้ด HTML ได้อย่างง่ายดาย ไปลองเลย!</p>
+    </div>
+
+    <div class="tester">
+      <div class="tester-header">
+        <i class="fas fa-code"></i>
+        <span>Code Editor</span>
+      </div>
+      <div class="tester-body">
+        <textarea id="code-input" placeholder="พิมพ์โค้ด HTML ที่นี่...&#10;&#10;ตัวอย่าง:&#10;&lt;h1&gt;Hello World&lt;/h1&gt;&#10;&lt;p&gt;นี่คือการทดสอบ&lt;/p&gt;"></textarea>
+        <div class="buttons">
+          <button class="btn-primary" onclick="runCode()">
+            <i class="fas fa-play"></i> เริ่มทดสอบโค้ด HTML
+          </button>
+          <button class="btn-secondary" onclick="clearCode()">
+            <i class="fas fa-trash"></i> ลบ HTML ออก
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-wrap">
+      <div class="preview-header">
+        <i class="fas fa-eye"></i>
+        <span>ผลลัพธ์ (Preview)</span>
+      </div>
+      <iframe id="preview" title="ผลลัพธ์" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
+    </div>
+  </article>
+</main>
+
+<footer>
+  <p>สร้างสรรค์โดย <a href="#">AKE Remake</a> &copy; <span id="year"></span></p>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+function runCode() {
+  const code = document.getElementById('code-input').value;
+  const iframe = document.getElementById('preview');
+  iframe.srcdoc = code || '<p style="padding:20px;color:#999;font-family:sans-serif;text-align:center;">ยังไม่มีโค้ด — พิมพ์โค้ด HTML ในช่องด้านบนก่อนกดทดสอบ</p>';
+}
+
+function clearCode() {
+  document.getElementById('code-input').value = '';
+  document.getElementById('preview').srcdoc = '';
+  document.getElementById('code-input').focus();
+}
+
+/* Ctrl+Enter = ทดสอบ */
+document.getElementById('code-input').addEventListener('keydown', function(e){
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') runCode();
+});
+</script>
+
+</body>
+</html>
