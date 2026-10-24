@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>⚡ Live HTML Tester</title>
+<title>⚡ Live HTML Tester — เลือก element ได้</title>
 <style>
   :root{
-    --bg:#1e1e2e; --panel:#181825; --border:#313244; --text:#cdd6f4; --muted:#7f849c;
+    --bg:#1e1e2e; --panel:#181825; --panel2:#252538; --border:#313244;
+    --text:#cdd6f4; --muted:#7f849c;
     --accent:#89b4fa; --green:#a6e3a1; --red:#f38ba8; --yellow:#f9e2af;
   }
   *{ box-sizing:border-box; }
@@ -21,26 +22,28 @@
   /* ---------- Header ---------- */
   header{
     height:52px; flex:0 0 auto;
-    display:flex; align-items:center; gap:14px;
+    display:flex; align-items:center; gap:12px;
     padding:0 16px; border-bottom:1px solid var(--border);
     background:var(--panel);
+    overflow-x:auto;
   }
-  .brand{ font-weight:700; font-size:15px; letter-spacing:.3px; }
-  .switch{ display:flex; align-items:center; gap:7px; font-size:13px; color:var(--muted); cursor:pointer; user-select:none; }
+  .brand{ font-weight:700; font-size:15px; letter-spacing:.3px; white-space:nowrap; }
+  .switch{ display:flex; align-items:center; gap:7px; font-size:13px; color:var(--muted); cursor:pointer; user-select:none; white-space:nowrap; }
   .switch input{ accent-color:var(--accent); width:16px; height:16px; cursor:pointer; }
-  .status{ font-size:12px; color:var(--muted); transition:color .35s; }
+  .status{ font-size:12px; color:var(--muted); transition:color .35s; white-space:nowrap; }
   .status.flash{ color:var(--green); }
   .spacer{ flex:1; }
 
   .btn{
     background:#2a2a3d; color:var(--text); border:1px solid var(--border);
     padding:7px 13px; border-radius:8px; font-size:13px; cursor:pointer;
-    transition:.15s; font-family:inherit;
+    transition:.15s; font-family:inherit; white-space:nowrap;
   }
   .btn:hover{ background:#35354d; }
   .btn.primary{ background:var(--accent); color:#11111b; border-color:var(--accent); font-weight:600; }
   .btn.primary:hover{ filter:brightness(1.1); }
-  .btn.tiny{ padding:4px 9px; font-size:11px; border-radius:6px; }
+  .btn.tiny{ padding:4px 9px; font-size:11.5px; border-radius:6px; }
+  .btn.active{ background:var(--accent); color:#11111b; border-color:var(--accent); font-weight:600; }
 
   /* ---------- Layout ---------- */
   main{ flex:1; display:flex; min-height:0; }
@@ -53,7 +56,7 @@
   }
   .splitter:hover{ background:var(--accent); }
 
-  /* ---------- Tabs + Editors ---------- */
+  /* ---------- Tabs ---------- */
   .tabs{
     display:flex; gap:2px; padding:6px 8px 0; background:var(--panel);
     border-bottom:1px solid var(--border); flex:0 0 auto;
@@ -66,6 +69,35 @@
   .tab:hover{ color:var(--text); }
   .tab.active{ color:var(--accent); border-bottom-color:var(--accent); }
 
+  /* ---------- Selection bar ---------- */
+  .selection-bar{
+    display:flex; align-items:center; gap:6px;
+    padding:7px 10px; background:var(--panel2);
+    border-bottom:1px solid var(--border);
+    flex:0 0 auto; overflow-x:auto; font-size:12px;
+    animation: slideDown .2s ease;
+  }
+  .selection-bar[hidden]{ display:none; }
+  @keyframes slideDown {
+    from { opacity:0; transform:translateY(-6px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+  .sel-tag{
+    background:var(--accent); color:#11111b;
+    padding:3px 9px; border-radius:5px;
+    font-family:ui-monospace,monospace; font-weight:700; font-size:11.5px;
+    white-space:nowrap; flex:0 0 auto;
+  }
+  .sel-tag .sel-id{ opacity:.7; font-weight:500; }
+  .sel-sep{ width:1px; height:18px; background:var(--border); flex:0 0 auto; }
+  .selection-bar .close-btn{
+    margin-left:auto; background:transparent; border:0;
+    color:var(--muted); font-size:16px; cursor:pointer;
+    padding:2px 8px; border-radius:5px; flex:0 0 auto;
+  }
+  .selection-bar .close-btn:hover{ color:var(--red); background:rgba(243,139,168,.1); }
+
+  /* ---------- Editors ---------- */
   .editors{ position:relative; flex:1; min-height:0; }
   .editors textarea{
     position:absolute; inset:0; width:100%; height:100%;
@@ -75,7 +107,7 @@
     font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
   .editors textarea.active{ display:block; }
-  .editors textarea::selection{ background:#45475a; }
+  .editors textarea::selection{ background:#45475a; color:#fff; }
 
   /* ---------- Preview ---------- */
   .preview-head{
@@ -85,6 +117,9 @@
   }
   iframe{
     flex:1; min-height:0; width:100%; border:0; background:#fff;
+  }
+  body.select-mode #preview{
+    box-shadow: inset 0 0 0 3px var(--accent);
   }
 
   /* ---------- Console ---------- */
@@ -102,13 +137,80 @@
   .console .error{ color:var(--red); }
   .console .empty{ color:#45475a; font-style:italic; }
 
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,.55);
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999; padding:20px;
+  }
+  .modal-backdrop[hidden]{ display:none; }
+  .modal{
+    background:var(--panel); border:1px solid var(--border);
+    border-radius:12px; width:min(500px,100%);
+    max-height:80vh; display:flex; flex-direction:column;
+    box-shadow:0 20px 60px rgba(0,0,0,.55);
+    animation: popIn .18s ease;
+  }
+  @keyframes popIn {
+    from { opacity:0; transform:scale(.96); }
+    to { opacity:1; transform:scale(1); }
+  }
+  .modal h3{
+    margin:0; padding:16px 20px; border-bottom:1px solid var(--border);
+    font-size:15px; display:flex; align-items:center; gap:8px;
+  }
+  .modal-body{ padding:16px 20px; overflow-y:auto; flex:1; }
+  .modal-body label{
+    display:block; margin-bottom:6px; font-size:12px; color:var(--muted);
+  }
+  .modal-body input[type="text"],
+  .modal-body textarea{
+    width:100%; background:var(--bg); border:1px solid var(--border);
+    border-radius:6px; color:var(--text); padding:8px 10px;
+    font:13px ui-monospace,monospace; margin-bottom:10px;
+    resize:vertical; outline:0;
+  }
+  .modal-body input:focus, .modal-body textarea:focus{ border-color:var(--accent); }
+  .modal-body textarea{ min-height:90px; }
+  .modal-actions{
+    display:flex; gap:8px; justify-content:flex-end;
+    padding:12px 20px; border-top:1px solid var(--border);
+  }
+  .attr-row{ display:flex; gap:6px; margin-bottom:6px; }
+  .attr-row input{ margin-bottom:0 !important; }
+  .attr-row .attr-name{ flex:0 0 38%; }
+  .attr-row .attr-value{ flex:1; }
+  .attr-row .remove-attr{
+    flex:0 0 auto; background:transparent;
+    border:1px solid var(--border); color:var(--red);
+    border-radius:6px; width:34px; cursor:pointer; font-size:13px;
+  }
+  .attr-row .remove-attr:hover{ background:rgba(243,139,168,.12); }
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--green); color:#11111b;
+    padding:10px 22px; border-radius:9px; font-size:13px; font-weight:600;
+    z-index:10000; box-shadow:0 6px 24px rgba(0,0,0,.35);
+    animation: toastIn .25s cubic-bezier(.2,1.2,.4,1);
+    white-space:nowrap;
+  }
+  .toast.error{ background:var(--red); }
+  .toast.fade{ opacity:0; transition:opacity .3s; }
+  @keyframes toastIn {
+    from { opacity:0; transform:translate(-50%, 16px); }
+    to { opacity:1; transform:translate(-50%, 0); }
+  }
+
   /* ---------- Responsive ---------- */
-  @media (max-width: 820px){
+  @media (max-width: 860px){
     main{ flex-direction:column; }
     #editorPane{ width:100% !important; height:45%; }
     .splitter{ display:none; }
     #previewPane{ height:55%; }
     .console{ height:90px; }
+    .brand span{ display:none; }
   }
 </style>
 </head>
@@ -116,17 +218,19 @@
 <div class="app">
 
   <header>
-    <div class="brand">⚡ Live HTML Tester</div>
+    <div class="brand">⚡ <span>Live HTML Tester</span></div>
 
     <label class="switch">
       <input type="checkbox" id="autoToggle" checked>
-      <span>อัปเดตอัตโนมัติ</span>
+      <span>อัตโนมัติ</span>
     </label>
+
+    <button class="btn" id="selectModeBtn" title="เปิดโหมดคลิกเลือก element ใน preview">🎯 เลือก element</button>
 
     <span class="status" id="status">พร้อม</span>
     <div class="spacer"></div>
 
-    <button class="btn primary" id="runBtn">▶ รันเลย (Ctrl+Enter)</button>
+    <button class="btn primary" id="runBtn">▶ รัน (Ctrl+Enter)</button>
     <button class="btn" id="resetBtn">รีเซ็ต</button>
   </header>
 
@@ -138,6 +242,22 @@
         <button class="tab" data-target="css">CSS</button>
         <button class="tab" data-target="js">JS</button>
       </div>
+
+      <!-- Selection bar (แสดงเมื่อเลือก element) -->
+      <div class="selection-bar" id="selectionBar" hidden>
+        <span class="sel-tag" id="selTag">&lt;div&gt;</span>
+        <div class="sel-sep"></div>
+        <button class="btn tiny" data-action="copy-html">📋 Copy HTML</button>
+        <button class="btn tiny" data-action="copy-text">📋 Copy Text</button>
+        <div class="sel-sep"></div>
+        <button class="btn tiny" data-action="edit-text">✏️ แก้ข้อความ</button>
+        <button class="btn tiny" data-action="edit-attrs">🎨 แก้ attr</button>
+        <div class="sel-sep"></div>
+        <button class="btn tiny" data-action="find">🔍 หาในโค้ด</button>
+        <button class="btn tiny" data-action="delete">🗑️ ลบ</button>
+        <button class="close-btn" id="selClose" title="ปิด (Esc)">✖</button>
+      </div>
+
       <div class="editors">
         <textarea id="html" class="active" spellcheck="false"></textarea>
         <textarea id="css" spellcheck="false"></textarea>
@@ -162,7 +282,9 @@
 </div>
 
 <script>
-/* ====================== Elements ====================== */
+/* ===================================================================
+   Elements
+=================================================================== */
 const els = {
   html: document.getElementById('html'),
   css: document.getElementById('css'),
@@ -177,22 +299,33 @@ const els = {
   splitter: document.getElementById('splitter'),
   editorPane: document.getElementById('editorPane'),
   main: document.getElementById('main'),
+  selectModeBtn: document.getElementById('selectModeBtn'),
+  selectionBar: document.getElementById('selectionBar'),
+  selTag: document.getElementById('selTag'),
+  selClose: document.getElementById('selClose'),
 };
 
-/* ====================== Defaults ====================== */
-const STORAGE_KEY = 'live-html-tester-v1';
+/* ===================================================================
+   Defaults / Storage
+=================================================================== */
+const STORAGE_KEY = 'live-html-tester-v2';
 
 const DEFAULTS = {
   html:
 `<h1>สวัสดี 👋</h1>
-<p>พิมพ์โค้ดทางซ้ายได้เลย ผลลัพธ์จะอัปเดตเองอัตโนมัติ</p>
+<p>เปิดโหมด "เลือก element" แล้วคลิกที่ element ใน preview</p>
 
 <button id="btn">คลิกฉัน</button>
 <p id="out"></p>
 
+<div class="card">
+  <h2>การ์ดตัวอย่าง</h2>
+  <p>ลองคลิกที่การ์ดนี้ดูสิ</p>
+</div>
+
 <ul>
   <li>ไม่ต้องกดรีเฟรช</li>
-  <li>ไม่ต้องกดปุ่ม Run</li>
+  <li>แก้ข้อความได้ทันที</li>
 </ul>`,
   css:
 `body {
@@ -202,12 +335,17 @@ const DEFAULTS = {
 }
 h1 { color: #4f46e5; margin-top: 0; }
 button {
-  padding: 9px 18px;
-  border: 0; border-radius: 8px;
+  padding: 9px 18px; border: 0; border-radius: 8px;
   background: #4f46e5; color: #fff;
   font-size: 14px; cursor: pointer;
 }
 button:hover { background: #4338ca; }
+.card {
+  border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 16px; margin: 16px 0;
+  background: #f8fafc;
+}
+.card h2 { margin: 0 0 8px; font-size: 18px; color: #334155; }
 ul { line-height: 1.9; }`,
   js:
 `let n = 0;
@@ -220,21 +358,16 @@ document.getElementById('btn').addEventListener('click', () => {
 console.log('สคริปต์ทำงานแล้ว ✅');`
 };
 
-/* ====================== State ====================== */
-let runTimer = null;
-let saveTimer = null;
-const RUN_DELAY = 450; // ms หลังหยุดพิมพ์
-
-/* ====================== Load / Save ====================== */
 function loadState(){
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch(e){}
   const s = saved || DEFAULTS;
-  els.html.value = (s.html ?? DEFAULTS.html);
-  els.css.value  = (s.css  ?? DEFAULTS.css);
-  els.js.value   = (s.js   ?? DEFAULTS.js);
+  els.html.value = s.html ?? DEFAULTS.html;
+  els.css.value  = s.css  ?? DEFAULTS.css;
+  els.js.value   = s.js   ?? DEFAULTS.js;
 }
 
+let saveTimer = null;
 function saveState(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
@@ -246,9 +379,181 @@ function saveState(){
   }, 400);
 }
 
-/* ====================== Build preview document ====================== */
+/* ===================================================================
+   Selection state (parent)
+=================================================================== */
+let selectMode = false;
+let selection = { info: null };
+let pendingSync = null;   // { start, end } — เพื่อ sync ลง source
+
+/* ===================================================================
+   Injected selector script (รันใน iframe)
+=================================================================== */
+const SELECTOR_SCRIPT = `
+(function(){
+  if (window.__liveSelectorInstalled) return;
+  window.__liveSelectorInstalled = true;
+
+  var selectMode = false;
+  var currentEl = null;
+  var overlay, badge, hoverOverlay;
+
+  function ensureOverlay(){
+    if (overlay && overlay.isConnected) return;
+    overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;pointer-events:none;border:2px solid #89b4fa;background:rgba(137,180,250,0.18);z-index:2147483646;display:none;box-sizing:border-box;border-radius:2px;';
+    badge = document.createElement('div');
+    badge.style.cssText = 'position:fixed;pointer-events:none;background:#89b4fa;color:#11111b;font:600 11px/1 system-ui,sans-serif;padding:3px 7px;border-radius:4px;z-index:2147483647;display:none;white-space:nowrap;';
+    hoverOverlay = document.createElement('div');
+    hoverOverlay.style.cssText = 'position:fixed;pointer-events:none;border:1px dashed rgba(137,180,250,0.85);background:rgba(137,180,250,0.07);z-index:2147483645;display:none;box-sizing:border-box;';
+    var root = document.body || document.documentElement;
+    root.appendChild(hoverOverlay);
+    root.appendChild(overlay);
+    root.appendChild(badge);
+  }
+
+  function positionOverlay(el){
+    ensureOverlay();
+    var r = el.getBoundingClientRect();
+    overlay.style.display = 'block';
+    overlay.style.left = r.left + 'px';
+    overlay.style.top = r.top + 'px';
+    overlay.style.width = r.width + 'px';
+    overlay.style.height = r.height + 'px';
+    badge.style.display = 'block';
+    badge.textContent = '<' + el.tagName.toLowerCase() + '>';
+    var top = r.top - 22;
+    if (top < 2) top = r.top + r.height + 2;
+    badge.style.left = Math.max(2, r.left) + 'px';
+    badge.style.top = top + 'px';
+  }
+
+  function hideOverlay(){
+    if (overlay) overlay.style.display = 'none';
+    if (badge) badge.style.display = 'none';
+    if (hoverOverlay) hoverOverlay.style.display = 'none';
+  }
+
+  function describe(el){
+    var attrs = {};
+    for (var i = 0; i < el.attributes.length; i++){
+      attrs[el.attributes[i].name] = el.attributes[i].value;
+    }
+    return {
+      tag: el.tagName.toLowerCase(),
+      id: el.id || '',
+      className: (typeof el.className === 'string' ? el.className : ''),
+      attrs: attrs,
+      outerHTML: el.outerHTML.slice(0, 50000),
+      innerHTML: el.innerHTML.slice(0, 50000),
+      text: (el.textContent || '').trim().slice(0, 1000)
+    };
+  }
+
+  function sendSelect(el){
+    try {
+      parent.postMessage({ source:'live-html-tester', kind:'select', info: describe(el) }, '*');
+    } catch(e){}
+  }
+
+  function onClick(e){
+    if (!selectMode) return;
+    var el = e.target;
+    if (!el || el === document.body || el === document.documentElement) return;
+    if (el === overlay || el === badge || el === hoverOverlay) return;
+    e.preventDefault();
+    e.stopPropagation();
+    currentEl = el;
+    positionOverlay(el);
+    sendSelect(el);
+  }
+
+  function onHover(e){
+    if (!selectMode) return;
+    if (!hoverOverlay) ensureOverlay();
+    var el = e.target;
+    if (!el || el === document.body || el === document.documentElement
+        || el === overlay || el === badge || el === hoverOverlay){
+      hoverOverlay.style.display = 'none';
+      return;
+    }
+    var r = el.getBoundingClientRect();
+    hoverOverlay.style.display = 'block';
+    hoverOverlay.style.left = r.left + 'px';
+    hoverOverlay.style.top = r.top + 'px';
+    hoverOverlay.style.width = r.width + 'px';
+    hoverOverlay.style.height = r.height + 'px';
+  }
+
+  function onReposition(){
+    if (currentEl && currentEl.isConnected && selectMode){
+      positionOverlay(currentEl);
+    }
+  }
+
+  document.addEventListener('click', onClick, true);
+  document.addEventListener('mousemove', onHover, true);
+  window.addEventListener('scroll', onReposition, true);
+  window.addEventListener('resize', onReposition);
+
+  window.addEventListener('message', function(e){
+    var d = e.data;
+    if (!d || d.source !== 'live-html-parent') return;
+
+    if (d.cmd === 'selectMode'){
+      selectMode = !!d.value;
+      if (!selectMode){
+        hideOverlay();
+        currentEl = null;
+      } else {
+        ensureOverlay();
+      }
+    }
+
+    if (d.cmd === 'deselect'){
+      hideOverlay();
+      currentEl = null;
+    }
+
+    if (d.cmd === 'updateText' && currentEl){
+      currentEl.textContent = d.value;
+      positionOverlay(currentEl);
+      sendSelect(currentEl);
+    }
+
+    if (d.cmd === 'setAttrs' && currentEl){
+      var keep = d.attrs || {};
+      var existing = [];
+      for (var i = 0; i < currentEl.attributes.length; i++){
+        existing.push(currentEl.attributes[i].name);
+      }
+      existing.forEach(function(n){
+        if (!(n in keep)) currentEl.removeAttribute(n);
+      });
+      Object.keys(keep).forEach(function(n){
+        try { currentEl.setAttribute(n, keep[n]); } catch(err){}
+      });
+      positionOverlay(currentEl);
+      sendSelect(currentEl);
+    }
+
+    if (d.cmd === 'delete' && currentEl){
+      var target = currentEl;
+      currentEl = null;
+      hideOverlay();
+      if (target.parentNode) target.parentNode.removeChild(target);
+      try { parent.postMessage({ source:'live-html-tester', kind:'deleted' }, '*'); } catch(err){}
+    }
+  });
+
+  try { parent.postMessage({ source:'live-html-tester', kind:'ready' }, '*'); } catch(e){}
+})();
+`;
+
+/* ===================================================================
+   Build preview document
+=================================================================== */
 function buildSrcdoc(){
-  // กันไม่ให้โค้ดของผู้ใช้ไปปิด <script> ของเรา
   const safeJS  = els.js.value.replace(/<\/script/gi, '<\\/script');
   const safeCSS = els.css.value.replace(/<\/style/gi,  '<\\/style');
 
@@ -288,12 +593,19 @@ ${els.html.value}
 })();
 <\/script>
 <script>${safeJS}<\/script>
+<script>${SELECTOR_SCRIPT}<\/script>
 </body>
 </html>`;
 }
 
-/* ====================== Run ====================== */
+/* ===================================================================
+   Run / Schedule
+=================================================================== */
+const RUN_DELAY = 450;
+let runTimer = null;
+
 function run(){
+  clearSelection();
   els.console.innerHTML = '';
   els.frame.srcdoc = buildSrcdoc();
 
@@ -305,19 +617,22 @@ function run(){
 
 function scheduleRun(){
   saveState();
-  if (!els.auto.checked) {
-    els.status.textContent = 'โหมดmanual — กด Run';
+  if (!els.auto.checked){
+    els.status.textContent = 'โหมด manual — กด Run';
     return;
   }
   clearTimeout(runTimer);
   runTimer = setTimeout(run, RUN_DELAY);
 }
 
-/* ====================== Console output ====================== */
+/* ===================================================================
+   Console
+=================================================================== */
 let lineCount = 0;
+
 function addConsole(kind, msg){
   if (lineCount === 0) els.console.innerHTML = '';
-  if (lineCount > 300){                       // กันหน่วยความจำบวม
+  if (lineCount > 300){
     els.console.removeChild(els.console.firstChild);
     lineCount--;
   }
@@ -335,17 +650,383 @@ function clearConsole(){
   lineCount = 0;
 }
 
+/* ===================================================================
+   Toast
+=================================================================== */
+function toast(msg, type){
+  const t = document.createElement('div');
+  t.className = 'toast' + (type === 'error' ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add('fade'), 1600);
+  setTimeout(() => t.remove(), 2000);
+}
+
+/* ===================================================================
+   Messaging
+=================================================================== */
+function sendToFrame(msg){
+  try {
+    els.frame.contentWindow.postMessage({ source:'live-html-parent', ...msg }, '*');
+  } catch(e){}
+}
+
+function setSelectMode(on){
+  selectMode = !!on;
+  document.body.classList.toggle('select-mode', selectMode);
+  els.selectModeBtn.classList.toggle('active', selectMode);
+  els.selectModeBtn.textContent = selectMode
+    ? '🎯 กำลังเลือก (คลิกเพื่อปิด)'
+    : '🎯 เลือก element';
+  sendToFrame({ cmd: 'selectMode', value: selectMode });
+  if (!selectMode) clearSelection();
+}
+
+/* ===================================================================
+   Selection UI
+=================================================================== */
+function showSelectionBar(info){
+  els.selectionBar.hidden = false;
+  const idPart = info.id
+    ? ` <span class="sel-id">#${escapeHtml(info.id)}</span>`
+    : '';
+  els.selTag.innerHTML = `&lt;${info.tag}&gt;${idPart}`;
+}
+
+function clearSelection(){
+  selection = { info: null };
+  els.selectionBar.hidden = true;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+/* ===================================================================
+   Source locator
+=================================================================== */
+function escapeRe(s){
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+const VOID_TAGS = ['area','base','br','col','embed','hr','img','input',
+  'link','meta','param','source','track','wbr'];
+
+function findElementEnd(src, startIdx, tag){
+  const t = tag.toLowerCase();
+  if (VOID_TAGS.includes(t)){
+    const gt = src.indexOf('>', startIdx);
+    return gt === -1 ? src.length : gt + 1;
+  }
+  // self-closing <tag ... />
+  const gt = src.indexOf('>', startIdx);
+  if (gt !== -1 && src[gt - 1] === '/') return gt + 1;
+
+  const openRe  = new RegExp('<' + escapeRe(t) + '\\b', 'gi');
+  const closeRe = new RegExp('</' + escapeRe(t) + '\\s*>', 'gi');
+
+  let depth = 0;
+  let pos = startIdx;
+
+  while (pos < src.length){
+    openRe.lastIndex = pos;
+    closeRe.lastIndex = pos;
+    const nextOpen  = openRe.exec(src);
+    const nextClose = closeRe.exec(src);
+
+    if (!nextClose) return src.length;
+
+    if (nextOpen && nextOpen.index < nextClose.index){
+      depth++;
+      pos = nextOpen.index + nextOpen[0].length;
+    } else {
+      depth--;
+      if (depth === 0) return nextClose.index + nextClose[0].length;
+      pos = nextClose.index + nextClose[0].length;
+    }
+  }
+  return src.length;
+}
+
+function locateInSource(info){
+  const src = els.html.value;
+  const tag = info.tag.toLowerCase();
+
+  // 1) by id
+  if (info.id){
+    const re = new RegExp('<([a-zA-Z][\\w-]*)\\b[^>]*\\bid\\s*=\\s*["\']' +
+      escapeRe(info.id) + '["\']', 'i');
+    const m = re.exec(src);
+    if (m && m[1].toLowerCase() === tag){
+      return { start: m.index, end: findElementEnd(src, m.index, tag) };
+    }
+  }
+
+  // 2) by class (first class)
+  if (info.className){
+    const cls = info.className.split(/\s+/).filter(Boolean)[0];
+    if (cls){
+      const re = new RegExp('<(' + escapeRe(tag) + ')\\b[^>]*\\bclass\\s*=\\s*["\'][^"\']*\\b' +
+        escapeRe(cls) + '\\b[^"\']*["\']', 'i');
+      const m = re.exec(src);
+      if (m){
+        return { start: m.index, end: findElementEnd(src, m.index, tag) };
+      }
+    }
+  }
+
+  // 3) by opening tag from outerHTML
+  const openMatch = info.outerHTML.match(/^<[a-zA-Z][\w-]*[^>]*>/);
+  if (openMatch){
+    let from = 0, idx;
+    while ((idx = src.indexOf(openMatch[0], from)) !== -1){
+      return { start: idx, end: findElementEnd(src, idx, tag) };
+    }
+  }
+
+  // 4) fallback: first <tag>
+  const re = new RegExp('<' + escapeRe(tag) + '\\b', 'i');
+  const m = re.exec(src);
+  if (m){
+    return { start: m.index, end: findElementEnd(src, m.index, tag) };
+  }
+  return null;
+}
+
+function selectRange(start, end){
+  document.querySelector('.tab[data-target="html"]').click();
+  els.html.focus();
+  els.html.setSelectionRange(start, end);
+  const linesBefore = els.html.value.slice(0, start).split('\n').length;
+  const lineHeight = 21;
+  els.html.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
+}
+
+/* ===================================================================
+   Clipboard
+=================================================================== */
+async function copyText(text){
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch(e){}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0;left:-9999px;';
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch(e){ return false; }
+}
+
+/* ===================================================================
+   Modal system
+=================================================================== */
+function openModal(title, buildBody, onSave){
+  const backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <h3>${escapeHtml(title)}</h3>
+    <div class="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn" data-act="cancel">ยกเลิก</button>
+      <button class="btn primary" data-act="save">บันทึก</button>
+    </div>`;
+  const body = modal.querySelector('.modal-body');
+  buildBody(body);
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+
+  const close = () => backdrop.remove();
+  modal.querySelector('[data-act="cancel"]').onclick = close;
+  modal.querySelector('[data-act="save"]').onclick = () => {
+    if (onSave() !== false) close();
+  };
+  backdrop.addEventListener('mousedown', (e) => {
+    if (e.target === backdrop) close();
+  });
+  backdrop.tabIndex = -1;
+  backdrop.focus();
+  backdrop.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)){
+      modal.querySelector('[data-act="save"]').click();
+    }
+  });
+  const first = modal.querySelector('input, textarea');
+  if (first) setTimeout(() => { first.focus(); first.select && first.select(); }, 30);
+}
+
+/* ===================================================================
+   Actions
+=================================================================== */
+function getElementSource(){
+  if (!selection.info) return '';
+  const loc = locateInSource(selection.info);
+  if (loc) return els.html.value.slice(loc.start, loc.end);
+  return selection.info.outerHTML;
+}
+
+async function actCopyHTML(){
+  const text = getElementSource();
+  const ok = await copyText(text);
+  toast(ok ? 'คัดลอก HTML แล้ว ✓' : 'คัดลอกไม่สำเร็จ', ok ? '' : 'error');
+}
+
+async function actCopyText(){
+  const text = selection.info ? selection.info.text : '';
+  if (!text){ toast('element นี้ไม่มีข้อความ', 'error'); return; }
+  const ok = await copyText(text);
+  toast(ok ? 'คัดลอกข้อความแล้ว ✓' : 'คัดลอกไม่สำเร็จ', ok ? '' : 'error');
+}
+
+function actFindInCode(){
+  if (!selection.info) return;
+  const loc = locateInSource(selection.info);
+  if (!loc){ toast('หา element ในโค้ดไม่เจอ', 'error'); return; }
+  selectRange(loc.start, loc.end);
+  toast('เลือกโค้ดให้แล้ว — แก้ไขได้เลย');
+}
+
+function actEditText(){
+  if (!selection.info) return;
+  const body = document.createElement('div');
+  const lab = document.createElement('label');
+  lab.textContent = 'ข้อความใหม่ (textContent)';
+  const ta = document.createElement('textarea');
+  ta.value = selection.info.text;
+  body.appendChild(lab);
+  body.appendChild(ta);
+
+  openModal('✏️ แก้ข้อความของ <' + selection.info.tag + '>', (b) => {
+    b.appendChild(lab);
+    b.appendChild(ta);
+  }, () => {
+    pendingSync = locateInSource(selection.info);
+    sendToFrame({ cmd: 'updateText', value: ta.value });
+  });
+}
+
+function actEditAttrs(){
+  if (!selection.info) return;
+  const body = document.createElement('div');
+  const rowsWrap = document.createElement('div');
+  body.appendChild(rowsWrap);
+
+  function addRow(name, value){
+    const row = document.createElement('div');
+    row.className = 'attr-row';
+    const n = document.createElement('input');
+    n.type = 'text'; n.className = 'attr-name'; n.placeholder = 'name'; n.value = name || '';
+    const v = document.createElement('input');
+    v.type = 'text'; v.className = 'attr-value'; v.placeholder = 'value'; v.value = value || '';
+    const del = document.createElement('button');
+    del.type = 'button'; del.className = 'remove-attr'; del.textContent = '✖';
+    del.onclick = () => row.remove();
+    row.appendChild(n); row.appendChild(v); row.appendChild(del);
+    rowsWrap.appendChild(row);
+  }
+
+  Object.entries(selection.info.attrs || {}).forEach(([k, v]) => addRow(k, v));
+
+  const addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.className = 'btn tiny';
+  addBtn.textContent = '+ เพิ่ม attribute';
+  addBtn.style.marginTop = '8px';
+  addBtn.onclick = () => addRow('', '');
+  body.appendChild(addBtn);
+
+  openModal('🎨 แก้ attributes ของ <' + selection.info.tag + '>', (b) => {
+    b.appendChild(body);
+  }, () => {
+    const newAttrs = {};
+    rowsWrap.querySelectorAll('.attr-row').forEach(r => {
+      const n = r.querySelector('.attr-name').value.trim();
+      const v = r.querySelector('.attr-value').value;
+      if (n) newAttrs[n] = v;
+    });
+    pendingSync = locateInSource(selection.info);
+    sendToFrame({ cmd: 'setAttrs', attrs: newAttrs });
+  });
+}
+
+function actDelete(){
+  if (!selection.info) return;
+  if (!confirm('ลบ <' + selection.info.tag + '> ออกจาก preview?\n(ถ้าซิงค์ได้ จะลบออกจากโค้ดด้วย)')) return;
+  pendingSync = { remove: true, loc: locateInSource(selection.info) };
+  sendToFrame({ cmd: 'delete' });
+}
+
+/* ===================================================================
+   Sync back to source
+=================================================================== */
+function applyPendingSync(newInfo){
+  if (!pendingSync) return;
+  const p = pendingSync;
+  pendingSync = null;
+
+  const src = els.html.value;
+  const loc = p.remove ? p.loc : p;
+
+  if (!loc){
+    toast('อัปเดตใน preview แล้ว (ซิงค์ลงโค้ดไม่ได้)', 'error');
+    return;
+  }
+
+  if (p.remove){
+    els.html.value = src.slice(0, loc.start) + src.slice(loc.end);
+  } else if (newInfo && newInfo.outerHTML){
+    els.html.value = src.slice(0, loc.start) + newInfo.outerHTML + src.slice(loc.end);
+  }
+  saveState();
+}
+
+/* ===================================================================
+   Message handler
+=================================================================== */
 window.addEventListener('message', (e) => {
   const d = e.data;
   if (!d || d.source !== 'live-html-tester') return;
-  addConsole(d.kind, d.msg);
+
+  if (d.kind === 'ready'){
+    if (selectMode) sendToFrame({ cmd: 'selectMode', value: true });
+    return;
+  }
+
+  if (d.kind === 'select' || d.kind === 'selected'){
+    selection.info = d.info;
+    showSelectionBar(d.info);
+    applyPendingSync(d.info);
+    return;
+  }
+
+  if (d.kind === 'deleted'){
+    applyPendingSync(null);
+    clearSelection();
+    toast('ลบ element แล้ว');
+    return;
+  }
+
+  if (d.kind === 'log' || d.kind === 'info' || d.kind === 'warn' || d.kind === 'error'){
+    addConsole(d.kind, d.msg);
+  }
 });
 
-/* ====================== Events ====================== */
+/* ===================================================================
+   Events
+=================================================================== */
 [els.html, els.css, els.js].forEach(ta => {
   ta.addEventListener('input', scheduleRun);
-
-  // Tab = ย่อหน้า 2 เคาะ (ไม่กระโดดออกจากช่อง)
   ta.addEventListener('keydown', (e) => {
     if (e.key === 'Tab'){
       e.preventDefault();
@@ -356,7 +1037,6 @@ window.addEventListener('message', (e) => {
   });
 });
 
-// สลับแท็บ
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
@@ -366,12 +1046,11 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ปุ่ม / toggle
 els.run.addEventListener('click', run);
 els.clear.addEventListener('click', clearConsole);
 
 els.auto.addEventListener('change', () => {
-  els.status.textContent = els.auto.checked ? 'อัปเดตอัตโนมัติ' : 'โหมดmanual';
+  els.status.textContent = els.auto.checked ? 'อัปเดตอัตโนมัติ' : 'โหมด manual';
   if (els.auto.checked) run();
 });
 
@@ -384,14 +1063,39 @@ els.reset.addEventListener('click', () => {
   run();
 });
 
-// คีย์ลัด
+els.selectModeBtn.addEventListener('click', () => setSelectMode(!selectMode));
+
+els.selClose.addEventListener('click', () => {
+  clearSelection();
+  sendToFrame({ cmd: 'deselect' });
+});
+
+els.selectionBar.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  switch (btn.dataset.action){
+    case 'copy-html': actCopyHTML(); break;
+    case 'copy-text': actCopyText(); break;
+    case 'edit-text': actEditText(); break;
+    case 'edit-attrs': actEditAttrs(); break;
+    case 'find': actFindInCode(); break;
+    case 'delete': actDelete(); break;
+  }
+});
+
 document.addEventListener('keydown', (e) => {
   const mod = e.ctrlKey || e.metaKey;
   if (mod && e.key === 'Enter'){ e.preventDefault(); run(); }
-  if (mod && e.key.toLowerCase() === 's'){ e.preventDefault(); run(); } // กัน Save Page
+  if (mod && e.key.toLowerCase() === 's'){ e.preventDefault(); run(); }
+  if (e.key === 'Escape' && selection.info && !document.querySelector('.modal-backdrop')){
+    clearSelection();
+    sendToFrame({ cmd: 'deselect' });
+  }
 });
 
-/* ====================== Splitter drag ====================== */
+/* ===================================================================
+   Splitter drag
+=================================================================== */
 let dragging = false;
 els.splitter.addEventListener('pointerdown', (e) => {
   dragging = true;
@@ -408,15 +1112,17 @@ els.splitter.addEventListener('pointermove', (e) => {
 });
 els.splitter.addEventListener('pointerup', (e) => {
   dragging = false;
-  els.splitter.releasePointerCapture(e.pointerId);
+  try { els.splitter.releasePointerCapture(e.pointerId); } catch(err){}
   document.body.style.cursor = '';
   document.body.style.userSelect = '';
 });
 
-/* ====================== Init ====================== */
+/* ===================================================================
+   Init
+=================================================================== */
 loadState();
 clearConsole();
-requestAnimationFrame(run);   // เรนเดอร์ครั้งแรกทันที (ไม่ต้องกดอะไร)
+requestAnimationFrame(run);
 </script>
 </body>
 </html>
