@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>⚡ Live HTML Tester — Undo/Redo + Guides</title>
+<title>⚡ Live HTML Tester</title>
 <style>
   :root{
     --bg:#1e1e2e; --panel:#181825; --panel2:#252538; --border:#313244;
@@ -18,7 +18,7 @@
     font-family: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     overflow:hidden;
   }
-  .app{ display:flex; flex-direction:column; height:100vh; }
+  .app{ display:flex; flex-direction:column; height:100vh; height:100dvh; }
 
   header{
     height:52px; flex:0 0 auto;
@@ -50,8 +50,13 @@
 
   main{ flex:1; display:flex; min-height:0; }
   .pane{ display:flex; flex-direction:column; min-width:0; min-height:0; }
-  #editorPane{ width:50%; flex:0 0 auto; transition: box-shadow .3s; }
-  #previewPane{ flex:1; }
+  #editorPane{ width:50%; flex:0 0 auto; position:relative; }
+  #previewPane{ flex:1; position:relative; }
+  .pane-flash::after{
+    content:''; position:absolute; inset:0; z-index:20;
+    pointer-events:none;
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
   .splitter{ width:6px; flex:0 0 auto; cursor:col-resize; background:var(--border); transition:background .15s; }
   .splitter:hover{ background:var(--accent); }
 
@@ -155,7 +160,11 @@
     border-bottom:1px solid var(--border); font-size:12px; color:var(--muted);
   }
   iframe{ flex:1; min-height:0; width:100%; border:0; background:#fff; }
-  body.select-mode #preview{ box-shadow: inset 0 0 0 3px var(--accent); }
+  body.select-mode #previewPane::after{
+    content:''; position:absolute; inset:0; z-index:20;
+    pointer-events:none;
+    box-shadow: inset 0 0 0 3px var(--accent);
+  }
 
   .console{
     height:120px; flex:0 0 auto; overflow:auto;
@@ -241,11 +250,11 @@
       <input type="checkbox" id="autoToggle" checked>
       <span>อัตโนมัติ</span>
     </label>
-    <button class="btn" id="selectModeBtn">🎯 เลือก element</button>
+    <button class="btn" id="selectModeBtn" aria-pressed="false">🎯 เลือก element</button>
     <span class="status" id="status">พร้อม</span>
     <div class="spacer"></div>
-    <button class="btn icon" id="undoBtn" title="Undo (Ctrl+Z)" disabled>↶</button>
-    <button class="btn icon" id="redoBtn" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" disabled>↷</button>
+    <button class="btn icon" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>↶</button>
+    <button class="btn icon" id="redoBtn" title="Redo (Ctrl+Shift+Z / Ctrl+Y)" aria-label="Redo" disabled>↷</button>
     <button class="btn" id="saveBtn" title="บันทึกโค้ด (Ctrl+S)">💾 บันทึก</button>
     <button class="btn export" id="exportBtn" title="Export .html (Ctrl+Shift+S)">⬇ Export</button>
     <button class="btn primary" id="runBtn">▶ รัน (Ctrl+Enter)</button>
@@ -255,13 +264,13 @@
   <main id="main">
 
     <section class="pane" id="editorPane">
-      <div class="tabs">
-        <button class="tab active" data-target="html">HTML</button>
-        <button class="tab" data-target="css">CSS</button>
-        <button class="tab" data-target="js">JS</button>
+      <div class="tabs" role="tablist" aria-label="ภาษาโค้ด">
+        <button class="tab active" data-target="html" role="tab" aria-selected="true">HTML</button>
+        <button class="tab" data-target="css" role="tab" aria-selected="false">CSS</button>
+        <button class="tab" data-target="js" role="tab" aria-selected="false">JS</button>
       </div>
 
-      <div class="selection-bar" id="selectionBar" hidden>
+      <div class="selection-bar" id="selectionBar" role="toolbar" aria-label="เครื่องมือแก้ไข element" hidden>
         <span class="sel-tag" id="selTag">&lt;div&gt;</span>
         <div class="sel-sep"></div>
         <button class="btn tiny" data-action="copy-html">📋 HTML</button>
@@ -289,21 +298,21 @@
           <div class="gutter"><div class="gutter-inner" id="gutter-html"></div></div>
           <div class="code-container">
             <pre class="highlight" id="highlight-html" aria-hidden="true"></pre>
-            <textarea id="html" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+            <textarea id="html" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" aria-label="โค้ด HTML"></textarea>
           </div>
         </div>
         <div class="editor-wrap" data-lang="css">
           <div class="gutter"><div class="gutter-inner" id="gutter-css"></div></div>
           <div class="code-container">
             <pre class="highlight" id="highlight-css" aria-hidden="true"></pre>
-            <textarea id="css" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+            <textarea id="css" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" aria-label="โค้ด CSS"></textarea>
           </div>
         </div>
         <div class="editor-wrap" data-lang="js">
           <div class="gutter"><div class="gutter-inner" id="gutter-js"></div></div>
           <div class="code-container">
             <pre class="highlight" id="highlight-js" aria-hidden="true"></pre>
-            <textarea id="js" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+            <textarea id="js" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" aria-label="โค้ด JavaScript"></textarea>
           </div>
         </div>
       </div>
@@ -317,8 +326,8 @@
         <div class="spacer"></div>
         <button class="btn tiny" id="clearConsole">ล้าง console</button>
       </div>
-      <iframe id="preview" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-pointer-lock"></iframe>
-      <div class="console" id="console"></div>
+      <iframe id="preview" title="ผลลัพธ์ HTML" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-pointer-lock"></iframe>
+      <div class="console" id="console" role="log" aria-live="polite" aria-label="Console"></div>
     </section>
 
   </main>
@@ -351,153 +360,96 @@ const els = {
 };
 
 /* ================= Defaults / Storage ================= */
-const STORAGE_KEY = 'live-html-tester-v6';
+const STORAGE_KEY = 'live-html-tester-v7';
+const SAVE_DEBOUNCE = 400;
 
-const DEFAULTS = {
-  html:
-`<h1>สวัสดี 👋</h1>
-<p>เปิด "เลือก element" → คลิก → ลาก/ขยาย มีเส้นไกด์ช่วยจัดตำแหน่ง</p>
-
-<button id="btn">คลิกฉัน</button>
-<p id="out"></p>
-
-<div class="card">
-  <h2>การ์ดตัวอย่าง</h2>
-  <p>ดับเบิ้ลคลิก = กระโดดไปโค้ด + hilight</p>
-</div>
-
-<ul>
-  <li>ลากเพื่อย้าย เห็นเส้นไกด์ตอนจัดกลาง</li>
-  <li>ลากขอบเพื่อขยาย เห็นขนาด W×H</li>
-  <li>Ctrl+Z / Ctrl+Shift+Z = ย้อนกลับ/ทำซ้ำ</li>
-</ul>`,
-  css:
-`body {
-  font-family: system-ui, sans-serif;
-  padding: 24px;
-  color: #1e1e2e;
-}
-h1 { color: #4f46e5; margin-top: 0; }
-button {
-  padding: 9px 18px; border: 0; border-radius: 8px;
-  background: #4f46e5; color: #fff;
-  font-size: 14px; cursor: pointer;
-}
-button:hover { background: #4338ca; }
-.card {
-  border: 1px solid #e2e8f0; border-radius: 10px;
-  padding: 16px; margin: 16px 0;
-  background: #f8fafc;
-}
-.card h2 { margin: 0 0 8px; font-size: 18px; color: #334155; }
-ul { line-height: 1.9; }`,
-  js:
-`let n = 0;
-
-document.getElementById('btn').addEventListener('click', () => {
-  n++;
-  document.getElementById('out').textContent = 'คลิกแล้ว ' + n + ' ครั้ง';
-});
-
-console.log('สคริปต์ทำงานแล้ว ✅');`
-};
+const DEFAULTS = { html: '', css: '', js: '' };
 
 function loadState(){
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch(e){}
   const s = saved || DEFAULTS;
-  els.html.value = s.html ?? DEFAULTS.html;
-  els.css.value  = s.css  ?? DEFAULTS.css;
-  els.js.value   = s.js   ?? DEFAULTS.js;
+  els.html.value = s.html ?? '';
+  els.css.value  = s.css  ?? '';
+  els.js.value   = s.js   ?? '';
+}
+
+function persistState(){
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      html: els.html.value, css: els.css.value, js: els.js.value
+    }));
+    return true;
+  } catch(e){
+    return false;
+  }
 }
 
 let saveTimer = null;
 function saveState(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        html: els.html.value, css: els.css.value, js: els.js.value
-      }));
-    } catch(e){}
-  }, 400);
+  saveTimer = setTimeout(persistState, SAVE_DEBOUNCE);
 }
 
-/* ================= History (Undo/Redo) ================= */
-const history = {
-  stack: [],
-  index: -1,
-  maxSize: 120,
-  debounceTimer: null,
-  isRestoring: false,
+/* ================= History ================= */
+const historyStore = {
+  stack: [], index: -1, maxSize: 120,
+  debounceTimer: null, isRestoring: false,
 };
 
 function snapshot(){
   return JSON.stringify({ h: els.html.value, c: els.css.value, j: els.js.value });
 }
-
 function pushHistory(){
-  if (history.isRestoring) return;
+  if (historyStore.isRestoring) return;
   const s = snapshot();
-  if (history.index >= 0 && history.stack[history.index] === s) return;
-  history.stack = history.stack.slice(0, history.index + 1);
-  history.stack.push(s);
-  if (history.stack.length > history.maxSize) history.stack.shift();
-  history.index = history.stack.length - 1;
+  if (historyStore.index >= 0 && historyStore.stack[historyStore.index] === s) return;
+  historyStore.stack = historyStore.stack.slice(0, historyStore.index + 1);
+  historyStore.stack.push(s);
+  if (historyStore.stack.length > historyStore.maxSize) historyStore.stack.shift();
+  historyStore.index = historyStore.stack.length - 1;
   updateHistoryButtons();
 }
-
 function scheduleHistoryPush(){
-  if (history.isRestoring) return;
-  clearTimeout(history.debounceTimer);
-  history.debounceTimer = setTimeout(pushHistory, 450);
+  if (historyStore.isRestoring) return;
+  clearTimeout(historyStore.debounceTimer);
+  historyStore.debounceTimer = setTimeout(pushHistory, 450);
 }
-
 function applyHistoryState(str){
-  history.isRestoring = true;
+  historyStore.isRestoring = true;
   try {
     const s = JSON.parse(str);
-    els.html.value = s.h;
-    els.css.value = s.c;
-    els.js.value = s.j;
+    els.html.value = s.h; els.css.value = s.c; els.js.value = s.j;
     refreshEditor('html'); refreshEditor('css'); refreshEditor('js');
-    saveState();
-    clearSelection();
-    run();
-  } finally {
-    history.isRestoring = false;
-  }
+    saveState(); clearSelection(); run();
+  } finally { historyStore.isRestoring = false; }
 }
-
 function undo(){
-  clearTimeout(history.debounceTimer);
-  if (history.index <= 0){ toast('ไม่มีอะไรให้ย้อนกลับ', 'error'); return; }
-  history.index--;
-  applyHistoryState(history.stack[history.index]);
+  clearTimeout(historyStore.debounceTimer);
+  if (historyStore.index <= 0){ toast('ไม่มีอะไรให้ย้อนกลับ', 'error'); return; }
+  historyStore.index--;
+  applyHistoryState(historyStore.stack[historyStore.index]);
   updateHistoryButtons();
   toast('↶ ย้อนกลับ');
 }
-
 function redo(){
-  clearTimeout(history.debounceTimer);
-  if (history.index >= history.stack.length - 1){ toast('ไม่มีอะไรให้ทำซ้ำ', 'error'); return; }
-  history.index++;
-  applyHistoryState(history.stack[history.index]);
+  clearTimeout(historyStore.debounceTimer);
+  if (historyStore.index >= historyStore.stack.length - 1){ toast('ไม่มีอะไรให้ทำซ้ำ', 'error'); return; }
+  historyStore.index++;
+  applyHistoryState(historyStore.stack[historyStore.index]);
   updateHistoryButtons();
   toast('↷ ทำซ้ำ');
 }
-
 function updateHistoryButtons(){
-  els.undoBtn.disabled = history.index <= 0;
-  els.redoBtn.disabled = history.index >= history.stack.length - 1;
-  els.undoBtn.title = 'Undo (Ctrl+Z) — ' + Math.max(0, history.index) + ' ขั้น';
-  els.redoBtn.title = 'Redo (Ctrl+Shift+Z) — ' + Math.max(0, history.stack.length - 1 - history.index) + ' ขั้น';
+  els.undoBtn.disabled = historyStore.index <= 0;
+  els.redoBtn.disabled = historyStore.index >= historyStore.stack.length - 1;
+  els.undoBtn.title = 'Undo (Ctrl+Z) — ' + Math.max(0, historyStore.index) + ' ขั้น';
+  els.redoBtn.title = 'Redo (Ctrl+Shift+Z) — ' + Math.max(0, historyStore.stack.length - 1 - historyStore.index) + ' ขั้น';
 }
 
 /* ================= State ================= */
 let selectMode = false;
 let selection = { info: null, sourceLoc: null };
-let pendingDuplicate = false;
 
 /* ================= Syntax highlight ================= */
 function escHTML(s){
@@ -567,14 +519,15 @@ const editorRefs = {};
   };
 });
 
+const HIGHLIGHT_LIMIT = 200000;
 function refreshEditor(lang){
   const { ta, pre, gutter } = editorRefs[lang];
   const val = ta.value;
-  if (val.length < 200000) pre.innerHTML = HL[lang](val) + '\n';
+  if (val.length < HIGHLIGHT_LIMIT) pre.innerHTML = HL[lang](val) + '\n';
   else pre.textContent = val + '\n';
-  const lineCount = val.split('\n').length;
+  const totalLines = val.split('\n').length;
   let g = '';
-  for (let i = 1; i <= lineCount; i++) g += i + '\n';
+  for (let i = 1; i <= totalLines; i++) g += i + '\n';
   gutter.textContent = g;
   syncEditorScroll(lang);
 }
@@ -596,6 +549,7 @@ const SELECTOR_SCRIPT = `
   var overlay, badge, hoverOverlay, handlesLayer, guidesLayer;
   var potentialDrag = null;
   var dragState = null;
+  var originalStyles = new WeakMap();
 
   function ensureOverlay(){
     if (overlay && overlay.isConnected) return;
@@ -609,6 +563,10 @@ const SELECTOR_SCRIPT = `
     handlesLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483646;display:none;';
     guidesLayer = document.createElement('div');
     guidesLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483645;display:none;';
+
+    [overlay, badge, hoverOverlay, handlesLayer, guidesLayer].forEach(function(n){
+      n.setAttribute('data-live-ui', '1');
+    });
 
     var moveH = document.createElement('div');
     moveH.dataset.handle = 'move';
@@ -673,7 +631,6 @@ const SELECTOR_SCRIPT = `
     });
   }
 
-  /* ---- Guides (alignment lines + measurements) ---- */
   function clearGuides(){
     if (guidesLayer){
       guidesLayer.innerHTML = '';
@@ -720,7 +677,6 @@ const SELECTOR_SCRIPT = `
       guidesLayer.appendChild(g);
     });
 
-    // dimension badge
     var dimY = r.bottom + 8;
     if (dimY + 22 > vh) dimY = r.top - 28;
     var dim = document.createElement('div');
@@ -728,7 +684,6 @@ const SELECTOR_SCRIPT = `
     dim.textContent = Math.round(r.width) + ' × ' + Math.round(r.height);
     guidesLayer.appendChild(dim);
 
-    // distance badges
     if (r.left > 24){
       var dL = document.createElement('div');
       dL.style.cssText = 'position:fixed;left:' + (r.left/2) + 'px;top:' + (centerY - 8) + 'px;transform:translateX(-50%);background:#f9e2af;color:#11111b;font:600 10px/1 ui-monospace,monospace;padding:2px 5px;border-radius:3px;white-space:nowrap;';
@@ -793,19 +748,45 @@ const SELECTOR_SCRIPT = `
     clearGuides();
   }
 
+  function signatureOf(el){
+    var classes = [];
+    if (el.classList){
+      for (var i = 0; i < el.classList.length; i++) classes.push(el.classList[i]);
+    }
+    classes.sort();
+    return el.tagName.toLowerCase() + '|' + (el.id || '') + '|' + classes.join(' ');
+  }
+
+  function isUI(el){
+    return !!(el && el.closest && el.closest('[data-live-ui]'));
+  }
+
+  function sameSignatureIndex(el, sig){
+    var n = 0;
+    var all = document.getElementsByTagName(el.tagName);
+    for (var i = 0; i < all.length; i++){
+      if (all[i] === el) break;
+      if (isUI(all[i])) continue;
+      if (signatureOf(all[i]) === sig) n++;
+    }
+    return n;
+  }
+
   function describe(el){
     var attrs = {};
     for (var i = 0; i < el.attributes.length; i++){
       attrs[el.attributes[i].name] = el.attributes[i].value;
     }
+    var sig = signatureOf(el);
     return {
       tag: el.tagName.toLowerCase(),
       id: el.id || '',
       className: (typeof el.className === 'string' ? el.className : ''),
       attrs: attrs,
-      outerHTML: el.outerHTML.slice(0, 100000),
-      innerHTML: el.innerHTML.slice(0, 100000),
-      text: (el.textContent || '').trim().slice(0, 2000)
+      outerHTML: el.outerHTML,
+      text: (el.textContent || '').trim(),
+      sig: sig,
+      sigIndex: sameSignatureIndex(el, sig)
     };
   }
 
@@ -819,7 +800,18 @@ const SELECTOR_SCRIPT = `
   function sendSelect(el){ post('select', { info: describe(el) }); }
   function sendUpdate(el, action){ post('updated', { info: describe(el), action: action || null }); }
 
+  function rememberStyles(el){
+    if (!originalStyles.has(el)){
+      originalStyles.set(el, {
+        position: el.style.position, display: el.style.display,
+        boxSizing: el.style.boxSizing, left: el.style.left, top: el.style.top,
+        width: el.style.width, height: el.style.height
+      });
+    }
+  }
+
   function beginDrag(el, startX, startY){
+    rememberStyles(el);
     var cs = window.getComputedStyle(el);
     dragState = {
       type: 'move', el: el,
@@ -836,6 +828,7 @@ const SELECTOR_SCRIPT = `
   }
 
   function beginResize(el, handle, startX, startY){
+    rememberStyles(el);
     var cs = window.getComputedStyle(el);
     var r = el.getBoundingClientRect();
     dragState = {
@@ -863,7 +856,6 @@ const SELECTOR_SCRIPT = `
       if (d.wasInline) d.el.style.display = 'inline-block';
       d.el.style.left = (d.startLeft + dx) + 'px';
       d.el.style.top  = (d.startTop  + dy) + 'px';
-      // snap to viewport guides
       var r0 = d.el.getBoundingClientRect();
       var snap = applySnap(r0);
       if (snap.dx) d.el.style.left = (parseFloat(d.el.style.left) + snap.dx) + 'px';
@@ -915,8 +907,7 @@ const SELECTOR_SCRIPT = `
     }
     var el = e.target;
     if (!el || el === document.body || el === document.documentElement) return;
-    if (el === overlay || el === badge || el === hoverOverlay) return;
-    if (handlesLayer && handlesLayer.contains(el)) return;
+    if (isUI(el)) return;
 
     e.preventDefault(); e.stopPropagation();
     currentEl = el;
@@ -954,9 +945,7 @@ const SELECTOR_SCRIPT = `
     if (!selectMode) return;
     if (!hoverOverlay) ensureOverlay();
     var el = e.target;
-    if (!el || el === document.body || el === document.documentElement
-        || el === overlay || el === badge || el === hoverOverlay
-        || (handlesLayer && handlesLayer.contains(el))){
+    if (!el || el === document.body || el === document.documentElement || isUI(el)){
       hoverOverlay.style.display = 'none';
       return;
     }
@@ -984,8 +973,7 @@ const SELECTOR_SCRIPT = `
     if (!selectMode) return;
     var el = e.target;
     if (!el || el === document.body || el === document.documentElement) return;
-    if (el === overlay || el === badge || el === hoverOverlay) return;
-    if (handlesLayer && handlesLayer.contains(el)) return;
+    if (isUI(el)) return;
     e.preventDefault(); e.stopPropagation();
     currentEl = el;
     positionOverlay(el);
@@ -998,7 +986,7 @@ const SELECTOR_SCRIPT = `
 
   window.addEventListener('message', function(e){
     var d = e.data;
-    if (!d || d.source !== 'live-html-parent') return;
+    if (!d || d.source !== 'live-html-parent' || e.source !== parent) return;
 
     if (d.cmd === 'selectMode'){
       selectMode = !!d.value;
@@ -1014,28 +1002,35 @@ const SELECTOR_SCRIPT = `
     }
     if (d.cmd === 'setAttrs' && currentEl){
       var keep = d.attrs || {};
+      var attrError = null;
       var existing = [];
       for (var i = 0; i < currentEl.attributes.length; i++) existing.push(currentEl.attributes[i].name);
       existing.forEach(function(n){ if (!(n in keep)) currentEl.removeAttribute(n); });
-      Object.keys(keep).forEach(function(n){ try { currentEl.setAttribute(n, keep[n]); } catch(err){} });
+      Object.keys(keep).forEach(function(n){
+        try { currentEl.setAttribute(n, keep[n]); } catch(err){ attrError = err; }
+      });
       positionOverlay(currentEl); positionHandles();
       sendUpdate(currentEl, 'attrs');
+      if (attrError) post('opError', { action: 'attrs', message: attrError.message });
     }
     if (d.cmd === 'setOuterHTML' && currentEl){
       try {
         var tmp = document.createElement('div');
         tmp.innerHTML = d.value;
         var newEl = tmp.firstElementChild;
-        if (newEl && currentEl.parentNode){
-          currentEl.parentNode.replaceChild(newEl, currentEl);
-          currentEl = newEl;
-          positionOverlay(currentEl); positionHandles();
-          sendUpdate(currentEl, 'html');
-        }
-      } catch(err){}
+        if (!newEl) throw new Error('HTML ที่ใส่ไม่มี element หลัก');
+        if (!currentEl.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
+        currentEl.parentNode.replaceChild(newEl, currentEl);
+        currentEl = newEl;
+        positionOverlay(currentEl); positionHandles();
+        sendUpdate(currentEl, 'html');
+      } catch(err){
+        post('opError', { action: 'html', message: err.message });
+      }
     }
     if (d.cmd === 'renameTag' && currentEl){
       try {
+        if (!currentEl.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
         var newEl2 = document.createElement(d.tag);
         for (var j = 0; j < currentEl.attributes.length; j++)
           newEl2.setAttribute(currentEl.attributes[j].name, currentEl.attributes[j].value);
@@ -1044,19 +1039,25 @@ const SELECTOR_SCRIPT = `
         currentEl = newEl2;
         positionOverlay(currentEl); positionHandles();
         sendUpdate(currentEl, 'rename');
-      } catch(err){}
+      } catch(err){
+        post('opError', { action: 'rename', message: err.message });
+      }
     }
     if (d.cmd === 'duplicate' && currentEl){
       try {
+        if (!currentEl.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
         var clone = currentEl.cloneNode(true);
         currentEl.parentNode.insertBefore(clone, currentEl.nextSibling);
         currentEl = clone;
         positionOverlay(currentEl); positionHandles();
         sendUpdate(currentEl, 'duplicate');
-      } catch(err){}
+      } catch(err){
+        post('opError', { action: 'duplicate', message: err.message });
+      }
     }
     if (d.cmd === 'wrap' && currentEl){
       try {
+        if (!currentEl.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
         var wrapper = document.createElement(d.tag || 'div');
         if (d.id) wrapper.id = d.id;
         if (d.className) wrapper.className = d.className;
@@ -1065,22 +1066,36 @@ const SELECTOR_SCRIPT = `
         currentEl = wrapper;
         positionOverlay(currentEl); positionHandles();
         sendUpdate(currentEl, 'wrap');
-      } catch(err){}
+      } catch(err){
+        post('opError', { action: 'wrap', message: err.message });
+      }
     }
     if (d.cmd === 'resetSize' && currentEl){
-      currentEl.style.width = '';
-      currentEl.style.height = '';
-      currentEl.style.left = '';
-      currentEl.style.top = '';
+      var orig = originalStyles.get(currentEl);
+      if (orig){
+        ['position','display','boxSizing','left','top','width','height'].forEach(function(p){
+          currentEl.style[p] = orig[p] || '';
+        });
+        originalStyles.delete(currentEl);
+      } else {
+        currentEl.style.width = '';
+        currentEl.style.height = '';
+        currentEl.style.left = '';
+        currentEl.style.top = '';
+      }
       if (currentEl.getAttribute('style') === '') currentEl.removeAttribute('style');
       positionOverlay(currentEl); positionHandles();
       sendUpdate(currentEl, 'reset-size');
     }
     if (d.cmd === 'delete' && currentEl){
       var target = currentEl;
+      if (!target.parentNode){
+        post('opError', { action: 'delete', message: 'element นี้ไม่ได้อยู่ในหน้า' });
+        return;
+      }
       currentEl = null;
       hideAll();
-      if (target.parentNode) target.parentNode.removeChild(target);
+      target.parentNode.removeChild(target);
       post('deleted', {});
     }
   });
@@ -1095,10 +1110,8 @@ function buildSrcdoc(){
   const safeCSS = els.css.value.replace(/<\/style/gi,  '<\\/style');
   return `<!DOCTYPE html>
 <html lang="th">
-<head><meta charset="utf-8"><style>${safeCSS}</style></head>
-<body>
-${els.html.value}
-<script>
+<head><meta charset="utf-8"><style data-live-ui="1">${safeCSS}</style>
+<script data-live-ui="1">
 (function(){
   var send = function(kind, args){
     try{
@@ -1109,7 +1122,7 @@ ${els.html.value}
       parent.postMessage({ source:'live-html-tester', kind:kind, msg:parts.join(' ') }, '*');
     }catch(e){}
   };
-  ['log','info','warn','error'].forEach(function(m){
+  ['log','info','warn','error','debug'].forEach(function(m){
     var orig = console[m];
     console[m] = function(){ send(m, arguments); if(orig) orig.apply(console, arguments); };
   });
@@ -1122,8 +1135,11 @@ ${els.html.value}
   });
 })();
 <\/script>
-<script>${safeJS}<\/script>
-<script>${SELECTOR_SCRIPT}<\/script>
+</head>
+<body>
+${els.html.value}
+<script data-live-ui="1">${safeJS}<\/script>
+<script data-live-ui="1">${SELECTOR_SCRIPT}<\/script>
 </body>
 </html>`;
 }
@@ -1133,7 +1149,10 @@ const RUN_DELAY = 450;
 let runTimer = null;
 
 function run(){
+  clearTimeout(runTimer);
+  consoleLineCount = 0;
   els.console.innerHTML = '';
+  clearSelection();
   els.frame.srcdoc = buildSrcdoc();
   els.status.textContent = 'อัปเดต ' + new Date().toLocaleTimeString('th-TH', { hour12:false });
   els.status.classList.add('flash');
@@ -1148,21 +1167,25 @@ function scheduleRun(){
 }
 
 /* ================= Console ================= */
-let lineCount = 0;
+const MAX_CONSOLE_LINES = 300;
+let consoleLineCount = 0;
 function addConsole(kind, msg){
-  if (lineCount === 0) els.console.innerHTML = '';
-  if (lineCount > 300){ els.console.removeChild(els.console.firstChild); lineCount--; }
+  if (consoleLineCount === 0) els.console.innerHTML = '';
+  if (consoleLineCount > MAX_CONSOLE_LINES){
+    if (els.console.firstChild) els.console.removeChild(els.console.firstChild);
+    consoleLineCount--;
+  }
   const div = document.createElement('div');
   const cls = (kind === 'error' || kind === 'warn' || kind === 'info') ? kind : 'log';
   div.className = 'line ' + cls;
   div.textContent = msg;
   els.console.appendChild(div);
   els.console.scrollTop = els.console.scrollHeight;
-  lineCount++;
+  consoleLineCount++;
 }
 function clearConsole(){
   els.console.innerHTML = '<div class="line empty">— ยังไม่มีข้อความ —</div>';
-  lineCount = 0;
+  consoleLineCount = 0;
 }
 
 /* ================= Toast ================= */
@@ -1183,6 +1206,7 @@ function setSelectMode(on){
   selectMode = !!on;
   document.body.classList.toggle('select-mode', selectMode);
   els.selectModeBtn.classList.toggle('active', selectMode);
+  els.selectModeBtn.setAttribute('aria-pressed', String(selectMode));
   els.selectModeBtn.textContent = selectMode ? '🎯 กำลังเลือก (คลิกเพื่อปิด)' : '🎯 เลือก element';
   sendToFrame({ cmd: 'selectMode', value: selectMode });
   if (!selectMode) clearSelection();
@@ -1200,89 +1224,221 @@ function showSelectionBar(info){
 function clearSelection(){
   selection = { info: null, sourceLoc: null };
   els.selectionBar.hidden = true;
-  pendingDuplicate = false;
 }
 
 /* ================= Source locator ================= */
 function escapeRe(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 const VOID_TAGS = ['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'];
 
-function findElementEnd(src, startIdx, tag){
-  const t = tag.toLowerCase();
-  if (VOID_TAGS.includes(t)){
-    const gt = src.indexOf('>', startIdx);
-    return gt === -1 ? src.length : gt + 1;
-  }
-  const gt = src.indexOf('>', startIdx);
-  if (gt !== -1 && src[gt - 1] === '/') return gt + 1;
-  const openRe  = new RegExp('<' + escapeRe(t) + '\\b', 'gi');
-  const closeRe = new RegExp('</' + escapeRe(t) + '\\s*>', 'gi');
-  let depth = 0, pos = startIdx;
-  while (pos < src.length){
-    openRe.lastIndex = pos;
-    closeRe.lastIndex = pos;
-    const nextOpen  = openRe.exec(src);
-    const nextClose = closeRe.exec(src);
-    if (!nextClose) return src.length;
-    if (nextOpen && nextOpen.index < nextClose.index){
-      depth++; pos = nextOpen.index + nextOpen[0].length;
-    } else {
-      depth--;
-      if (depth === 0) return nextClose.index + nextClose[0].length;
-      pos = nextClose.index + nextClose[0].length;
+const SKIP_CONTENT_TAGS = ['script','style','textarea','title','template','xmp','iframe','noembed','noframes','noscript','plaintext'];
+
+/* หา index ของ '>' ที่ปิด open tag โดยไม่นับ '>' ที่อยู่ใน quote */
+function openTagEnd(src, start){
+  let quote = null;
+  for (let i = start + 1; i < src.length; i++){
+    const c = src[i];
+    if (quote){
+      if (c === quote) quote = null;
+    } else if (c === '"' || c === "'"){
+      quote = c;
+    } else if (c === '>'){
+      return i + 1;
     }
   }
-  return src.length;
+  return -1;
+}
+
+function findCloseTag(src, from, name){
+  const re = new RegExp('</' + escapeRe(name) + '\\s*>', 'gi');
+  re.lastIndex = from;
+  const m = re.exec(src);
+  return m ? { start: m.index, end: m.index + m[0].length } : null;
+}
+
+/* อ่าน attribute จาก open tag แบบหยาบ (รองรับ quote และ unquoted value) */
+function parseOpenTagAttrs(raw){
+  const attrs = {};
+  const body = raw.replace(/^<\s*[^\s/>]+/, '').replace(/\/?\s*>$/, '');
+  const re = /([^\s"'<>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
+  let m;
+  while ((m = re.exec(body))){
+    const name = m[1].toLowerCase();
+    if (name in attrs) continue;
+    attrs[name] = m[2] !== undefined ? m[2] : m[3] !== undefined ? m[3] : m[4] !== undefined ? m[4] : '';
+  }
+  return attrs;
+}
+
+/* สแกน open tag ทั้งหมดในซอร์ส โดยข้าม comment และเนื้อใน script/style/template */
+function scanTags(src){
+  const tags = [];
+  let i = 0;
+  while (i < src.length){
+    const lt = src.indexOf('<', i);
+    if (lt === -1) break;
+    if (src.startsWith('<!--', lt)){
+      const end = src.indexOf('-->', lt + 4);
+      i = end === -1 ? src.length : end + 3;
+      continue;
+    }
+    if (src.startsWith('<!', lt) || src.startsWith('<?', lt)){
+      const end = src.indexOf('>', lt + 2);
+      i = end === -1 ? src.length : end + 1;
+      continue;
+    }
+    const m = /^<([a-zA-Z][\w:-]*)/.exec(src.slice(lt, lt + 80));
+    if (!m){ i = lt + 1; continue; }
+    const openEnd = openTagEnd(src, lt);
+    if (openEnd === -1) break;
+    const name = m[1].toLowerCase();
+    const raw = src.slice(lt, openEnd);
+    tags.push({ start: lt, openEnd, name, raw, attrs: parseOpenTagAttrs(raw) });
+    i = openEnd;
+    if (SKIP_CONTENT_TAGS.includes(name)){
+      const close = findCloseTag(src, openEnd, name);
+      if (!close) break;
+      i = close.end;
+    }
+  }
+  return tags;
+}
+
+/* หาจุดสิ้นสุดของ element; คืน -1 เมื่อไม่พบแท็กปิด (ปลอดภัยกว่าการเดา) */
+function findElementEnd(src, startIdx, tag){
+  const t = String(tag).toLowerCase();
+  const openEnd = openTagEnd(src, startIdx);
+  if (openEnd === -1) return -1;
+  if (VOID_TAGS.includes(t)) return openEnd;
+  if (SKIP_CONTENT_TAGS.includes(t)){
+    const close = findCloseTag(src, openEnd, t);
+    return close ? close.end : -1;
+  }
+  if (/\/\s*>$/.test(src.slice(startIdx, openEnd))) return openEnd;
+
+  let depth = 1;
+  let i = openEnd;
+  while (i < src.length){
+    const lt = src.indexOf('<', i);
+    if (lt === -1) return -1;
+    if (src.startsWith('<!--', lt)){
+      const end = src.indexOf('-->', lt + 4);
+      if (end === -1) return -1;
+      i = end + 3;
+      continue;
+    }
+    if (src.startsWith('<!', lt) || src.startsWith('<?', lt)){
+      const end = src.indexOf('>', lt + 2);
+      if (end === -1) return -1;
+      i = end + 1;
+      continue;
+    }
+    const close = /^<\/([a-zA-Z][\w:-]*)\s*>/.exec(src.slice(lt, lt + 80));
+    if (close){
+      if (close[1].toLowerCase() === t){
+        depth--;
+        if (depth === 0) return lt + close[0].length;
+      }
+      i = lt + close[0].length;
+      continue;
+    }
+    const open = /^<([a-zA-Z][\w:-]*)/.exec(src.slice(lt, lt + 80));
+    if (!open){ i = lt + 1; continue; }
+    const name = open[1].toLowerCase();
+    const end = openTagEnd(src, lt);
+    if (end === -1) return -1;
+    if (name === t && !/\/\s*>$/.test(src.slice(lt, end))) depth++;
+    i = end;
+    if (SKIP_CONTENT_TAGS.includes(name)){
+      const closeTag = findCloseTag(src, end, name);
+      if (!closeTag) return -1;
+      i = closeTag.end;
+    }
+  }
+  return -1;
+}
+
+function sourceClasses(attr){
+  return [...new Set(String(attr || '').split(/\s+/).filter(Boolean))].sort();
+}
+function tagSignature(tag, id, classAttr){
+  return String(tag).toLowerCase() + '|' + String(id || '') + '|' + sourceClasses(classAttr).join(' ');
+}
+function normalizedText(s){
+  return String(s || '').replace(/\s+/g, ' ').trim();
+}
+function textMatchesSource(snippet, info){
+  const want = normalizedText(info.text);
+  if (!want) return true;
+  const tpl = document.createElement('template');
+  try { tpl.innerHTML = snippet; } catch(e){ return false; }
+  return normalizedText(tpl.content.textContent || '') === want;
+}
+function validLoc(loc, src){
+  return loc && Number.isInteger(loc.start) && Number.isInteger(loc.end)
+    && loc.start >= 0 && loc.end > loc.start && loc.end <= src.length ? loc : null;
 }
 
 function locateInSource(info){
   if (!info) return null;
   const src = els.html.value;
-  const tag = info.tag.toLowerCase();
-  if (info.id){
-    const re = new RegExp('<([a-zA-Z][\\w-]*)\\b[^>]*\\bid\\s*=\\s*["\']' + escapeRe(info.id) + '["\']', 'i');
-    const m = re.exec(src);
-    if (m && m[1].toLowerCase() === tag){
-      return { start: m.index, end: findElementEnd(src, m.index, tag) };
+  const tag = String(info.tag || '').toLowerCase();
+  if (!tag) return null;
+
+  const tags = scanTags(src).filter(t => t.name === tag);
+  if (!tags.length) return null;
+
+  const wantSig = info.sig || tagSignature(tag, info.id, info.className);
+  let candidates = tags.filter(t => tagSignature(t.name, t.attrs.id, t.attrs.class) === wantSig);
+
+  if (!candidates.length && info.id){
+    candidates = tags.filter(t => t.attrs.id === info.id);
+  }
+  if (!candidates.length){
+    const open = String(info.outerHTML || '').match(/^<[a-zA-Z][\w:-]*[^>]*>/);
+    if (open){
+      const exact = tags.filter(t => t.raw === open[0]);
+      if (exact.length === 1) candidates = exact;
     }
   }
-  if (info.className){
-    const cls = info.className.split(/\s+/).filter(Boolean)[0];
-    if (cls){
-      const re = new RegExp('<(' + escapeRe(tag) + ')\\b[^>]*\\bclass\\s*=\\s*["\'][^"\']*\\b' + escapeRe(cls) + '\\b[^"\']*["\']', 'i');
-      const m = re.exec(src);
-      if (m) return { start: m.index, end: findElementEnd(src, m.index, tag) };
-    }
+  if (!candidates.length) return null;
+
+  const multi = candidates.length > 1;
+  let index = Number.isInteger(info.sigIndex) && info.sigIndex >= 0 ? info.sigIndex : null;
+  if (index === null){
+    if (multi) return null;
+    index = 0;
   }
-  const openMatch = info.outerHTML.match(/^<[a-zA-Z][\w-]*[^>]*>/);
-  if (openMatch){
-    const idx = src.indexOf(openMatch[0]);
-    if (idx !== -1) return { start: idx, end: findElementEnd(src, idx, tag) };
-  }
-  const re = new RegExp('<' + escapeRe(tag) + '\\b', 'i');
-  const m = re.exec(src);
-  if (m) return { start: m.index, end: findElementEnd(src, m.index, tag) };
-  return null;
+  if (index >= candidates.length) return null;
+
+  const pick = candidates[index];
+  const pickEnd = findElementEnd(src, pick.start, tag);
+  if (pickEnd === -1) return null;
+  if (multi && !textMatchesSource(src.slice(pick.start, pickEnd), info)) return null;
+  return { start: pick.start, end: pickEnd };
 }
 
 function selectRange(start, end){
   document.querySelector('.tab[data-target="html"]').click();
   els.html.focus();
   els.html.setSelectionRange(start, end);
+  const cs = getComputedStyle(els.html);
+  const lineHeight = parseFloat(cs.lineHeight) || 21;
   const linesBefore = els.html.value.slice(0, start).split('\n').length;
-  els.html.scrollTop = Math.max(0, (linesBefore - 4) * 21);
+  els.html.scrollTop = Math.max(0, (linesBefore - 4) * lineHeight);
   syncEditorScroll('html');
 }
 
 /* ================= Sync to source ================= */
 function syncToSource(newHTML, opts){
-  let loc = selection.sourceLoc;
+  const src = els.html.value;
+  let loc = validLoc(selection.sourceLoc, src);
   if (!loc){
+    selection.sourceLoc = null;
     loc = locateInSource(selection.info);
     if (loc) selection.sourceLoc = { start: loc.start, end: loc.end };
   }
-  if (!loc){ toast('ซิงค์ลงโค้ดไม่ได้ (แก้ใน preview แล้ว)', 'error'); return; }
-  const src = els.html.value;
+  if (!loc){ toast('ซิงค์ลงโค้ดไม่ได้ (หา element นี้ในโค้ดไม่ชัดเจน)', 'error'); return; }
+  const scrollTop = els.html.scrollTop, scrollLeft = els.html.scrollLeft;
   if (opts && opts.duplicate){
     els.html.value = src.slice(0, loc.end) + '\n' + newHTML + src.slice(loc.end);
     selection.sourceLoc = { start: loc.end + 1, end: loc.end + 1 + newHTML.length };
@@ -1291,16 +1447,24 @@ function syncToSource(newHTML, opts){
     selection.sourceLoc = { start: loc.start, end: loc.start + newHTML.length };
   }
   refreshEditor('html');
+  els.html.scrollTop = scrollTop;
+  els.html.scrollLeft = scrollLeft;
+  syncEditorScroll('html');
   saveState();
   pushHistory();
 }
 
 function removeFromSource(){
-  let loc = selection.sourceLoc || locateInSource(selection.info);
-  if (!loc){ toast('ลบใน preview แล้ว (ลบในโค้ดไม่ได้)', 'error'); return; }
   const src = els.html.value;
+  const loc = validLoc(selection.sourceLoc, src) || locateInSource(selection.info);
+  if (!loc){ toast('ลบใน preview แล้ว (ลบในโค้ดไม่ได้)', 'error'); return; }
+  const scrollTop = els.html.scrollTop, scrollLeft = els.html.scrollLeft;
   els.html.value = src.slice(0, loc.start) + src.slice(loc.end);
   refreshEditor('html');
+  els.html.scrollTop = scrollTop;
+  els.html.scrollLeft = scrollLeft;
+  syncEditorScroll('html');
+  selection.sourceLoc = null;
   saveState();
   pushHistory();
 }
@@ -1326,12 +1490,16 @@ async function copyText(text){
 }
 
 /* ================= Selector / JSX ================= */
+function cssEscapeIdent(s){
+  if (typeof CSS !== 'undefined' && CSS.escape) return CSS.escape(String(s));
+  return String(s).replace(/([^\w-])/g, '\\$1');
+}
 function buildSelector(info){
-  if (info.id) return '#' + info.id;
-  let sel = info.tag;
+  if (info.id) return '#' + cssEscapeIdent(info.id);
+  let sel = cssEscapeIdent(info.tag);
   if (info.className){
     const cls = info.className.split(/\s+/).filter(Boolean);
-    if (cls.length) sel += '.' + cls.join('.');
+    if (cls.length) sel += '.' + cls.map(cssEscapeIdent).join('.');
   }
   return sel;
 }
@@ -1341,20 +1509,23 @@ function toJSX(html){
   s = s.replace(/\bfor=/g, 'htmlFor=');
   s = s.replace(/\b(aria-[a-z]+)=/g, (m, a) => a.replace(/-([a-z])/g, (_, c) => c.toUpperCase()) + '=');
   s = s.replace(/tabindex=/g, 'tabIndex=');
-  const VOID = ['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'];
-  VOID.forEach(t => {
-    const re = new RegExp('<' + t + '([^>]*[^/])>', 'gi');
-    s = s.replace(re, '<' + t + '$1 />');
+  VOID_TAGS.forEach(t => {
+    const re = new RegExp('<' + t + '(\\s[^>]*)?>', 'gi');
+    s = s.replace(re, (m, attrs) => (/\/\s*>$/.test(m) ? m : '<' + t + (attrs || '') + ' />'));
   });
   return s;
 }
 
 /* ================= Modal ================= */
 function openModal(title, buildBody, onSave){
+  const prevFocus = document.activeElement;
   const backdrop = document.createElement('div');
   backdrop.className = 'modal-backdrop';
   const modal = document.createElement('div');
   modal.className = 'modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', title);
   modal.innerHTML = `
     <h3>${escapeHtml(title)}</h3>
     <div class="modal-body"></div>
@@ -1367,7 +1538,10 @@ function openModal(title, buildBody, onSave){
   backdrop.appendChild(modal);
   document.body.appendChild(backdrop);
 
-  const close = () => backdrop.remove();
+  const close = () => {
+    backdrop.remove();
+    if (prevFocus && prevFocus.focus) prevFocus.focus();
+  };
   modal.querySelector('[data-act="cancel"]').onclick = close;
   modal.querySelector('[data-act="save"]').onclick = () => {
     if (onSave() !== false) close();
@@ -1386,10 +1560,9 @@ function openModal(title, buildBody, onSave){
 /* ================= Actions ================= */
 function getElementSource(){
   if (!selection.info) return '';
-  const loc = selection.sourceLoc;
-  if (loc) return els.html.value.slice(loc.start, loc.end);
-  const l = locateInSource(selection.info);
-  if (l) return els.html.value.slice(l.start, l.end);
+  const src = els.html.value;
+  const loc = validLoc(selection.sourceLoc, src) || locateInSource(selection.info);
+  if (loc) return src.slice(loc.start, loc.end);
   return selection.info.outerHTML;
 }
 
@@ -1415,7 +1588,7 @@ async function actCopyJSX(){
 
 function actFindInCode(){
   if (!selection.info) return;
-  const loc = selection.sourceLoc || locateInSource(selection.info);
+  const loc = validLoc(selection.sourceLoc, els.html.value) || locateInSource(selection.info);
   if (!loc){ toast('หา element ในโค้ดไม่เจอ', 'error'); return; }
   selectRange(loc.start, loc.end);
   toast('เลือกโค้ดให้แล้ว');
@@ -1485,6 +1658,12 @@ function actEditHTML(){
   const ta = document.createElement('textarea'); ta.value = getElementSource();
   body.appendChild(lab); body.appendChild(ta);
   openModal('🧩 แก้ HTML ของ <' + selection.info.tag + '>', (b) => { b.appendChild(body); }, () => {
+    const tpl = document.createElement('template');
+    tpl.innerHTML = ta.value;
+    if (!tpl.content.firstElementChild){
+      toast('HTML ไม่ถูกต้อง หรือไม่มี element หลัก', 'error');
+      return false;
+    }
     sendToFrame({ cmd: 'setOuterHTML', value: ta.value });
   });
 }
@@ -1498,6 +1677,7 @@ function actRenameTag(){
   openModal('🏷️ เปลี่ยนแท็ก', (b) => { b.appendChild(body); }, () => {
     const tag = inp.value.trim().toLowerCase();
     if (!/^[a-z][a-z0-9-]*$/.test(tag)){ toast('ชื่อแท็กไม่ถูกต้อง', 'error'); return false; }
+    if (VOID_TAGS.includes(tag)){ toast('เปลี่ยนเป็นแท็ก void ไม่ได้', 'error'); return false; }
     sendToFrame({ cmd: 'renameTag', tag });
   });
 }
@@ -1513,13 +1693,13 @@ function actWrap(){
   openModal('📦 ห่อ element ด้วยแท็กใหม่', (b) => { b.appendChild(body); }, () => {
     const tag = inp1.value.trim().toLowerCase() || 'div';
     if (!/^[a-z][a-z0-9-]*$/.test(tag)){ toast('ชื่อแท็กไม่ถูกต้อง', 'error'); return false; }
+    if (VOID_TAGS.includes(tag)){ toast('ห่อด้วยแท็ก void ไม่ได้', 'error'); return false; }
     sendToFrame({ cmd: 'wrap', tag, className: inp2.value.trim() });
   });
 }
 
 function actDuplicate(){
   if (!selection.info) return;
-  pendingDuplicate = true;
   sendToFrame({ cmd: 'duplicate' });
 }
 
@@ -1589,20 +1769,15 @@ function actExport(){
 }
 
 function actSave(){
-  clearTimeout(history.debounceTimer);
+  clearTimeout(historyStore.debounceTimer);
   pushHistory();
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      html: els.html.value, css: els.css.value, js: els.js.value
-    }));
-    toast('บันทึกโค้ดลงเครื่องแล้ว ✓');
-  } catch(e){
-    toast('บันทึกไม่สำเร็จ', 'error');
-  }
+  if (persistState()) toast('บันทึกโค้ดลงเครื่องแล้ว ✓');
+  else toast('บันทึกไม่สำเร็จ', 'error');
 }
 
 /* ================= Message handler ================= */
 window.addEventListener('message', (e) => {
+  if (e.source !== els.frame.contentWindow) return;
   const d = e.data;
   if (!d || d.source !== 'live-html-tester') return;
 
@@ -1614,6 +1789,9 @@ window.addEventListener('message', (e) => {
     selection.info = d.info;
     selection.sourceLoc = locateInSource(d.info);
     showSelectionBar(d.info);
+    if (!selection.sourceLoc){
+      toast('หา element นี้ในโค้ดไม่ชัดเจน — จะแก้ได้เฉพาะใน preview', 'error');
+    }
     return;
   }
   if (d.kind === 'dblclick'){
@@ -1622,8 +1800,8 @@ window.addEventListener('message', (e) => {
     showSelectionBar(d.info);
     if (selection.sourceLoc){
       selectRange(selection.sourceLoc.start, selection.sourceLoc.end);
-      els.editorPane.style.boxShadow = 'inset 0 0 0 2px var(--accent)';
-      setTimeout(() => { els.editorPane.style.boxShadow = ''; }, 700);
+      els.editorPane.classList.add('pane-flash');
+      setTimeout(() => els.editorPane.classList.remove('pane-flash'), 700);
       toast('กระโดดไปที่ <' + d.info.tag + '> ในโค้ดแล้ว');
     } else {
       toast('หา element ในโค้ดไม่เจอ', 'error');
@@ -1633,12 +1811,7 @@ window.addEventListener('message', (e) => {
   if (d.kind === 'updated'){
     selection.info = d.info;
     showSelectionBar(d.info);
-    if (d.action === 'duplicate' && pendingDuplicate){
-      pendingDuplicate = false;
-      syncToSource(d.info.outerHTML, { duplicate: true });
-    } else {
-      syncToSource(d.info.outerHTML);
-    }
+    syncToSource(d.info.outerHTML, d.action === 'duplicate' ? { duplicate: true } : null);
     return;
   }
   if (d.kind === 'deleted'){
@@ -1647,7 +1820,11 @@ window.addEventListener('message', (e) => {
     toast('ลบ element แล้ว');
     return;
   }
-  if (d.kind === 'log' || d.kind === 'info' || d.kind === 'warn' || d.kind === 'error'){
+  if (d.kind === 'opError'){
+    toast('ทำรายการไม่สำเร็จ: ' + (d.message || 'ไม่ทราบสาเหตุ'), 'error');
+    return;
+  }
+  if (d.kind === 'log' || d.kind === 'info' || d.kind === 'warn' || d.kind === 'error' || d.kind === 'debug'){
     addConsole(d.kind, d.msg);
   }
 });
@@ -1660,11 +1837,8 @@ window.addEventListener('message', (e) => {
     if (lang === 'html' && selection.info){
       selection.sourceLoc = null;
     }
-    saveState();
     scheduleHistoryPush();
-    if (!els.auto.checked){ els.status.textContent = 'โหมด manual — กด Run'; return; }
-    clearTimeout(runTimer);
-    runTimer = setTimeout(run, RUN_DELAY);
+    scheduleRun();
   });
   ta.addEventListener('scroll', () => syncEditorScroll(lang));
   ta.addEventListener('keydown', (e) => {
@@ -1673,12 +1847,8 @@ window.addEventListener('message', (e) => {
       const s = ta.selectionStart, en = ta.selectionEnd;
       ta.setRangeText('  ', s, en, 'end');
       refreshEditor(lang);
-      saveState();
       scheduleHistoryPush();
-      if (els.auto.checked){
-        clearTimeout(runTimer);
-        runTimer = setTimeout(run, RUN_DELAY);
-      }
+      scheduleRun();
     }
   });
 });
@@ -1686,7 +1856,11 @@ window.addEventListener('message', (e) => {
 /* ================= Tabs ================= */
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+    document.querySelectorAll('.tab').forEach(t => {
+      const active = t === tab;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', String(active));
+    });
     const lang = tab.dataset.target;
     document.querySelectorAll('.editor-wrap').forEach(w => {
       w.classList.toggle('active', w.dataset.lang === lang);
@@ -1704,14 +1878,15 @@ els.save.addEventListener('click', actSave);
 els.export.addEventListener('click', actExport);
 els.clear.addEventListener('click', clearConsole);
 els.auto.addEventListener('change', () => {
+  if (!els.auto.checked) clearTimeout(runTimer);
   els.status.textContent = els.auto.checked ? 'อัปเดตอัตโนมัติ' : 'โหมด manual';
   if (els.auto.checked) run();
 });
 els.reset.addEventListener('click', () => {
-  if (!confirm('คืนค่าโค้ดตัวอย่างเริ่มต้น?')) return;
-  els.html.value = DEFAULTS.html;
-  els.css.value  = DEFAULTS.css;
-  els.js.value   = DEFAULTS.js;
+  if (!confirm('ล้างโค้ดทั้งหมด?')) return;
+  els.html.value = '';
+  els.css.value  = '';
+  els.js.value   = '';
   refreshEditor('html'); refreshEditor('css'); refreshEditor('js');
   saveState();
   pushHistory();
