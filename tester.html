@@ -91,6 +91,7 @@
     white-space:nowrap;
   }
   .sel-tag .sel-id{ opacity:.7; font-weight:500; }
+  .sel-count{ color:var(--muted); font:600 11px ui-monospace,monospace; white-space:nowrap; }
   .sel-sep{ width:1px; height:16px; background:var(--border); }
   .close-btn{
     margin-left:auto; background:transparent; border:0;
@@ -160,6 +161,46 @@
     border-bottom:1px solid var(--border); font-size:12px; color:var(--muted);
   }
   iframe{ flex:1; min-height:0; width:100%; border:0; background:#fff; }
+  .preview-body{ flex:1; display:flex; min-height:0; }
+  .preview-col{ flex:1; display:flex; flex-direction:column; min-width:0; }
+  .layers-pane{
+    width:224px; flex:0 0 auto; display:flex; flex-direction:column;
+    background:var(--panel); border-right:1px solid var(--border); min-height:0;
+  }
+  .layers-pane.hidden{ display:none; }
+  .layers-title{
+    padding:7px 10px; font-size:11.5px; font-weight:600; color:var(--muted);
+    border-bottom:1px solid var(--border); flex:0 0 auto; white-space:nowrap;
+  }
+  .layers-count{ font-weight:400; opacity:.8; }
+  .layers-list{ flex:1; overflow:auto; position:relative; padding:4px 0; }
+  .layer-row{
+    display:flex; align-items:center; gap:6px; padding:3px 8px;
+    font-size:12px; cursor:pointer; border-left:2px solid transparent; user-select:none;
+  }
+  .layer-row:hover{ background:rgba(137,180,250,.07); }
+  .layer-row.selected{ background:rgba(137,180,250,.16); border-left-color:var(--accent); }
+  .layer-row.is-hidden{ opacity:.45; }
+  .layer-row.dragging{ opacity:.3; }
+  .layer-eye{
+    background:transparent; border:0; cursor:pointer; font-size:11px;
+    padding:0 2px; color:var(--muted); flex:0 0 auto;
+  }
+  .layer-eye:hover{ color:var(--text); }
+  .layer-eye.off{ filter:grayscale(1); opacity:.5; }
+  .layer-tag{
+    font-family:ui-monospace,monospace; font-weight:700; font-size:11px;
+    color:var(--accent); white-space:nowrap;
+  }
+  .layer-label{
+    color:var(--muted); font-family:ui-monospace,monospace; font-size:11px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0;
+  }
+  .layer-drop{
+    position:absolute; left:0; right:0; height:2px; background:var(--accent);
+    pointer-events:none; display:none; z-index:5; box-shadow:0 0 4px rgba(137,180,250,.8);
+  }
+  .layers-empty{ color:#45475a; font-style:italic; font-size:12px; padding:10px 12px; }
   body.select-mode #previewPane::after{
     content:''; position:absolute; inset:0; z-index:20;
     pointer-events:none;
@@ -272,24 +313,36 @@
 
       <div class="selection-bar" id="selectionBar" role="toolbar" aria-label="เครื่องมือแก้ไข element" hidden>
         <span class="sel-tag" id="selTag">&lt;div&gt;</span>
+        <span class="sel-count" id="selCount" title="จำนวน element ที่เลือก"></span>
         <div class="sel-sep"></div>
-        <button class="btn tiny" data-action="copy-html">📋 HTML</button>
-        <button class="btn tiny" data-action="copy-text">📋 Text</button>
-        <button class="btn tiny" data-action="copy-selector">📋 Selector</button>
-        <button class="btn tiny" data-action="copy-jsx">📋 JSX</button>
+        <button class="btn tiny" data-action="copy-elements" title="คัดลอก element (Ctrl+C)">📋 Copy</button>
+        <button class="btn tiny" data-action="paste-elements" title="วาง element ที่คัดลอกไว้ (Ctrl+V)">📌 Paste</button>
+        <button class="btn tiny" data-action="duplicate" title="ทำสำเนา (Ctrl+D)">⧉ Duplicate</button>
         <div class="sel-sep"></div>
-        <button class="btn tiny" data-action="edit-text">✏️ Text</button>
-        <button class="btn tiny" data-action="edit-attrs">🎨 Attrs</button>
-        <button class="btn tiny" data-action="edit-style">💅 Style</button>
-        <button class="btn tiny" data-action="edit-html">🧩 HTML</button>
-        <button class="btn tiny" data-action="rename-tag">🏷️ Tag</button>
+        <button class="btn tiny" data-action="edit-text" title="แก้ข้อความ">✏️ Text</button>
+        <button class="btn tiny" data-action="edit-attrs" title="แก้ attributes">🎨 Attrs</button>
+        <button class="btn tiny" data-action="edit-style" title="แก้ inline style">💅 Style</button>
+        <button class="btn tiny" data-action="edit-html" title="แก้ HTML โดยตรง">🧩 HTML</button>
+        <button class="btn tiny" data-action="rename-tag" title="เปลี่ยนแท็ก">🏷️ Tag</button>
+        <button class="btn tiny" data-action="wrap" title="ห่อด้วย element ใหม่">📦 Wrap</button>
         <div class="sel-sep"></div>
-        <button class="btn tiny" data-action="wrap">📦 Wrap</button>
-        <button class="btn tiny" data-action="duplicate">⧉ Duplicate</button>
-        <button class="btn tiny" data-action="reset-size">⟲ Size</button>
+        <button class="btn tiny" data-action="group" title="รวมกลุ่ม element ที่เลือก (Ctrl+G)">👥 รวมกลุ่ม</button>
+        <button class="btn tiny" data-action="ungroup" title="แยกกลุ่ม (Ctrl+Shift+G)">✂️ แยกกลุ่ม</button>
+        <div class="sel-sep"></div>
+        <button class="btn tiny" data-action="align-left" title="จัดชิดซ้าย">⬅</button>
+        <button class="btn tiny" data-action="align-center" title="จัดกึ่งกลางแนวนอน">↔</button>
+        <button class="btn tiny" data-action="align-right" title="จัดชิดขวา">➡</button>
+        <button class="btn tiny" data-action="align-top" title="จัดชิดบน">⬆</button>
+        <button class="btn tiny" data-action="align-middle" title="จัดกึ่งกลางแนวตั้ง">↕</button>
+        <button class="btn tiny" data-action="align-bottom" title="จัดชิดล่าง">⬇</button>
+        <div class="sel-sep"></div>
+        <button class="btn tiny" data-action="z-front" title="ไปหน้าสุด">⏫</button>
+        <button class="btn tiny" data-action="z-forward" title="ขยับขึ้นหนึ่งชั้น">⇧</button>
+        <button class="btn tiny" data-action="z-backward" title="ขยับลงหนึ่งชั้น">⇩</button>
+        <button class="btn tiny" data-action="z-back" title="ไปหลังสุด">⏬</button>
         <div class="sel-sep"></div>
         <button class="btn tiny" data-action="find">🔍 หาในโค้ด</button>
-        <button class="btn tiny" data-action="delete">🗑️ ลบ</button>
+        <button class="btn tiny" data-action="delete" title="ลบ (Delete)">🗑️ ลบ</button>
         <button class="close-btn" id="selClose" title="ปิด (Esc)">✖</button>
       </div>
 
@@ -323,11 +376,20 @@
     <section class="pane" id="previewPane">
       <div class="preview-head">
         <span>ผลลัพธ์</span>
+        <button class="btn tiny active" id="layersToggle" title="แสดง/ซ่อนแผงชั้น">🗂 Layers</button>
         <div class="spacer"></div>
         <button class="btn tiny" id="clearConsole">ล้าง console</button>
       </div>
-      <iframe id="preview" title="ผลลัพธ์ HTML" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-pointer-lock"></iframe>
-      <div class="console" id="console" role="log" aria-live="polite" aria-label="Console"></div>
+      <div class="preview-body">
+        <aside class="layers-pane" id="layersPane">
+          <div class="layers-title">ชั้นของเพจ <span class="layers-count" id="layersCount"></span></div>
+          <div class="layers-list" id="layersList"></div>
+        </aside>
+        <div class="preview-col">
+          <iframe id="preview" title="ผลลัพธ์ HTML" sandbox="allow-scripts allow-modals allow-forms allow-popups allow-pointer-lock"></iframe>
+          <div class="console" id="console" role="log" aria-live="polite" aria-label="Console"></div>
+        </div>
+      </div>
     </section>
 
   </main>
@@ -356,7 +418,12 @@ const els = {
   selectModeBtn: document.getElementById('selectModeBtn'),
   selectionBar: document.getElementById('selectionBar'),
   selTag: document.getElementById('selTag'),
+  selCount: document.getElementById('selCount'),
   selClose: document.getElementById('selClose'),
+  layersPane: document.getElementById('layersPane'),
+  layersList: document.getElementById('layersList'),
+  layersCount: document.getElementById('layersCount'),
+  layersToggle: document.getElementById('layersToggle'),
 };
 
 /* ================= Defaults / Storage ================= */
@@ -449,7 +516,7 @@ function updateHistoryButtons(){
 
 /* ================= State ================= */
 let selectMode = false;
-let selection = { info: null, sourceLoc: null };
+let selection = { infos: [], primaryIndex: -1, sourceLocs: [], info: null, sourceLoc: null };
 
 /* ================= Syntax highlight ================= */
 function escHTML(s){
@@ -545,26 +612,32 @@ const SELECTOR_SCRIPT = `
   window.__liveSelectorInstalled = true;
 
   var selectMode = false;
-  var currentEl = null;
-  var overlay, badge, hoverOverlay, handlesLayer, guidesLayer;
+  var selectedEls = [];       // element ที่เลือกทั้งหมด
+  var primaryEl = null;       // element หลัก (มี handle + guides)
+  var overlayMap = new Map(); // el -> overlay div
+  var primaryBadge = null;
+  var hoverOverlay = null, handlesLayer = null, guidesLayer = null, marqueeDiv = null;
   var potentialDrag = null;
   var dragState = null;
+  var marqueeState = null;
   var originalStyles = new WeakMap();
+  var pendingItems = [];
+  var pendingTimer = null;
 
-  function ensureOverlay(){
-    if (overlay && overlay.isConnected) return;
-    overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;pointer-events:none;border:2px solid #89b4fa;background:rgba(137,180,250,0.10);z-index:2147483644;display:none;box-sizing:border-box;';
-    badge = document.createElement('div');
-    badge.style.cssText = 'position:fixed;pointer-events:none;background:#89b4fa;color:#11111b;font:600 11px/1 system-ui,sans-serif;padding:3px 7px;border-radius:4px;z-index:2147483647;display:none;white-space:nowrap;';
+  function ensureUI(){
+    if (handlesLayer && handlesLayer.isConnected) return;
     hoverOverlay = document.createElement('div');
     hoverOverlay.style.cssText = 'position:fixed;pointer-events:none;border:1px dashed rgba(137,180,250,0.85);background:rgba(137,180,250,0.07);z-index:2147483643;display:none;box-sizing:border-box;';
+    primaryBadge = document.createElement('div');
+    primaryBadge.style.cssText = 'position:fixed;pointer-events:none;background:#89b4fa;color:#11111b;font:600 11px/1 system-ui,sans-serif;padding:3px 7px;border-radius:4px;z-index:2147483647;display:none;white-space:nowrap;';
     handlesLayer = document.createElement('div');
     handlesLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483646;display:none;';
     guidesLayer = document.createElement('div');
     guidesLayer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483645;display:none;';
+    marqueeDiv = document.createElement('div');
+    marqueeDiv.style.cssText = 'position:fixed;pointer-events:none;border:1px solid #89b4fa;background:rgba(137,180,250,0.15);z-index:2147483644;display:none;box-sizing:border-box;';
 
-    [overlay, badge, hoverOverlay, handlesLayer, guidesLayer].forEach(function(n){
+    [hoverOverlay, primaryBadge, handlesLayer, guidesLayer, marqueeDiv].forEach(function(n){
       n.setAttribute('data-live-ui', '1');
     });
 
@@ -585,33 +658,70 @@ const SELECTOR_SCRIPT = `
 
     var root = document.body || document.documentElement;
     root.appendChild(hoverOverlay);
-    root.appendChild(overlay);
+    root.appendChild(marqueeDiv);
     root.appendChild(guidesLayer);
     root.appendChild(handlesLayer);
-    root.appendChild(badge);
+    root.appendChild(primaryBadge);
   }
 
-  function positionOverlay(el){
-    ensureOverlay();
-    var r = el.getBoundingClientRect();
-    overlay.style.display = 'block';
-    overlay.style.left = r.left + 'px';
-    overlay.style.top = r.top + 'px';
-    overlay.style.width = r.width + 'px';
-    overlay.style.height = r.height + 'px';
-    badge.style.display = 'block';
-    badge.textContent = '<' + el.tagName.toLowerCase() + '>';
-    var top = r.top - 22;
-    if (top < 2) top = r.top + r.height + 2;
-    badge.style.left = Math.max(2, r.left) + 'px';
-    badge.style.top = top + 'px';
+  function makeOverlay(primary){
+    var o = document.createElement('div');
+    o.style.cssText = primary
+      ? 'position:fixed;pointer-events:none;border:2px solid #89b4fa;background:rgba(137,180,250,0.10);z-index:2147483644;box-sizing:border-box;'
+      : 'position:fixed;pointer-events:none;border:2px dashed #89b4fa;background:rgba(137,180,250,0.05);z-index:2147483644;box-sizing:border-box;';
+    o.setAttribute('data-live-ui', '1');
+    (document.body || document.documentElement).appendChild(o);
+    return o;
+  }
+
+  function overlayFor(el, primary){
+    var o = overlayMap.get(el);
+    if (!o || !o.isConnected){
+      o = makeOverlay(primary);
+      overlayMap.set(el, o);
+    }
+    return o;
+  }
+
+  function positionAll(){
+    ensureUI();
+    overlayMap.forEach(function(o, el){
+      if (selectedEls.indexOf(el) === -1){ o.remove(); overlayMap.delete(el); }
+      else o.style.display = 'none';
+    });
+    if (!selectMode || !selectedEls.length){
+      if (primaryBadge) primaryBadge.style.display = 'none';
+      if (handlesLayer) handlesLayer.style.display = 'none';
+      clearGuides();
+      return;
+    }
+    selectedEls.forEach(function(el){
+      var o = overlayFor(el, el === primaryEl);
+      var r = el.getBoundingClientRect();
+      o.style.left = r.left + 'px';
+      o.style.top = r.top + 'px';
+      o.style.width = r.width + 'px';
+      o.style.height = r.height + 'px';
+      o.style.display = 'block';
+    });
+    if (primaryEl && primaryEl.isConnected){
+      var r = primaryEl.getBoundingClientRect();
+      primaryBadge.style.display = 'block';
+      primaryBadge.textContent = '<' + primaryEl.tagName.toLowerCase() + '>' + (selectedEls.length > 1 ? ' +' + (selectedEls.length - 1) : '');
+      var top = r.top - 22;
+      if (top < 2) top = r.top + r.height + 2;
+      primaryBadge.style.left = Math.max(2, r.left) + 'px';
+      primaryBadge.style.top = top + 'px';
+      positionHandles();
+      drawGuides(primaryEl);
+    }
   }
 
   function positionHandles(){
     if (!handlesLayer) return;
-    if (!currentEl || !selectMode){ handlesLayer.style.display = 'none'; return; }
+    if (!primaryEl || !selectMode){ handlesLayer.style.display = 'none'; return; }
     handlesLayer.style.display = 'block';
-    var r = currentEl.getBoundingClientRect();
+    var r = primaryEl.getBoundingClientRect();
     var mh = handlesLayer.querySelector('[data-handle="move"]');
     mh.style.left = (r.left - 30) + 'px';
     mh.style.top = (r.top - 30) + 'px';
@@ -639,7 +749,7 @@ const SELECTOR_SCRIPT = `
   }
 
   function drawGuides(el){
-    ensureOverlay();
+    ensureUI();
     guidesLayer.innerHTML = '';
     guidesLayer.style.display = 'block';
 
@@ -740,11 +850,15 @@ const SELECTOR_SCRIPT = `
     return { dx: dx, dy: dy };
   }
 
-  function hideAll(){
-    if (overlay) overlay.style.display = 'none';
-    if (badge) badge.style.display = 'none';
-    if (hoverOverlay) hoverOverlay.style.display = 'none';
+  function setSelectionQuiet(){
+    selectedEls = []; primaryEl = null;
+    marqueeState = null; dragState = null; potentialDrag = null;
+    overlayMap.forEach(function(o){ o.remove(); });
+    overlayMap.clear();
+    if (primaryBadge) primaryBadge.style.display = 'none';
     if (handlesLayer) handlesLayer.style.display = 'none';
+    if (marqueeDiv) marqueeDiv.style.display = 'none';
+    if (hoverOverlay) hoverOverlay.style.display = 'none';
     clearGuides();
   }
 
@@ -797,8 +911,33 @@ const SELECTOR_SCRIPT = `
       parent.postMessage(msg, '*');
     } catch(e){}
   }
-  function sendSelect(el){ post('select', { info: describe(el) }); }
+  function sendSelectAll(){
+    var idx = selectedEls.indexOf(primaryEl);
+    if (idx === -1) idx = selectedEls.length - 1;
+    post('select', {
+      infos: selectedEls.map(function(el){ return describe(el); }),
+      primaryIndex: idx
+    });
+  }
   function sendUpdate(el, action){ post('updated', { info: describe(el), action: action || null }); }
+
+  function postBatch(items, action){
+    clearTimeout(pendingTimer);
+    pendingItems.push({ items: items, action: action });
+    pendingTimer = setTimeout(flushBatch, 350);
+  }
+  function flushBatch(){
+    if (!pendingItems.length) return;
+    var byAction = {};
+    pendingItems.forEach(function(p){
+      byAction[p.action] = byAction[p.action] || [];
+      byAction[p.action] = byAction[p.action].concat(p.items);
+    });
+    pendingItems = [];
+    Object.keys(byAction).forEach(function(action){
+      post('batch-updated', { action: action, items: byAction[action] });
+    });
+  }
 
   function rememberStyles(el){
     if (!originalStyles.has(el)){
@@ -810,17 +949,83 @@ const SELECTOR_SCRIPT = `
     }
   }
 
-  function beginDrag(el, startX, startY){
-    rememberStyles(el);
+  function normalizeSelection(){
+    selectedEls = selectedEls.filter(function(el, i){
+      return el && el.isConnected && el !== document.body && el !== document.documentElement
+        && !isUI(el) && selectedEls.indexOf(el) === i;
+    });
+    if (selectedEls.indexOf(primaryEl) === -1) primaryEl = selectedEls[selectedEls.length - 1] || null;
+    if (!selectedEls.length) primaryEl = null;
+    selectedEls.sort(function(a, b){
+      return (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
+    });
+  }
+
+  function setSelection(els, primary){
+    selectedEls = (els || []).slice();
+    primaryEl = primary || selectedEls[selectedEls.length - 1] || null;
+    normalizeSelection();
+    positionAll();
+    sendSelectAll();
+  }
+
+  // element ระดับบนสุดของกลุ่มที่เลือก (ไม่นับตัวที่อยู่ในตัวอื่นที่เลือกไว้)
+  function topLevelOf(list){
+    return list.filter(function(el){
+      var p = el.parentElement;
+      while (p && p !== document.body && p !== document.documentElement){
+        if (list.indexOf(p) !== -1) return false;
+        p = p.parentElement;
+      }
+      return true;
+    });
+  }
+
+  function nextSiblingEl(el){
+    var s = el.nextElementSibling;
+    while (s && isUI(s)) s = s.nextElementSibling;
+    return s || null;
+  }
+  function prevSiblingEl(el){
+    var s = el.previousElementSibling;
+    while (s && isUI(s)) s = s.previousElementSibling;
+    return s || null;
+  }
+
+  function findBySig(sig, sigIndex){
+    var all = document.getElementsByTagName('*');
+    var n = 0;
+    for (var i = 0; i < all.length; i++){
+      var el = all[i];
+      if (isUI(el)) continue;
+      if (signatureOf(el) === sig){
+        if (n === (sigIndex || 0)) return el;
+        n++;
+      }
+    }
+    return null;
+  }
+
+  function isHidden(el){
     var cs = window.getComputedStyle(el);
-    dragState = {
-      type: 'move', el: el,
-      startX: startX, startY: startY,
-      startLeft: parseFloat(cs.left) || 0,
-      startTop:  parseFloat(cs.top)  || 0,
-      wasStatic: cs.position === 'static',
-      wasInline: cs.display === 'inline'
-    };
+    return cs.display === 'none' || cs.visibility === 'hidden';
+  }
+
+  function beginDrag(startX, startY){
+    var list = topLevelOf(selectedEls);
+    if (!list.length && primaryEl) list = [primaryEl];
+    dragState = { type: 'move', entries: [], primary: primaryEl, startX: startX, startY: startY };
+    list.forEach(function(el){
+      rememberStyles(el);
+      var cs = window.getComputedStyle(el);
+      dragState.entries.push({
+        el: el,
+        startLeft: parseFloat(cs.left) || 0,
+        startTop: parseFloat(cs.top) || 0,
+        wasStatic: cs.position === 'static',
+        wasInline: cs.display === 'inline'
+      });
+    });
     document.body.style.cursor = 'move';
     document.body.style.userSelect = 'none';
     document.addEventListener('mousemove', onDragMove, true);
@@ -836,7 +1041,7 @@ const SELECTOR_SCRIPT = `
       startX: startX, startY: startY,
       startW: r.width, startH: r.height,
       startLeft: parseFloat(cs.left) || 0,
-      startTop:  parseFloat(cs.top)  || 0,
+      startTop: parseFloat(cs.top) || 0,
       wasStatic: cs.position === 'static',
       wasInline: cs.display === 'inline'
     };
@@ -852,14 +1057,19 @@ const SELECTOR_SCRIPT = `
     var dy = e.clientY - d.startY;
 
     if (d.type === 'move'){
-      if (d.wasStatic) d.el.style.position = 'relative';
-      if (d.wasInline) d.el.style.display = 'inline-block';
-      d.el.style.left = (d.startLeft + dx) + 'px';
-      d.el.style.top  = (d.startTop  + dy) + 'px';
-      var r0 = d.el.getBoundingClientRect();
-      var snap = applySnap(r0);
-      if (snap.dx) d.el.style.left = (parseFloat(d.el.style.left) + snap.dx) + 'px';
-      if (snap.dy) d.el.style.top  = (parseFloat(d.el.style.top)  + snap.dy) + 'px';
+      d.entries.forEach(function(en){
+        if (en.wasStatic) en.el.style.position = 'relative';
+        if (en.wasInline) en.el.style.display = 'inline-block';
+        en.el.style.left = (en.startLeft + dx) + 'px';
+        en.el.style.top = (en.startTop + dy) + 'px';
+      });
+      var snap = applySnap(d.primary.getBoundingClientRect());
+      if (snap.dx || snap.dy){
+        d.entries.forEach(function(en){
+          en.el.style.left = (parseFloat(en.el.style.left) + snap.dx) + 'px';
+          en.el.style.top = (parseFloat(en.el.style.top) + snap.dy) + 'px';
+        });
+      }
     } else {
       if (d.wasStatic) d.el.style.position = 'relative';
       if (d.wasInline) d.el.style.display = 'inline-block';
@@ -871,15 +1081,13 @@ const SELECTOR_SCRIPT = `
       if (h.indexOf('w') !== -1){ newW = Math.max(16, d.startW - dx); newLeft = d.startLeft + dx; }
       if (h.indexOf('s') !== -1) newH = Math.max(16, d.startH + dy);
       if (h.indexOf('n') !== -1){ newH = Math.max(16, d.startH - dy); newTop = d.startTop + dy; }
-      d.el.style.width  = newW + 'px';
+      d.el.style.width = newW + 'px';
       d.el.style.height = newH + 'px';
       if (h.indexOf('w') !== -1) d.el.style.left = newLeft + 'px';
-      if (h.indexOf('n') !== -1) d.el.style.top  = newTop  + 'px';
+      if (h.indexOf('n') !== -1) d.el.style.top = newTop + 'px';
     }
 
-    positionOverlay(d.el);
-    positionHandles();
-    drawGuides(d.el);
+    positionAll();
   }
 
   function onDragUp(e){
@@ -891,31 +1099,69 @@ const SELECTOR_SCRIPT = `
     document.removeEventListener('mousemove', onDragMove, true);
     document.removeEventListener('mouseup', onDragUp, true);
     clearGuides();
-    positionOverlay(d.el);
-    positionHandles();
-    sendUpdate(d.el, d.type);
+    positionAll();
+    if (d.type === 'move'){
+      var items = d.entries.map(function(en){ return describe(en.el); });
+      postBatch(items, 'move');
+    } else {
+      sendUpdate(d.el, 'resize');
+    }
   }
 
   function onMouseDown(e){
     if (!selectMode) return;
-    if (e.target.dataset && e.target.dataset.handle && currentEl){
+    ensureUI();
+    if (e.target.dataset && e.target.dataset.handle && primaryEl){
       e.preventDefault(); e.stopPropagation();
       var h = e.target.dataset.handle;
-      if (h === 'move') beginDrag(currentEl, e.clientX, e.clientY);
-      else beginResize(currentEl, h, e.clientX, e.clientY);
+      if (h === 'move') beginDrag(e.clientX, e.clientY);
+      else beginResize(primaryEl, h, e.clientX, e.clientY);
       return;
     }
     var el = e.target;
-    if (!el || el === document.body || el === document.documentElement) return;
-    if (isUI(el)) return;
+    if (!el || el === document.body || el === document.documentElement || isUI(el)){
+      // ลากกรอบเพื่อเลือก (marquee)
+      e.preventDefault(); e.stopPropagation();
+      marqueeState = { startX: e.clientX, startY: e.clientY, add: e.shiftKey };
+      marqueeDiv.style.display = 'block';
+      marqueeDiv.style.left = e.clientX + 'px';
+      marqueeDiv.style.top = e.clientY + 'px';
+      marqueeDiv.style.width = '0px';
+      marqueeDiv.style.height = '0px';
+      document.addEventListener('mousemove', onMarqueeMove, true);
+      document.addEventListener('mouseup', onMarqueeUp, true);
+      return;
+    }
 
     e.preventDefault(); e.stopPropagation();
-    currentEl = el;
-    positionOverlay(el);
-    positionHandles();
-    sendSelect(el);
 
-    potentialDrag = { el: el, startX: e.clientX, startY: e.clientY };
+    if (e.shiftKey){
+      var i = selectedEls.indexOf(el);
+      if (i !== -1){
+        selectedEls.splice(i, 1);
+        if (primaryEl === el) primaryEl = selectedEls[selectedEls.length - 1] || null;
+      } else {
+        selectedEls.push(el);
+        primaryEl = el;
+      }
+      normalizeSelection();
+      positionAll();
+      sendSelectAll();
+      potentialDrag = { startX: e.clientX, startY: e.clientY };
+      document.addEventListener('mousemove', onPotentialMove, true);
+      document.addEventListener('mouseup', onPotentialUp, true);
+      return;
+    }
+
+    if (selectedEls.indexOf(el) !== -1){
+      // คลิกตัวที่เลือกอยู่แล้ว: เลื่อน primary + เตรียมลากทั้งกลุ่ม
+      primaryEl = el;
+      positionAll();
+      sendSelectAll();
+    } else {
+      setSelection([el], el);
+    }
+    potentialDrag = { startX: e.clientX, startY: e.clientY };
     document.addEventListener('mousemove', onPotentialMove, true);
     document.addEventListener('mouseup', onPotentialUp, true);
   }
@@ -929,7 +1175,7 @@ const SELECTOR_SCRIPT = `
       potentialDrag = null;
       document.removeEventListener('mousemove', onPotentialMove, true);
       document.removeEventListener('mouseup', onPotentialUp, true);
-      beginDrag(pd.el, pd.startX, pd.startY);
+      beginDrag(pd.startX, pd.startY);
       onDragMove(e);
     }
   }
@@ -941,9 +1187,58 @@ const SELECTOR_SCRIPT = `
     document.removeEventListener('mouseup', onPotentialUp, true);
   }
 
+  function onMarqueeMove(e){
+    if (!marqueeState) return;
+    var x1 = marqueeState.startX, y1 = marqueeState.startY;
+    var left = Math.min(x1, e.clientX), top = Math.min(y1, e.clientY);
+    marqueeDiv.style.left = left + 'px';
+    marqueeDiv.style.top = top + 'px';
+    marqueeDiv.style.width = Math.abs(e.clientX - x1) + 'px';
+    marqueeDiv.style.height = Math.abs(e.clientY - y1) + 'px';
+  }
+
+  function rectsIntersect(a, b){
+    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  }
+
+  function onMarqueeUp(e){
+    if (!marqueeState) return;
+    var ms = marqueeState;
+    marqueeState = null;
+    marqueeDiv.style.display = 'none';
+    document.removeEventListener('mousemove', onMarqueeMove, true);
+    document.removeEventListener('mouseup', onMarqueeUp, true);
+    var x1 = ms.startX, y1 = ms.startY;
+    var box = { left: Math.min(x1, e.clientX), top: Math.min(y1, e.clientY), right: Math.max(x1, e.clientX), bottom: Math.max(y1, e.clientY) };
+    var hits = [];
+    if ((box.right - box.left) > 3 || (box.bottom - box.top) > 3){
+      var all = document.querySelectorAll('body *');
+      for (var i = 0; i < all.length; i++){
+        var el = all[i];
+        if (isUI(el)) continue;
+        var r = el.getBoundingClientRect();
+        if (r.width < 1 && r.height < 1) continue;
+        if (rectsIntersect(r, box)) hits.push(el);
+      }
+      hits = hits.filter(function(el){
+        return !hits.some(function(other){ return other !== el && other.contains(el); });
+      });
+      if (hits.length){
+        var list = ms.add ? selectedEls.concat(hits) : hits.slice();
+        var primary = (primaryEl && list.indexOf(primaryEl) !== -1) ? primaryEl : list[list.length - 1];
+        setSelection(list, primary);
+        return;
+      }
+    }
+    if (!ms.add){
+      setSelectionQuiet();
+      post('cleared', {});
+    }
+  }
+
   function onHover(e){
     if (!selectMode) return;
-    if (!hoverOverlay) ensureOverlay();
+    if (!hoverOverlay) ensureUI();
     var el = e.target;
     if (!el || el === document.body || el === document.documentElement || isUI(el)){
       hoverOverlay.style.display = 'none';
@@ -958,10 +1253,7 @@ const SELECTOR_SCRIPT = `
   }
 
   function onReposition(){
-    if (currentEl && currentEl.isConnected && selectMode){
-      positionOverlay(currentEl);
-      positionHandles();
-    }
+    if (selectMode && selectedEls.length) positionAll();
   }
 
   document.addEventListener('mousedown', onMouseDown, true);
@@ -975,14 +1267,52 @@ const SELECTOR_SCRIPT = `
     if (!el || el === document.body || el === document.documentElement) return;
     if (isUI(el)) return;
     e.preventDefault(); e.stopPropagation();
-    currentEl = el;
-    positionOverlay(el);
-    positionHandles();
-    sendSelect(el);
+    setSelection([el], el);
     post('dblclick', { info: describe(el) });
   }, true);
   window.addEventListener('scroll', onReposition, true);
   window.addEventListener('resize', onReposition);
+
+  document.addEventListener('keydown', function(e){
+    if (!selectMode || !selectedEls.length) return;
+    var t = e.target;
+    var tag = (t && t.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' || (t && t.isContentEditable)) return;
+    var mod = e.ctrlKey || e.metaKey;
+    var key = e.key;
+    if (!e.repeat){
+      if (mod && key.toLowerCase() === 'z'){ e.preventDefault(); flushBatch(); post('frame-command', { action: e.shiftKey ? 'redo' : 'undo' }); return; }
+      if (mod && key.toLowerCase() === 'y'){ e.preventDefault(); post('frame-command', { action: 'redo' }); return; }
+      if (mod && key.toLowerCase() === 's'){ e.preventDefault(); post('frame-command', { action: 'save' }); return; }
+      if (mod && key.toLowerCase() === 'c'){ e.preventDefault(); flushBatch(); post('frame-command', { action: 'copy' }); return; }
+      if (mod && key.toLowerCase() === 'v'){ e.preventDefault(); post('frame-command', { action: 'paste' }); return; }
+      if (mod && key.toLowerCase() === 'd'){ e.preventDefault(); post('frame-command', { action: 'duplicate' }); return; }
+      if (mod && key.toLowerCase() === 'g'){ e.preventDefault(); post('frame-command', { action: e.shiftKey ? 'ungroup' : 'group' }); return; }
+      if (key === 'Delete' || key === 'Backspace'){ e.preventDefault(); post('frame-command', { action: 'delete' }); return; }
+      if (key === 'Escape'){ e.preventDefault(); setSelectionQuiet(); post('cleared', {}); return; }
+    }
+    if (key.indexOf('Arrow') === 0){
+      var list = topLevelOf(selectedEls);
+      if (!list.length) return;
+      e.preventDefault();
+      var step = e.shiftKey ? 10 : 1;
+      var dx = 0, dy = 0;
+      if (key === 'ArrowLeft') dx = -step;
+      if (key === 'ArrowRight') dx = step;
+      if (key === 'ArrowUp') dy = -step;
+      if (key === 'ArrowDown') dy = step;
+      list.forEach(function(el){
+        rememberStyles(el);
+        var cs = window.getComputedStyle(el);
+        if (cs.position === 'static') el.style.position = 'relative';
+        if (cs.display === 'inline') el.style.display = 'inline-block';
+        el.style.left = ((parseFloat(cs.left) || 0) + dx) + 'px';
+        el.style.top = ((parseFloat(cs.top) || 0) + dy) + 'px';
+      });
+      positionAll();
+      postBatch(list.map(describe), 'move');
+    }
+  });
 
   window.addEventListener('message', function(e){
     var d = e.data;
@@ -990,113 +1320,378 @@ const SELECTOR_SCRIPT = `
 
     if (d.cmd === 'selectMode'){
       selectMode = !!d.value;
-      if (!selectMode){ hideAll(); currentEl = null; }
-      else ensureOverlay();
+      if (!selectMode) setSelectionQuiet();
+      else ensureUI();
     }
-    if (d.cmd === 'deselect'){ hideAll(); currentEl = null; }
+    if (d.cmd === 'deselect'){ setSelectionQuiet(); }
 
-    if (d.cmd === 'updateText' && currentEl){
-      currentEl.textContent = d.value;
-      positionOverlay(currentEl); positionHandles();
-      sendUpdate(currentEl, 'text');
+    if (d.cmd === 'updateText' && primaryEl){
+      primaryEl.textContent = d.value;
+      positionAll();
+      sendUpdate(primaryEl, 'text');
     }
-    if (d.cmd === 'setAttrs' && currentEl){
+    if (d.cmd === 'setAttrs' && primaryEl){
       var keep = d.attrs || {};
       var attrError = null;
       var existing = [];
-      for (var i = 0; i < currentEl.attributes.length; i++) existing.push(currentEl.attributes[i].name);
-      existing.forEach(function(n){ if (!(n in keep)) currentEl.removeAttribute(n); });
+      for (var i = 0; i < primaryEl.attributes.length; i++) existing.push(primaryEl.attributes[i].name);
+      existing.forEach(function(n){ if (!(n in keep)) primaryEl.removeAttribute(n); });
       Object.keys(keep).forEach(function(n){
-        try { currentEl.setAttribute(n, keep[n]); } catch(err){ attrError = err; }
+        try { primaryEl.setAttribute(n, keep[n]); } catch(err){ attrError = err; }
       });
-      positionOverlay(currentEl); positionHandles();
-      sendUpdate(currentEl, 'attrs');
+      positionAll();
+      sendUpdate(primaryEl, 'attrs');
       if (attrError) post('opError', { action: 'attrs', message: attrError.message });
     }
-    if (d.cmd === 'setOuterHTML' && currentEl){
+    if (d.cmd === 'setOuterHTML' && primaryEl){
       try {
+        var oldEl = primaryEl;
         var tmp = document.createElement('div');
         tmp.innerHTML = d.value;
         var newEl = tmp.firstElementChild;
         if (!newEl) throw new Error('HTML ที่ใส่ไม่มี element หลัก');
-        if (!currentEl.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
-        currentEl.parentNode.replaceChild(newEl, currentEl);
-        currentEl = newEl;
-        positionOverlay(currentEl); positionHandles();
-        sendUpdate(currentEl, 'html');
+        if (!oldEl.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
+        oldEl.parentNode.replaceChild(newEl, oldEl);
+        var oi = selectedEls.indexOf(oldEl);
+        if (oi !== -1) selectedEls[oi] = newEl;
+        primaryEl = newEl;
+        var oo = overlayMap.get(oldEl);
+        if (oo){ oo.remove(); overlayMap.delete(oldEl); }
+        positionAll();
+        sendUpdate(newEl, 'html');
       } catch(err){
         post('opError', { action: 'html', message: err.message });
       }
     }
-    if (d.cmd === 'renameTag' && currentEl){
+    if (d.cmd === 'renameTag' && primaryEl){
       try {
-        if (!currentEl.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
+        var oldEl2 = primaryEl;
+        if (!oldEl2.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
         var newEl2 = document.createElement(d.tag);
-        for (var j = 0; j < currentEl.attributes.length; j++)
-          newEl2.setAttribute(currentEl.attributes[j].name, currentEl.attributes[j].value);
-        while (currentEl.firstChild) newEl2.appendChild(currentEl.firstChild);
-        currentEl.parentNode.replaceChild(newEl2, currentEl);
-        currentEl = newEl2;
-        positionOverlay(currentEl); positionHandles();
-        sendUpdate(currentEl, 'rename');
+        for (var j = 0; j < oldEl2.attributes.length; j++)
+          newEl2.setAttribute(oldEl2.attributes[j].name, oldEl2.attributes[j].value);
+        while (oldEl2.firstChild) newEl2.appendChild(oldEl2.firstChild);
+        oldEl2.parentNode.replaceChild(newEl2, oldEl2);
+        var ri = selectedEls.indexOf(oldEl2);
+        if (ri !== -1) selectedEls[ri] = newEl2;
+        primaryEl = newEl2;
+        var ro = overlayMap.get(oldEl2);
+        if (ro){ ro.remove(); overlayMap.delete(oldEl2); }
+        positionAll();
+        sendUpdate(newEl2, 'rename');
       } catch(err){
         post('opError', { action: 'rename', message: err.message });
       }
     }
-    if (d.cmd === 'duplicate' && currentEl){
+    if (d.cmd === 'duplicate'){ d.cmd = 'duplicateMany'; }
+    if (d.cmd === 'delete'){ d.cmd = 'deleteMany'; }
+
+    if (d.cmd === 'duplicateMany'){
+      flushBatch();
+      var list = topLevelOf(selectedEls);
+      if (!list.length){ post('opError', { action: 'duplicate', message: 'ยังไม่ได้เลือก element' }); return; }
       try {
-        if (!currentEl.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
-        var clone = currentEl.cloneNode(true);
-        currentEl.parentNode.insertBefore(clone, currentEl.nextSibling);
-        currentEl = clone;
-        positionOverlay(currentEl); positionHandles();
-        sendUpdate(currentEl, 'duplicate');
+        // จับ describe ของ anchor ก่อน mutate DOM (sigIndex ต้องตรงกับ source เดิม)
+        var anchors = list.map(describe);
+        var clones = [];
+        var inserts = [];
+        list.forEach(function(el, i){
+          if (!el.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
+          var clone = el.cloneNode(true);
+          el.parentNode.insertBefore(clone, el.nextSibling);
+          clones.push(clone);
+          inserts.push({ anchor: anchors[i], html: describe(clone).outerHTML });
+        });
+        post('batch-updated', { action: 'paste', inserts: inserts });
+        setSelection(clones, clones[clones.length - 1]);
       } catch(err){
         post('opError', { action: 'duplicate', message: err.message });
       }
     }
-    if (d.cmd === 'wrap' && currentEl){
+
+    if (d.cmd === 'paste'){
+      flushBatch();
+      if (!primaryEl){ post('opError', { action: 'paste', message: 'ยังไม่ได้เลือก element (วางต่อจากตัวที่เลือก)' }); return; }
       try {
-        if (!currentEl.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
+        var tpl2 = document.createElement('div');
+        tpl2.innerHTML = d.html;
+        var nodes = Array.prototype.slice.call(tpl2.children);
+        if (!nodes.length) throw new Error('HTML ที่คัดลอกไม่มี element');
+        var anchor = primaryEl;
+        nodes.forEach(function(node){
+          anchor.parentNode.insertBefore(node, anchor.nextSibling);
+          anchor = node;
+        });
+        var html = nodes.map(function(n){ return describe(n).outerHTML; }).join('\\n');
+        post('batch-updated', { action: 'paste', inserts: [{ anchor: describe(primaryEl), html: html }] });
+        setSelection(nodes, nodes[nodes.length - 1]);
+      } catch(err){
+        post('opError', { action: 'paste', message: err.message });
+      }
+    }
+
+    if (d.cmd === 'wrap' && primaryEl){
+      try {
+        if (!primaryEl.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
         var wrapper = document.createElement(d.tag || 'div');
         if (d.id) wrapper.id = d.id;
         if (d.className) wrapper.className = d.className;
-        currentEl.parentNode.insertBefore(wrapper, currentEl);
-        wrapper.appendChild(currentEl);
-        currentEl = wrapper;
-        positionOverlay(currentEl); positionHandles();
-        sendUpdate(currentEl, 'wrap');
+        primaryEl.parentNode.insertBefore(wrapper, primaryEl);
+        wrapper.appendChild(primaryEl);
+        setSelection([wrapper], wrapper);
+        sendUpdate(wrapper, 'wrap');
       } catch(err){
         post('opError', { action: 'wrap', message: err.message });
       }
     }
-    if (d.cmd === 'resetSize' && currentEl){
-      var orig = originalStyles.get(currentEl);
-      if (orig){
-        ['position','display','boxSizing','left','top','width','height'].forEach(function(p){
-          currentEl.style[p] = orig[p] || '';
+
+    if (d.cmd === 'group'){
+      flushBatch();
+      var list2 = topLevelOf(selectedEls);
+      if (!list2.length){ post('opError', { action: 'group', message: 'ยังไม่ได้เลือก element' }); return; }
+      try {
+        var first = list2[0];
+        if (!first.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
+        var rects = list2.map(function(el){ return el.getBoundingClientRect(); });
+        var ul = Math.min.apply(null, rects.map(function(r){ return r.left; }));
+        var ut = Math.min.apply(null, rects.map(function(r){ return r.top; }));
+        var ur = Math.max.apply(null, rects.map(function(r){ return r.right; }));
+        var ub = Math.max.apply(null, rects.map(function(r){ return r.bottom; }));
+        var members = list2.map(describe);
+        var wrapper = document.createElement('div');
+        wrapper.className = 'live-group';
+        wrapper.setAttribute('data-live-group', '1');
+        var op = first.offsetParent || document.body;
+        var opRect = op.getBoundingClientRect();
+        wrapper.style.position = 'absolute';
+        wrapper.style.left = (ul - opRect.left) + 'px';
+        wrapper.style.top = (ut - opRect.top) + 'px';
+        wrapper.style.width = (ur - ul) + 'px';
+        wrapper.style.height = (ub - ut) + 'px';
+        first.parentNode.insertBefore(wrapper, first);
+        list2.forEach(function(el, i){
+          rememberStyles(el);
+          var r = rects[i];
+          el.style.position = 'absolute';
+          el.style.left = (r.left - ul) + 'px';
+          el.style.top = (r.top - ut) + 'px';
+          el.style.width = Math.round(r.width) + 'px';
+          el.style.height = Math.round(r.height) + 'px';
+          el.style.boxSizing = 'border-box';
+          wrapper.appendChild(el);
         });
-        originalStyles.delete(currentEl);
-      } else {
-        currentEl.style.width = '';
-        currentEl.style.height = '';
-        currentEl.style.left = '';
-        currentEl.style.top = '';
+        post('batch-updated', { action: 'group', members: members, firstMember: members[0], wrapper: describe(wrapper) });
+        setSelection([wrapper], wrapper);
+      } catch(err){
+        post('opError', { action: 'group', message: err.message });
       }
-      if (currentEl.getAttribute('style') === '') currentEl.removeAttribute('style');
-      positionOverlay(currentEl); positionHandles();
-      sendUpdate(currentEl, 'reset-size');
     }
-    if (d.cmd === 'delete' && currentEl){
-      var target = currentEl;
-      if (!target.parentNode){
-        post('opError', { action: 'delete', message: 'element นี้ไม่ได้อยู่ในหน้า' });
+
+    if (d.cmd === 'ungroup'){
+      flushBatch();
+      var g = primaryEl;
+      if (!g || g.getAttribute('data-live-group') === null){
+        post('opError', { action: 'ungroup', message: 'element ที่เลือกไม่ใช่กลุ่ม (ต้องเป็นกลุ่มที่สร้างจากปุ่ม รวมกลุ่ม)' });
         return;
       }
-      currentEl = null;
-      hideAll();
-      target.parentNode.removeChild(target);
-      post('deleted', {});
+      try {
+        if (!g.parentNode) throw new Error('element นี้ไม่ได้อยู่ในหน้า');
+        var wrapperInfo = describe(g);
+        var op2 = g.offsetParent || document.body;
+        var opRect2 = op2.getBoundingClientRect();
+        var kids = Array.prototype.slice.call(g.children);
+        kids.forEach(function(child){
+          var r = child.getBoundingClientRect();
+          rememberStyles(child);
+          g.parentNode.insertBefore(child, g);
+          child.style.position = 'absolute';
+          child.style.left = (r.left - opRect2.left) + 'px';
+          child.style.top = (r.top - opRect2.top) + 'px';
+          child.style.width = Math.round(r.width) + 'px';
+          child.style.height = Math.round(r.height) + 'px';
+          child.style.boxSizing = 'border-box';
+        });
+        g.parentNode.removeChild(g);
+        var childInfos = kids.map(describe);
+        post('batch-updated', { action: 'ungroup', wrapperInfo: wrapperInfo, items: childInfos });
+        setSelection(kids, kids[kids.length - 1]);
+      } catch(err){
+        post('opError', { action: 'ungroup', message: err.message });
+      }
+    }
+
+    if (d.cmd === 'deleteMany'){
+      flushBatch();
+      var list3 = topLevelOf(selectedEls);
+      if (!list3.length){ post('opError', { action: 'delete', message: 'ยังไม่ได้เลือก element' }); return; }
+      var infos = list3.map(describe);
+      setSelectionQuiet();
+      list3.forEach(function(el){
+        if (el.parentNode) el.parentNode.removeChild(el);
+      });
+      post('batch-updated', { action: 'delete', items: infos });
+    }
+
+    if (d.cmd === 'align'){
+      flushBatch();
+      var list4 = topLevelOf(selectedEls);
+      if (list4.length < 2){ post('opError', { action: 'align', message: 'ต้องเลือกอย่างน้อย 2 element' }); return; }
+      if (!primaryEl){ post('opError', { action: 'align', message: 'ยังไม่ได้เลือก element' }); return; }
+      var pr = primaryEl.getBoundingClientRect();
+      list4.forEach(function(el){
+        rememberStyles(el);
+        var cs = window.getComputedStyle(el);
+        if (cs.position === 'static') el.style.position = 'relative';
+        if (cs.display === 'inline') el.style.display = 'inline-block';
+        var r = el.getBoundingClientRect();
+        var startLeft = parseFloat(cs.left) || 0;
+        var startTop = parseFloat(cs.top) || 0;
+        var dx = 0, dy = 0;
+        if (d.dir === 'left') dx = pr.left - r.left;
+        if (d.dir === 'center') dx = (pr.left + pr.width/2) - (r.left + r.width/2);
+        if (d.dir === 'right') dx = pr.right - r.right;
+        if (d.dir === 'top') dy = pr.top - r.top;
+        if (d.dir === 'middle') dy = (pr.top + pr.height/2) - (r.top + r.height/2);
+        if (d.dir === 'bottom') dy = pr.bottom - r.bottom;
+        if (dx) el.style.left = (startLeft + dx) + 'px';
+        if (dy) el.style.top = (startTop + dy) + 'px';
+      });
+      positionAll();
+      post('batch-updated', { action: 'align', items: list4.map(describe) });
+    }
+
+    if (d.cmd === 'zorder'){
+      flushBatch();
+      var z = primaryEl;
+      if (!z || !z.parentNode){ post('opError', { action: 'zorder', message: 'ยังไม่ได้เลือก element' }); return; }
+      var p = z.parentNode;
+      // จับ describe ทุกตัวก่อนย้าย (sigIndex ต้องตรงกับ source เดิม)
+      var zInfo = describe(z);
+      var pos = null;
+      if (d.dir === 'forward'){
+        var s = nextSiblingEl(z);
+        if (!s) return;
+        var afterInfo = describe(s);
+        p.insertBefore(z, s.nextSibling);
+        pos = { after: afterInfo };
+      } else if (d.dir === 'backward'){
+        var s2 = prevSiblingEl(z);
+        if (!s2) return;
+        var beforeInfo2 = describe(s2);
+        p.insertBefore(z, s2);
+        pos = { before: beforeInfo2 };
+      } else if (d.dir === 'front'){
+        var last = z;
+        var s3 = nextSiblingEl(z);
+        while (s3){ last = s3; s3 = nextSiblingEl(s3); }
+        if (last === z) return;
+        var lastInfo = describe(last);
+        p.insertBefore(z, last.nextSibling);
+        pos = { after: lastInfo };
+      } else if (d.dir === 'back'){
+        var first2 = z;
+        var s5 = prevSiblingEl(z);
+        while (s5){ first2 = s5; s5 = prevSiblingEl(s5); }
+        if (first2 === z) return;
+        var firstInfo = describe(first2);
+        p.insertBefore(z, first2);
+        pos = { before: firstInfo };
+      }
+      if (!pos) return;
+      positionAll();
+      post('batch-updated', { action: 'zorder', info: zInfo, pos: pos });
+    }
+
+    if (d.cmd === 'layers'){
+      var rows = [];
+      (function walk(node, depth){
+        var kids = node.children;
+        for (var i = 0; i < kids.length; i++){
+          var el = kids[i];
+          if (isUI(el)) continue;
+          var tag = el.tagName.toLowerCase();
+          if (tag === 'script' || tag === 'style' || tag === 'link' || tag === 'meta') continue;
+          var info = describe(el);
+          info.depth = depth;
+          info.hidden = isHidden(el);
+          rows.push(info);
+          walk(el, depth + 1);
+        }
+      })(document.body, 0);
+      rows.reverse(); // บนสุดของเพจแสดงบนสุดของแผง
+      post('layers', { rows: rows });
+    }
+
+    if (d.cmd === 'selectRows'){
+      var listR = [];
+      (d.rows || []).forEach(function(r){
+        var el = findBySig(r.sig, r.sigIndex);
+        if (el) listR.push(el);
+      });
+      if (!listR.length){ return; }
+      var primR = d.primarySig ? findBySig(d.primarySig, d.primarySigIndex) : null;
+      setSelection(listR, primR || listR[listR.length - 1]);
+    }
+
+    if (d.cmd === 'reorder'){
+      flushBatch();
+      var el2 = findBySig(d.info.sig, d.info.sigIndex);
+      if (!el2 || !el2.parentNode){ post('opError', { action: 'reorder', message: 'หา element ไม่เจอ' }); return; }
+      var target = null;
+      if (d.before) target = findBySig(d.before.sig, d.before.sigIndex);
+      else if (d.after) target = findBySig(d.after.sig, d.after.sigIndex);
+      if (!target || target === el2) return;
+      // กันเฉพาะกรณีลาก ancestor เข้าไปไว้ใน descendant ตัวเอง
+      if (el2.contains(target)){
+        post('opError', { action: 'reorder', message: 'ย้ายเข้าไปในตัวมันเองไม่ได้' });
+        return;
+      }
+      // จับ describe ก่อนย้าย (sigIndex ต้องตรงกับ source เดิม)
+      var zInfo = describe(el2);
+      var pos = null;
+      if (d.before){
+        var beforeInfo = describe(target);
+        target.parentNode.insertBefore(el2, target);
+        pos = { before: beforeInfo };
+      } else {
+        var afterInfo = describe(target);
+        target.parentNode.insertBefore(el2, target.nextSibling);
+        pos = { after: afterInfo };
+      }
+      positionAll();
+      post('batch-updated', { action: 'zorder', info: zInfo, pos: pos });
+    }
+
+    if (d.cmd === 'toggleVisible'){
+      var el3 = findBySig(d.sig, d.sigIndex);
+      if (!el3){ post('opError', { action: 'visibility', message: 'หา element ไม่เจอ' }); return; }
+      rememberStyles(el3);
+      if (d.visible === false){
+        el3.style.display = 'none';
+      } else {
+        var origV = originalStyles.get(el3);
+        el3.style.display = (origV && origV.display) ? origV.display : '';
+      }
+      positionAll();
+      post('batch-updated', { action: 'visibility', items: [describe(el3)] });
+    }
+
+    if (d.cmd === 'resetSize' && primaryEl){
+      var orig = originalStyles.get(primaryEl);
+      if (orig){
+        ['position','display','boxSizing','left','top','width','height'].forEach(function(p){
+          primaryEl.style[p] = orig[p] || '';
+        });
+        originalStyles.delete(primaryEl);
+      } else {
+        primaryEl.style.width = '';
+        primaryEl.style.height = '';
+        primaryEl.style.left = '';
+        primaryEl.style.top = '';
+      }
+      if (primaryEl.getAttribute('style') === '') primaryEl.removeAttribute('style');
+      positionAll();
+      sendUpdate(primaryEl, 'reset-size');
     }
   });
 
@@ -1154,6 +1749,7 @@ function run(){
   els.console.innerHTML = '';
   clearSelection();
   els.frame.srcdoc = buildSrcdoc();
+  requestLayers();
   els.status.textContent = 'อัปเดต ' + new Date().toLocaleTimeString('th-TH', { hour12:false });
   els.status.classList.add('flash');
   setTimeout(() => els.status.classList.remove('flash'), 700);
@@ -1210,20 +1806,226 @@ function setSelectMode(on){
   els.selectModeBtn.textContent = selectMode ? '🎯 กำลังเลือก (คลิกเพื่อปิด)' : '🎯 เลือก element';
   sendToFrame({ cmd: 'selectMode', value: selectMode });
   if (!selectMode) clearSelection();
+  else requestLayers();
 }
 
 /* ================= Selection UI ================= */
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 }
-function showSelectionBar(info){
+function setSelectionState(infos, primaryIndex){
+  selection.infos = Array.isArray(infos) ? infos : [];
+  selection.primaryIndex = (Number.isInteger(primaryIndex) && primaryIndex >= 0 && primaryIndex < selection.infos.length)
+    ? primaryIndex : selection.infos.length - 1;
+  selection.sourceLocs = selection.infos.map(i => locateInSource(i));
+  selection.info = selection.infos[selection.primaryIndex] || null;
+  selection.sourceLoc = selection.sourceLocs[selection.primaryIndex] || null;
+}
+function refreshSelectionLocs(){
+  selection.sourceLocs = selection.infos.map(i => locateInSource(i));
+  selection.sourceLoc = selection.sourceLocs[selection.primaryIndex] || null;
+}
+function updateBarStates(){
+  const primary = selection.infos[selection.primaryIndex];
+  const n = selection.infos.length;
+  const bar = els.selectionBar;
+  const btn = (a) => bar.querySelector('[data-action="' + a + '"]');
+  const needsSel = ['copy-elements','duplicate','edit-text','edit-attrs','edit-style','edit-html',
+    'rename-tag','wrap','group','ungroup','align-left','align-center','align-right',
+    'align-top','align-middle','align-bottom','z-front','z-forward','z-backward','z-back','find','delete'];
+  needsSel.forEach(a => { const b = btn(a); if (b) b.disabled = !primary; });
+  const alignBtns = ['align-left','align-center','align-right','align-top','align-middle','align-bottom'];
+  alignBtns.forEach(a => { const b = btn(a); if (b) b.disabled = b.disabled || n < 2; });
+  const ug = btn('ungroup');
+  const isGroup = primary && primary.attrs && primary.attrs['data-live-group'] === '1';
+  if (ug) ug.disabled = ug.disabled || !isGroup;
+}
+function showSelectionBar(infos, primaryIndex){
   els.selectionBar.hidden = false;
+  if (!infos.length){
+    els.selTag.innerHTML = '—';
+    els.selCount.textContent = '';
+    return;
+  }
+  const info = infos[primaryIndex] || infos[0];
   const idPart = info.id ? ` <span class="sel-id">#${escapeHtml(info.id)}</span>` : '';
   els.selTag.innerHTML = `&lt;${info.tag}&gt;${idPart}`;
+  els.selCount.textContent = infos.length > 1 ? '× ' + infos.length : '';
+  updateBarStates();
 }
 function clearSelection(){
-  selection = { info: null, sourceLoc: null };
+  selection = { infos: [], primaryIndex: -1, sourceLocs: [], info: null, sourceLoc: null };
   els.selectionBar.hidden = true;
+}
+
+/* ================= Layers panel ================= */
+let layersRows = [];
+let layersTimer = null;
+let pendingModalForDblclick = false;
+let layerDrag = null;
+let dropMarker = null;
+
+function requestLayers(){
+  clearTimeout(layersTimer);
+  layersTimer = setTimeout(() => sendToFrame({ cmd: 'layers' }), 60);
+}
+
+function layerLabel(info){
+  const parts = [];
+  if (info.id) parts.push('#' + info.id);
+  const cls = String(info.className || '').split(/\s+/).filter(Boolean).map(c => '.' + c).join('');
+  if (cls) parts.push(cls);
+  const txt = String(info.text || '').replace(/\s+/g, ' ').trim().slice(0, 20);
+  if (txt) parts.push('“' + txt + '”');
+  return parts.join(' ');
+}
+
+function renderLayers(){
+  const list = els.layersList;
+  list.innerHTML = '';
+  els.layersCount.textContent = layersRows.length ? '(' + layersRows.length + ')' : '';
+  if (!layersRows.length){
+    const empty = document.createElement('div');
+    empty.className = 'layers-empty';
+    empty.textContent = '— ยังไม่มี element —';
+    list.appendChild(empty);
+    return;
+  }
+  const selectedSet = new Set(selection.infos.map(i => i.sig + '@' + i.sigIndex));
+  layersRows.forEach((row, i) => {
+    const div = document.createElement('div');
+    div.className = 'layer-row' + (selectedSet.has(row.sig + '@' + row.sigIndex) ? ' selected' : '') + (row.hidden ? ' is-hidden' : '');
+    div.style.paddingLeft = (8 + row.depth * 14) + 'px';
+    div.dataset.i = String(i);
+
+    const eye = document.createElement('button');
+    eye.className = 'layer-eye' + (row.hidden ? ' off' : '');
+    eye.textContent = '👁';
+    eye.title = row.hidden ? 'คลิกเพื่อแสดง' : 'คลิกเพื่อซ่อน';
+    eye.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sendToFrame({ cmd: 'toggleVisible', sig: row.sig, sigIndex: row.sigIndex, visible: row.hidden });
+    });
+
+    const tag = document.createElement('span');
+    tag.className = 'layer-tag';
+    tag.textContent = (row.attrs && row.attrs['data-live-group'] === '1' ? '🗂 ' : '') + '<' + row.tag + '>';
+
+    const label = document.createElement('span');
+    label.className = 'layer-label';
+    label.textContent = layerLabel(row);
+
+    div.appendChild(eye); div.appendChild(tag); div.appendChild(label);
+    div.addEventListener('pointerdown', (e) => onLayerPointerDown(e, div, row));
+    div.addEventListener('dblclick', () => {
+      pendingModalForDblclick = true;
+      sendToFrame({ cmd: 'selectRows', rows: [{ sig: row.sig, sigIndex: row.sigIndex }] });
+    });
+    list.appendChild(div);
+  });
+}
+
+function ensureDropMarker(){
+  if (dropMarker && dropMarker.isConnected) return;
+  dropMarker = document.createElement('div');
+  dropMarker.className = 'layer-drop';
+  els.layersList.appendChild(dropMarker);
+}
+function removeDropMarker(){
+  if (dropMarker){ dropMarker.style.display = 'none'; }
+}
+
+/* หาแถวปลายทางจากตำแหน่ง Y — เส้นวางคือ "ขอบ" ของแถว
+   (ขอบบน = วางก่อนแถวนั้น, ขอบล่าง = วางหลังแถวนั้น)
+   เลือกขอบที่ใกล้ Y ที่สุด; ถ้าระยะห่างไม่เกิน 2px ให้ "วางหลัง" ชนะ */
+function dropTargetAt(y, excludeDiv){
+  const rows = els.layersList.querySelectorAll('.layer-row');
+  let best = null, bestDist = Infinity;
+  rows.forEach(r => {
+    if (r === excludeDiv) return;
+    const rect = r.getBoundingClientRect();
+    [
+      { dist: Math.abs(y - rect.top), before: true },
+      { dist: Math.abs(y - rect.bottom), before: false }
+    ].forEach(c => {
+      const tiePreferAfter = best && best.before === true && c.before === false && Math.abs(c.dist - bestDist) <= 2;
+      if (c.dist < bestDist - 0.001 || tiePreferAfter){
+        bestDist = c.dist;
+        best = { el: r, before: c.before };
+      }
+    });
+  });
+  if (!best && rows.length && rows[rows.length - 1] !== excludeDiv){
+    best = { el: rows[rows.length - 1], before: false };
+  }
+  return best ? { row: layersRows[Number(best.el.dataset.i)], before: best.before, el: best.el } : null;
+}
+
+function updateDropMarker(y, excludeDiv){
+  const t = dropTargetAt(y, excludeDiv);
+  if (!t){ removeDropMarker(); return; }
+  ensureDropMarker();
+  const rect = t.el.getBoundingClientRect();
+  const listRect = els.layersList.getBoundingClientRect();
+  dropMarker.style.display = 'block';
+  dropMarker.style.top = (rect.top - listRect.top + els.layersList.scrollTop + (t.before ? 0 : rect.height)) + 'px';
+}
+
+function onLayerPointerDown(e, div, row){
+  if (e.target.closest('.layer-eye')) return;
+  if (e.button !== 0) return;
+  layerDrag = { row, startX: e.clientX, startY: e.clientY, moved: false };
+  const move = (ev) => {
+    if (!layerDrag) return;
+    if (!layerDrag.moved && (Math.abs(ev.clientX - layerDrag.startX) > 4 || Math.abs(ev.clientY - layerDrag.startY) > 4)){
+      layerDrag.moved = true;
+      div.classList.add('dragging');
+    }
+    if (layerDrag.moved){
+      ev.preventDefault();
+      updateDropMarker(ev.clientY, div);
+    }
+  };
+  const up = (ev) => {
+    document.removeEventListener('pointermove', move);
+    document.removeEventListener('pointerup', up);
+    if (!layerDrag) return;
+    const wasMoved = layerDrag.moved;
+    layerDrag = null;
+    div.classList.remove('dragging');
+    removeDropMarker();
+    if (wasMoved){ applyLayerDrop(ev.clientY, row, div); return; }
+    clickSelectRow(row, ev);
+  };
+  document.addEventListener('pointermove', move);
+  document.addEventListener('pointerup', up);
+}
+
+function clickSelectRow(row, e){
+  let rows;
+  const key = row.sig + '@' + row.sigIndex;
+  if (e.shiftKey || e.ctrlKey || e.metaKey){
+    const existing = selection.infos.map(i => i.sig + '@' + i.sigIndex);
+    const idx = existing.indexOf(key);
+    rows = idx !== -1 ? selection.infos.filter((_, i) => i !== idx) : selection.infos.concat([row]);
+  } else {
+    rows = [row];
+  }
+  if (!rows.length){ sendToFrame({ cmd: 'deselect' }); return; }
+  sendToFrame({ cmd: 'selectRows', rows, primarySig: row.sig, primarySigIndex: row.sigIndex });
+}
+
+function applyLayerDrop(y, draggedRow, draggedDiv){
+  const t = dropTargetAt(y, draggedDiv);
+  if (!t || !t.row) return;
+  if (t.row.sig === draggedRow.sig && t.row.sigIndex === draggedRow.sigIndex) return;
+  const payload = {
+    cmd: 'reorder',
+    info: { sig: draggedRow.sig, sigIndex: draggedRow.sigIndex },
+  };
+  if (t.before) payload.before = { sig: t.row.sig, sigIndex: t.row.sigIndex };
+  else payload.after = { sig: t.row.sig, sigIndex: t.row.sigIndex };
+  sendToFrame(payload);
 }
 
 /* ================= Source locator ================= */
@@ -1446,6 +2248,7 @@ function syncToSource(newHTML, opts){
     els.html.value = src.slice(0, loc.start) + newHTML + src.slice(loc.end);
     selection.sourceLoc = { start: loc.start, end: loc.start + newHTML.length };
   }
+  if (selection.primaryIndex >= 0) selection.sourceLocs[selection.primaryIndex] = selection.sourceLoc;
   refreshEditor('html');
   els.html.scrollTop = scrollTop;
   els.html.scrollLeft = scrollLeft;
@@ -1467,6 +2270,171 @@ function removeFromSource(){
   selection.sourceLoc = null;
   saveState();
   pushHistory();
+}
+
+/* ================= Batch source edit ================= */
+/* ใช้ทุกตำแหน่งจากโค้ด "ก่อนแก้" แล้วไล่แก้จากขวาไปซ้าย —
+   รองรับการแก้หลาย element ในจังหวะเดียว + undo ครั้งเดียวทั้งชุด */
+function applySourceEdits(ops){
+  const src = els.html.value;
+  const valid = (ops || []).filter(o =>
+    Number.isInteger(o.start) && Number.isInteger(o.end)
+    && o.start >= 0 && o.end >= o.start && o.end <= src.length);
+  if (!valid.length) return false;
+  valid.forEach((o, i) => { o.__i = i; });
+  // เรียงจากขวาไปซ้าย; ตำแหน่งเดียวกันให้ "ลบ" ก่อน "แทรก"
+  valid.sort((a, b) => (b.start - a.start) || ((a.text === '' ? 0 : 1) - (b.text === '' ? 0 : 1)) || (a.__i - b.__i));
+  let out = src;
+  valid.forEach(o => {
+    out = out.slice(0, o.start) + (o.text || '') + out.slice(o.end);
+  });
+  const scrollTop = els.html.scrollTop, scrollLeft = els.html.scrollLeft;
+  els.html.value = out;
+  refreshEditor('html');
+  els.html.scrollTop = scrollTop;
+  els.html.scrollLeft = scrollLeft;
+  syncEditorScroll('html');
+  saveState();
+  pushHistory();
+  return true;
+}
+
+/* ================= Clipboard (element) ================= */
+let clipboardStore = { html: '' };
+
+function collectSelectionHTML(){
+  const src = els.html.value;
+  return selection.infos.map((info, i) => {
+    const loc = validLoc(selection.sourceLocs[i], src) || locateInSource(info);
+    if (loc) return src.slice(loc.start, loc.end);
+    return info.outerHTML;
+  });
+}
+
+async function actCopyElements(){
+  if (!selection.infos.length){ toast('ยังไม่ได้เลือก element', 'error'); return; }
+  const parts = collectSelectionHTML();
+  clipboardStore.html = parts.join('\n');
+  const ok = await copyText(clipboardStore.html);
+  toast('คัดลอก ' + parts.length + ' element แล้ว — กด Ctrl+V หรือปุ่ม Paste เพื่อวาง' + (ok ? ' ✓' : ''), ok ? '' : 'error');
+}
+
+async function actPasteElements(){
+  if (!selection.infos.length){ toast('ยังไม่ได้เลือก element (วางต่อจากตัวที่เลือก)', 'error'); return; }
+  if (!clipboardStore.html){ toast('ยังไม่มี element ใน clipboard — เลือก element แล้วกด Ctrl+C ก่อน', 'error'); return; }
+  sendToFrame({ cmd: 'paste', html: clipboardStore.html });
+}
+
+function actGroup(){
+  if (!selection.infos.length){ toast('ยังไม่ได้เลือก element', 'error'); return; }
+  sendToFrame({ cmd: 'group' });
+}
+
+function actUngroup(){
+  if (!selection.infos.length){ toast('ยังไม่ได้เลือก element', 'error'); return; }
+  sendToFrame({ cmd: 'ungroup' });
+}
+
+function actAlign(dir){
+  if (selection.infos.length < 2){ toast('ต้องเลือกอย่างน้อย 2 element (Shift+คลิก หรือลากกรอบ)', 'error'); return; }
+  sendToFrame({ cmd: 'align', dir });
+}
+
+function actZOrder(dir){
+  if (!selection.infos.length) return;
+  sendToFrame({ cmd: 'zorder', dir });
+}
+
+function handleBatchUpdated(d){
+  const src = els.html.value;
+  if (d.action === 'paste'){
+    if (!Array.isArray(d.inserts) || !d.inserts.length) return;
+    const ops = [];
+    for (const ins of d.inserts){
+      const anchorLoc = locateInSource(ins.anchor);
+      if (anchorLoc) ops.push({ start: anchorLoc.end, end: anchorLoc.end, text: '\n' + ins.html });
+    }
+    if (!ops.length){ toast('วางไม่สำเร็จ (หาตำแหน่งในโค้ดไม่เจอ)', 'error'); return; }
+    applySourceEdits(ops);
+    toast('วาง element แล้ว ✓');
+    return;
+  }
+  if (d.action === 'delete'){
+    const ops = [];
+    (d.items || []).forEach(it => {
+      const loc = locateInSource(it);
+      if (loc) ops.push({ start: loc.start, end: loc.end, text: '' });
+    });
+    clearSelection();
+    if (ops.length){ applySourceEdits(ops); toast('ลบ ' + (d.items || []).length + ' element แล้ว'); }
+    else toast('ลบใน preview แล้ว (หาในโค้ดไม่ชัดเจน)', 'error');
+    return;
+  }
+  if (d.action === 'group'){
+    const ops = [];
+    (d.members || []).forEach(m => {
+      const loc = locateInSource(m);
+      if (loc) ops.push({ start: loc.start, end: loc.end, text: '' });
+    });
+    const firstLoc = d.firstMember ? locateInSource(d.firstMember) : null;
+    if (!ops.length || !firstLoc || !d.wrapper){ toast('รวมกลุ่มไม่สำเร็จ (หาในโค้ดไม่เจอ)', 'error'); return; }
+    ops.push({ start: firstLoc.start, end: firstLoc.start, text: d.wrapper.outerHTML });
+    applySourceEdits(ops);
+    toast('รวมกลุ่ม ' + (d.members || []).length + ' element แล้ว ✓');
+    return;
+  }
+  if (d.action === 'ungroup'){
+    const wrapperLoc = locateInSource(d.wrapperInfo);
+    if (!wrapperLoc){ toast('แยกกลุ่มไม่สำเร็จ (หา wrapper ในโค้ดไม่เจอ)', 'error'); return; }
+    const text = (d.items || []).map(it => it.outerHTML).join('\n');
+    applySourceEdits([{ start: wrapperLoc.start, end: wrapperLoc.end, text }]);
+    toast('แยกกลุ่มแล้ว ✓');
+    return;
+  }
+  if (d.action === 'zorder'){
+    const loc = locateInSource(d.info);
+    if (!loc){ toast('จัดลำดับชั้นไม่สำเร็จ (หาในโค้ดไม่เจอ)', 'error'); return; }
+    const ops = [{ start: loc.start, end: loc.end, text: '' }];
+    let pos = null;
+    if (d.pos && d.pos.before){
+      const b = locateInSource(d.pos.before);
+      if (b) pos = b.start;
+    } else if (d.pos && d.pos.after){
+      const a = locateInSource(d.pos.after);
+      if (a) pos = a.end;
+    } else if (d.pos && d.pos.parent){
+      const ploc = locateInSource(d.pos.parent);
+      if (ploc){
+        const closeStart = src.lastIndexOf('</' + d.pos.parent.tag, ploc.end - 1);
+        pos = closeStart !== -1 ? closeStart : ploc.end - (3 + d.pos.parent.tag.length);
+      }
+    }
+    if (pos === null){ toast('จัดลำดับชั้นไม่สำเร็จ', 'error'); return; }
+    // ขึ้นบรรทัดใหม่ถ้าตำแหน่งแทรกไม่ได้อยู่ต้นบรรทัดอยู่แล้ว
+    const zText = (pos > 0 && src[pos - 1] !== '\n' ? '\n' : '') + d.info.outerHTML;
+    ops.push({ start: pos, end: pos, text: zText });
+    applySourceEdits(ops);
+    toast('จัดลำดับชั้นแล้ว ✓');
+    return;
+  }
+  // กลุ่ม "แทนที่": move / align / resize / ฯลฯ
+  const ops = [];
+  (d.items || []).forEach(it => {
+    const loc = locateInSource(it);
+    if (loc) ops.push({ start: loc.start, end: loc.end, text: it.outerHTML });
+  });
+  if (!ops.length){ toast('ซิงค์ลงโค้ดไม่ได้ (หา element ไม่ชัดเจน)', 'error'); return; }
+  applySourceEdits(ops);
+  (d.items || []).forEach(it => {
+    const idx = selection.infos.findIndex(i => i.sig === it.sig && i.sigIndex === it.sigIndex);
+    if (idx !== -1) selection.infos[idx] = it;
+  });
+  refreshSelectionLocs();
+  showSelectionBar(selection.infos, selection.primaryIndex);
+  const label = d.action === 'align' ? 'จัดตำแหน่งแล้ว ✓'
+    : d.action === 'visibility' ? 'สลับการมองเห็นแล้ว ✓'
+    : (d.action === 'move' ? 'ย้าย element แล้ว ✓' : 'อัปเดตแล้ว ✓');
+  toast(label);
 }
 
 /* ================= Clipboard ================= */
@@ -1564,26 +2532,6 @@ function getElementSource(){
   const loc = validLoc(selection.sourceLoc, src) || locateInSource(selection.info);
   if (loc) return src.slice(loc.start, loc.end);
   return selection.info.outerHTML;
-}
-
-async function actCopyHTML(){
-  const ok = await copyText(getElementSource());
-  toast(ok ? 'คัดลอก HTML แล้ว ✓' : 'คัดลอกไม่สำเร็จ', ok ? '' : 'error');
-}
-async function actCopyText(){
-  const text = selection.info ? selection.info.text : '';
-  if (!text){ toast('element นี้ไม่มีข้อความ', 'error'); return; }
-  const ok = await copyText(text);
-  toast(ok ? 'คัดลอกข้อความแล้ว ✓' : 'คัดลอกไม่สำเร็จ', ok ? '' : 'error');
-}
-async function actCopySelector(){
-  if (!selection.info) return;
-  const ok = await copyText(buildSelector(selection.info));
-  toast(ok ? 'คัดลอก selector แล้ว ✓' : 'คัดลอกไม่สำเร็จ', ok ? '' : 'error');
-}
-async function actCopyJSX(){
-  const ok = await copyText(toJSX(getElementSource()));
-  toast(ok ? 'คัดลอก JSX แล้ว ✓' : 'คัดลอกไม่สำเร็จ', ok ? '' : 'error');
 }
 
 function actFindInCode(){
@@ -1699,8 +2647,8 @@ function actWrap(){
 }
 
 function actDuplicate(){
-  if (!selection.info) return;
-  sendToFrame({ cmd: 'duplicate' });
+  if (!selection.infos.length){ toast('ยังไม่ได้เลือก element', 'error'); return; }
+  sendToFrame({ cmd: 'duplicateMany' });
 }
 
 function actResetSize(){
@@ -1709,9 +2657,8 @@ function actResetSize(){
 }
 
 function actDelete(){
-  if (!selection.info) return;
-  if (!confirm('ลบ <' + selection.info.tag + '> ออกจาก preview?\n(ถ้าซิงค์ได้ จะลบออกจากโค้ดด้วย)')) return;
-  sendToFrame({ cmd: 'delete' });
+  if (!selection.infos.length) return;
+  sendToFrame({ cmd: 'deleteMany' });
 }
 
 /* ================= Export / Save ================= */
@@ -1783,40 +2730,75 @@ window.addEventListener('message', (e) => {
 
   if (d.kind === 'ready'){
     if (selectMode) sendToFrame({ cmd: 'selectMode', value: true });
+    requestLayers();
+    return;
+  }
+  if (d.kind === 'layers'){
+    layersRows = Array.isArray(d.rows) ? d.rows : [];
+    renderLayers();
     return;
   }
   if (d.kind === 'select'){
-    selection.info = d.info;
-    selection.sourceLoc = locateInSource(d.info);
-    showSelectionBar(d.info);
+    const infos = Array.isArray(d.infos) ? d.infos : (d.info ? [d.info] : []);
+    setSelectionState(infos, d.primaryIndex);
+    showSelectionBar(selection.infos, selection.primaryIndex);
+    renderLayers();
     if (!selection.sourceLoc){
       toast('หา element นี้ในโค้ดไม่ชัดเจน — จะแก้ได้เฉพาะใน preview', 'error');
+    }
+    if (pendingModalForDblclick){
+      pendingModalForDblclick = false;
+      if (selection.info) actEditHTML();
     }
     return;
   }
   if (d.kind === 'dblclick'){
-    selection.info = d.info;
-    selection.sourceLoc = locateInSource(d.info);
-    showSelectionBar(d.info);
-    if (selection.sourceLoc){
-      selectRange(selection.sourceLoc.start, selection.sourceLoc.end);
-      els.editorPane.classList.add('pane-flash');
-      setTimeout(() => els.editorPane.classList.remove('pane-flash'), 700);
-      toast('กระโดดไปที่ <' + d.info.tag + '> ในโค้ดแล้ว');
-    } else {
-      toast('หา element ในโค้ดไม่เจอ', 'error');
-    }
+    // ดับเบิลคลิก = เปิด modal แก้ HTML ของ element ตัวนั้น
+    setSelectionState([d.info], 0);
+    showSelectionBar(selection.infos, 0);
+    actEditHTML();
+    return;
+  }
+  if (d.kind === 'cleared'){
+    clearSelection();
+    renderLayers();
     return;
   }
   if (d.kind === 'updated'){
-    selection.info = d.info;
-    showSelectionBar(d.info);
+    const idx = selection.infos.findIndex(i => i.sig === d.info.sig && i.sigIndex === d.info.sigIndex);
+    if (idx !== -1) selection.infos[idx] = d.info;
+    else selection.infos = [d.info];
+    setSelectionState(selection.infos, idx !== -1 ? selection.primaryIndex : 0);
+    showSelectionBar(selection.infos, selection.primaryIndex);
     syncToSource(d.info.outerHTML, d.action === 'duplicate' ? { duplicate: true } : null);
+    requestLayers();
+    return;
+  }
+  if (d.kind === 'batch-updated'){
+    handleBatchUpdated(d);
+    requestLayers();
+    return;
+  }
+  if (d.kind === 'frame-command'){
+    switch (d.action){
+      case 'copy': actCopyElements(); break;
+      case 'paste': actPasteElements(); break;
+      case 'duplicate': actDuplicate(); break;
+      case 'group': actGroup(); break;
+      case 'ungroup': actUngroup(); break;
+      case 'delete': actDelete(); break;
+      case 'find': actFindInCode(); break;
+      case 'undo': undo(); break;
+      case 'redo': redo(); break;
+      case 'save': actSave(); break;
+    }
     return;
   }
   if (d.kind === 'deleted'){
     removeFromSource();
     clearSelection();
+    renderLayers();
+    requestLayers();
     toast('ลบ element แล้ว');
     return;
   }
@@ -1836,6 +2818,7 @@ window.addEventListener('message', (e) => {
     refreshEditor(lang);
     if (lang === 'html' && selection.info){
       selection.sourceLoc = null;
+      selection.sourceLocs = selection.sourceLocs.map(() => null);
     }
     scheduleHistoryPush();
     scheduleRun();
@@ -1893,16 +2876,18 @@ els.reset.addEventListener('click', () => {
   run();
 });
 els.selectModeBtn.addEventListener('click', () => setSelectMode(!selectMode));
-els.selClose.addEventListener('click', () => { clearSelection(); sendToFrame({ cmd: 'deselect' }); });
+els.selClose.addEventListener('click', () => { clearSelection(); renderLayers(); sendToFrame({ cmd: 'deselect' }); });
+els.layersToggle.addEventListener('click', () => {
+  const hidden = els.layersPane.classList.toggle('hidden');
+  els.layersToggle.classList.toggle('active', !hidden);
+});
 
 els.selectionBar.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-action]');
   if (!btn) return;
   switch (btn.dataset.action){
-    case 'copy-html': actCopyHTML(); break;
-    case 'copy-text': actCopyText(); break;
-    case 'copy-selector': actCopySelector(); break;
-    case 'copy-jsx': actCopyJSX(); break;
+    case 'copy-elements': actCopyElements(); break;
+    case 'paste-elements': actPasteElements(); break;
     case 'edit-text': actEditText(); break;
     case 'edit-attrs': actEditAttrs(); break;
     case 'edit-style': actEditStyle(); break;
@@ -1910,7 +2895,18 @@ els.selectionBar.addEventListener('click', (e) => {
     case 'rename-tag': actRenameTag(); break;
     case 'wrap': actWrap(); break;
     case 'duplicate': actDuplicate(); break;
-    case 'reset-size': actResetSize(); break;
+    case 'group': actGroup(); break;
+    case 'ungroup': actUngroup(); break;
+    case 'align-left': actAlign('left'); break;
+    case 'align-center': actAlign('center'); break;
+    case 'align-right': actAlign('right'); break;
+    case 'align-top': actAlign('top'); break;
+    case 'align-middle': actAlign('middle'); break;
+    case 'align-bottom': actAlign('bottom'); break;
+    case 'z-front': actZOrder('front'); break;
+    case 'z-forward': actZOrder('forward'); break;
+    case 'z-backward': actZOrder('backward'); break;
+    case 'z-back': actZOrder('back'); break;
     case 'find': actFindInCode(); break;
     case 'delete': actDelete(); break;
   }
@@ -1938,8 +2934,18 @@ document.addEventListener('keydown', (e) => {
     if (e.shiftKey) actExport(); else actSave();
     return;
   }
+  // Shortcuts ของ element — ทำงานเมื่อมี selection และไม่ได้พิมพ์อยู่ใน editor
+  const typing = ['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName) || e.target.isContentEditable;
+  if (selection.infos.length && !typing && !e.repeat){
+    if (mod && e.key.toLowerCase() === 'c'){ e.preventDefault(); actCopyElements(); return; }
+    if (mod && e.key.toLowerCase() === 'v'){ e.preventDefault(); actPasteElements(); return; }
+    if (mod && e.key.toLowerCase() === 'd'){ e.preventDefault(); actDuplicate(); return; }
+    if (mod && e.key.toLowerCase() === 'g'){ e.preventDefault(); if (e.shiftKey) actUngroup(); else actGroup(); return; }
+    if (e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); actDelete(); return; }
+  }
   if (e.key === 'Escape' && selection.info){
     clearSelection();
+    renderLayers();
     sendToFrame({ cmd: 'deselect' });
   }
 });
@@ -1977,3 +2983,4 @@ requestAnimationFrame(run);
 </script>
 </body>
 </html>
+
