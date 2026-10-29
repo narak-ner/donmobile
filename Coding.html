@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ทดสอบโค้ด HTML ออนไลน์บนเว็บ - HTML Code Test</title>
+
+  <style>
+    body {
+      background-color: #FFFFFF;
+      font-family: Tahoma, Arial, sans-serif;
+    }
+
+    .style1 {
+      color: #02FF00;
+      font-size: 36px;
+      text-align: center;
+    }
+
+    .style2 {
+      color: #FF0000;
+      font-size: 18px;
+    }
+
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* ===== Popup สำหรับแก้ไขชื่อไฟล์ ===== */
+    .save-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .save-overlay.show {
+      display: flex;
+    }
+
+    .save-modal {
+      background: #fff;
+      width: 90%;
+      max-width: 380px;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      animation: popIn 0.18s ease-out;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .save-modal-header {
+      background: #22241f;
+      color: #fff;
+      padding: 14px 18px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .save-modal-body {
+      padding: 18px;
+    }
+
+    .save-modal-body label {
+      display: block;
+      font-size: 13px;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    .save-modal-body input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    .save-modal-body input[type="text"]:focus {
+      border-color: #45a2ff;
+      box-shadow: 0 0 0 3px rgba(69, 162, 255, 0.15);
+    }
+
+    .save-hint {
+      font-size: 11px;
+      color: #999;
+      margin-top: 6px;
+    }
+
+    .save-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 18px 18px;
+    }
+
+    .save-modal-footer button {
+      padding: 9px 16px;
+      font-size: 13px;
+      font-family: inherit;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-cancel {
+      background: #eee;
+      color: #333;
+    }
+
+    .btn-cancel:hover {
+      background: #ddd;
+    }
+
+    .btn-confirm {
+      background: #45a2ff;
+      color: #fff;
+    }
+
+    .btn-confirm:hover {
+      background: #2f8be6;
+    }
+  </style>
+
+  <script>
+    function preview() {
+      var temp = document.tester.box.value;
+      var preWindow = window.open("", "preWindow", "menubar=yes, scrollbars=yes");
+      preWindow.document.open();
+      preWindow.document.write(temp);
+      preWindow.document.close();
+    }
+
+    /* เปิด popup ให้ใส่ชื่อไฟล์ */
+    function openSaveDialog() {
+      var overlay = document.getElementById("saveOverlay");
+      var input = document.getElementById("fileNameInput");
+
+      // ค่าเริ่มต้น
+      input.value = "test";
+      overlay.classList.add("show");
+
+      // โฟกัส + เลือกข้อความทั้งหมด เพื่อให้พิมพ์แทนได้ทันที
+      setTimeout(function () {
+        input.focus();
+        input.select();
+      }, 50);
+    }
+
+    /* ปิด popup */
+    function closeSaveDialog() {
+      document.getElementById("saveOverlay").classList.remove("show");
+    }
+
+    /* บันทึกไฟล์จริง (เรียกหลังผู้ใช้ใส่ชื่อแล้ว) */
+    function doSave() {
+      var name = document.getElementById("fileNameInput").value.trim();
+
+      // ถ้าว่าง ใช้ชื่อ default
+      if (!name) name = "test";
+
+      // เติม .html อัตโนมัติถ้ายังไม่มี
+      if (!/\.html?$/i.test(name)) {
+        name += ".html";
+      }
+
+      var content = document.tester.box.value;
+      var blob = new Blob([content], { type: "text/html;charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      closeSaveDialog();
+    }
+  </script>
+</head>
+
+<body>
+  <div align="center">
+    <div class="style1">ทดสอบโค้ด HTML ออนไลน์บนเว็บ</div>
+
+    <table bgcolor="#00ffff" class="contentpaneopen">
+      <tbody>
+        <tr>
+          <td bgcolor="#ebebeb" colspan="2" height="439" valign="top" width="643">
+
+            <div align="center">
+              <strong>
+                <span class="style2">
+                  <span style="font-family: tahoma,arial,helvetica,sans-serif;">
+                    ทดสอบ ทดลอง CODE HTML
+                  </span>
+                </span>
+              </strong>
+            </div>
+
+            <div align="center">
+              <strong>
+                ในหน้าเว็บไซต์นี้ สามารถทำการทดสอบโค้ด Code HTML ได้อย่างง่ายดายไปลองเลย!!
+              </strong>
+            </div>
+
+            <div align="left">
+              <table align="center" bgcolor="#bbff00" border="1" cellpadding="5" cellspacing="0" style="width: 400px;">
+                <tbody>
+                  <tr>
+                    <td align="left" bgcolor="#bbff00" height="412">
+
+                      <form id="tester" name="tester">
+                        <textarea cols="100" name="box" rows="20" wrap="physical"></textarea>
+
+                        <div align="center">
+                          <span style="font-family: Verdana; font-size: xx-small;">
+                            <input
+                              name="Button"
+                              onclick="preview()"
+                              style="font-family: Verdana; font-size: 12pt;"
+                              type="button"
+                              value="เริ่มทดสอบโค้ด HTML"
+                            />
+
+                            <input
+                              name="reset"
+                              style="font-family: Verdana; font-size: 12pt;"
+                              type="reset"
+                              value="ลบ HTML ออก"
+                            />
+
+                            <input
+                              name="save"
+                              onclick="openSaveDialog()"
+                              style="font-family: Verdana; font-size: 12pt;"
+                              type="button"
+                              value="บันทึกเป็นไฟล์ HTML"
+                            />
+                          </span>
+                        </div>
+                      </form>
+
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== Popup ตั้งชื่อไฟล์ ===== -->
+  <div class="save-overlay" id="saveOverlay">
+    <div class="save-modal">
+      <div class="save-modal-header">บันทึกโค้ดเป็นไฟล์ HTML</div>
+      <div class="save-modal-body">
+        <label for="fileNameInput">ตั้งชื่อไฟล์</label>
+        <input
+          type="text"
+          id="fileNameInput"
+          placeholder="เช่น mypage"
+          onkeydown="if(event.key === 'Enter'){ event.preventDefault(); doSave(); }"
+        />
+        <div class="save-hint">ระบบจะเติม .html ต่อท้ายให้อัตโนมัติ</div>
+      </div>
+      <div class="save-modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeSaveDialog()">ยกเลิก</button>
+        <button type="button" class="btn-confirm" onclick="doSave()">บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ปิด popup เมื่อคลิกพื้นหลัง
+    document.getElementById("saveOverlay").addEventListener("click", function (e) {
+      if (e.target === this) closeSaveDialog();
+    });
+
+    // ปิด popup เมื่อกด Esc
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeSaveDialog();
+    });
+  </script>
+
+</body>
+</html>
