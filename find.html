@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตารางข้อมูล – กรองครบทุกมิติ</title>
+    <title>ตารางข้อมูลจาก Google Sheets</title>
+    <!-- PapaParse สำหรับแปลง CSV -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
         body {
             background: #f4f7fc;
@@ -26,130 +30,29 @@
             padding: 24px;
         }
 
-        h1 { font-size: 1.8rem; color: #1e293b; margin: 0 0 8px 0; text-align: center; }
-        .subtitle { text-align: center; color: #64748b; margin-bottom: 20px; font-size: 0.95rem; }
-
-        /* ----- Filters ----- */
-        .filters {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-
-        .filter-group { position: relative; }
-
-        .filter-group label, .filter-label {
-            display: block;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: #475569;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .filter-group select {
-            width: 100%;
-            padding: 11px 36px 11px 14px;
-            font-size: 0.95rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            background: #f8fafc;
+        h1 {
+            font-size: 1.8rem;
             color: #1e293b;
-            cursor: pointer;
-            outline: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            margin: 0 0 8px 0;
+            text-align: center;
         }
-        .filter-group select:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
-            background-color: #fff;
-        }
-        .filter-group select:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .reset-btn {
-            align-self: end;
-            padding: 11px 18px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border: 2px solid #e2e8f0;
-            background: #fff;
+        .subtitle {
+            text-align: center;
             color: #64748b;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.15s;
-            height: 44px;
-        }
-        .reset-btn:hover {
-            border-color: #f87171;
-            color: #dc2626;
-            background: #fef2f2;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
         }
 
-        /* ----- Condition toggles ----- */
-        .condition-filter {
-            margin-bottom: 14px;
-            padding: 12px 14px;
-            background: #f8fafc;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
+        /* ----- ช่องค้นหา ----- */
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 20px;
         }
-        .condition-filter .filter-label { margin-bottom: 8px; }
-
-        .toggle-group { display: flex; flex-wrap: wrap; gap: 8px; }
-
-        .toggle-chip { position: relative; }
-        .toggle-chip input { position: absolute; opacity: 0; pointer-events: none; }
-
-        .toggle-chip span {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 999px;
-            background: #fff;
-            color: #475569;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s;
-            user-select: none;
-        }
-        .toggle-chip span::before {
-            content: '';
-            width: 14px;
-            height: 14px;
-            border: 2px solid #cbd5e1;
-            border-radius: 4px;
-            background: #fff;
-            display: inline-block;
-            transition: all 0.15s;
-        }
-        .toggle-chip:hover span { border-color: #cbd5e1; background: #f1f5f9; }
-
-        .toggle-chip input:checked + span {
-            background: #3b82f6;
-            border-color: #3b82f6;
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
-        }
-        .toggle-chip input:checked + span::before {
-            background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>") center/10px no-repeat;
-            border-color: #fff;
-        }
-
-        /* ----- Search ----- */
-        .search-wrapper { position: relative; margin-bottom: 12px; }
 
         .search-wrapper input {
             width: 100%;
-            padding: 14px 52px 14px 48px;
+            padding: 14px 18px 14px 48px;
             font-size: 1rem;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
@@ -157,11 +60,13 @@
             transition: border-color 0.2s, box-shadow 0.2s;
             background: #f8fafc;
         }
+
         .search-wrapper input:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
             background: #fff;
         }
+
         .search-wrapper::before {
             content: '🔍';
             position: absolute;
@@ -171,37 +76,6 @@
             font-size: 1.2rem;
             opacity: 0.6;
         }
-        .clear-btn {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 28px;
-            height: 28px;
-            border: none;
-            background: #e2e8f0;
-            color: #64748b;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1rem;
-            line-height: 1;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.15s;
-        }
-        .clear-btn:hover { background: #cbd5e1; color: #334155; }
-        .clear-btn.visible { display: flex; }
-
-        /* ----- Chips ----- */
-        .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-        .chip {
-            background: #dbeafe; color: #1e40af;
-            padding: 4px 10px; border-radius: 999px;
-            font-size: 0.8rem; font-weight: 500;
-        }
-        .chip.mode-or { background: #fef3c7; color: #92400e; }
-        .chip.filter  { background: #dcfce7; color: #166534; }
 
         .result-count {
             font-size: 0.9rem;
@@ -210,71 +84,113 @@
             text-align: right;
         }
 
-        /* ----- Table ----- */
+        /* ----- ตาราง ----- */
         .table-container {
-            overflow: auto;
+            overflow-x: auto;
             border-radius: 12px;
             border: 1px solid #e2e8f0;
             max-height: 70vh;
+            overflow-y: auto;
         }
-        table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-        thead { position: sticky; top: 0; z-index: 10; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+            white-space: nowrap;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
         thead th {
-            background: #1e293b; color: #fff;
-            padding: 14px 18px; text-align: left;
-            font-weight: 600; white-space: nowrap;
+            background: #1e293b;
+            color: #fff;
+            padding: 14px 18px;
+            text-align: left;
+            font-weight: 600;
+            letter-spacing: 0.3px;
             border-bottom: 2px solid #0f172a;
         }
+
         tbody td {
-            padding: 12px 18px; border-bottom: 1px solid #f1f5f9;
-            color: #334155; white-space: nowrap;
-            max-width: 400px; overflow: hidden; text-overflow: ellipsis;
-        }
-        tbody tr:nth-child(even) { background: #f8fafc; }
-        tbody tr:hover { background: #e0f2fe; transition: background 0.15s; }
-
-        mark {
-            background: #fde68a; color: #78350f;
-            padding: 1px 2px; border-radius: 3px; font-weight: 600;
+            padding: 12px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
         }
 
+        tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        tbody tr:hover {
+            background: #e0f2fe;
+            transition: background 0.15s;
+        }
+
+        /* แถวเมื่อค้นหาไม่พบ */
         .no-result td {
-            text-align: center; padding: 40px;
-            color: #94a3b8; font-style: italic;
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            font-style: italic;
         }
 
-        .loading { text-align: center; padding: 40px; color: #64748b; }
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
         .spinner {
-            width: 36px; height: 36px;
-            border: 4px solid #e2e8f0; border-top-color: #3b82f6;
-            border-radius: 50%; animation: spin 0.8s linear infinite;
+            width: 36px;
+            height: 36px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
             margin: 0 auto 12px;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
         .error-box {
-            background: #fef2f2; border: 1px solid #fecaca;
-            color: #b91c1c; padding: 16px 20px;
-            border-radius: 12px; margin: 20px 0;
-            font-size: 0.95rem; line-height: 1.6;
-        }
-        .or-notice {
-            background: #fffbeb; border: 1px solid #fde68a;
-            color: #92400e; padding: 10px 14px;
-            border-radius: 8px; font-size: 0.85rem;
-            margin-bottom: 10px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
 
-        .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
-        .table-container::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
-        .table-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .table-container::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        /* Scrollbar สวย ๆ */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
 
-        @media (max-width: 700px) {
+        @media (max-width: 600px) {
             .container { padding: 16px; }
             h1 { font-size: 1.4rem; }
-            .filters { grid-template-columns: 1fr 1fr; }
-            .reset-btn { grid-column: 1 / -1; }
             thead th, tbody td { padding: 10px 12px; font-size: 0.85rem; }
         }
     </style>
@@ -283,59 +199,16 @@
 
     <div class="container">
         <h1>📊 ตารางข้อมูล</h1>
-        <p class="subtitle">กรองด้วย รุ่น · ความจุ · สภาพ/ส่วนลด แล้วจึงค้นหา</p>
+        <p class="subtitle">ค้นหาได้จากทุกคอลัมน์</p>
 
-        <!-- Filters row -->
-        <div class="filters">
-            <div class="filter-group">
-                <label for="modelSelect">รุ่น</label>
-                <select id="modelSelect">
-                    <option value="">— ทุกรุ่น —</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="memorySelect">ความจุ</label>
-                <select id="memorySelect">
-                    <option value="">— ทุกความจุ —</option>
-                </select>
-            </div>
-            <button class="reset-btn" id="resetBtn">↺ ล้างตัวกรอง</button>
-        </div>
-
-        <!-- Condition toggles -->
-        <div class="condition-filter">
-            <label class="filter-label">สภาพ / ส่วนลด (เลือกได้หลายค่า)</label>
-            <div class="toggle-group">
-                <label class="toggle-chip">
-                    <input type="checkbox" value="25%" data-cond>
-                    <span>25%</span>
-                </label>
-                <label class="toggle-chip">
-                    <input type="checkbox" value="30%" data-cond>
-                    <span>30%</span>
-                </label>
-                <label class="toggle-chip">
-                    <input type="checkbox" value="มือ1" data-cond>
-                    <span>มือ1</span>
-                </label>
-                <label class="toggle-chip">
-                    <input type="checkbox" value="มือ2" data-cond>
-                    <span>มือ2</span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Search -->
+        <!-- ช่องค้นหา -->
         <div class="search-wrapper">
-            <input type="text" id="searchInput"
-                   placeholder="ค้นหาเพิ่มเติม (หลายคำ = AND)..."
-                   autocomplete="off">
-            <button class="clear-btn" id="clearBtn" title="ล้างคำค้น">✕</button>
+            <input type="text" id="searchInput" placeholder="พิมพ์คำค้นหา..." autocomplete="off">
         </div>
 
-        <div class="chips" id="chips"></div>
         <div class="result-count" id="resultCount"></div>
 
+        <!-- ตาราง -->
         <div class="table-container" id="tableContainer">
             <div class="loading" id="loading">
                 <div class="spinner"></div>
@@ -346,388 +219,43 @@
 
     <script>
         // ============================================================
-        // 1) Config
+        // 1) วางลิงก์ CSV ของ Google Sheets ที่นี่
         // ============================================================
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQlV0oAwttSP8AQgrjkLAUsOX5iHnizQFxT7u5fafxIyWFeLz-_Lq8CCknsqmHRrohCQ9IQYPajDa2I/pub?output=csv';
 
-        const FORCE_MODEL_COL  = null;
-        const FORCE_MEMORY_COL = null;
-
-        const MODEL_PATTERN  = /รุ่น|model|ชื่อรุ่น/i;
-        const MEMORY_PATTERN = /ความจำ|ความจุ|memory|storage|capacity|ram|rom|size/i;
-
         // ============================================================
-        // 2) State
+        // 2) ตัวแปรเก็บข้อมูลทั้งหมด
         // ============================================================
-        let allData = [];
-        let headers = [];
-        let cache = [];
-        let modelCol = null;
-        let memoryCol = null;
-        let currentTokens = [];
+        let allData = [];      // Array of objects (แต่ละแถว)
+        let headers = [];      // ชื่อคอลัมน์
 
         const searchInput    = document.getElementById('searchInput');
-        const clearBtn       = document.getElementById('clearBtn');
-        const modelSelect    = document.getElementById('modelSelect');
-        const memorySelect   = document.getElementById('memorySelect');
-        const resetBtn       = document.getElementById('resetBtn');
-        const chipsEl        = document.getElementById('chips');
         const tableContainer = document.getElementById('tableContainer');
         const resultCount    = document.getElementById('resultCount');
-        const condCheckboxes = document.querySelectorAll('[data-cond]');
+        const loadingEl      = document.getElementById('loading');
 
         // ============================================================
-        // 3) Utils
-        // ============================================================
-        function normalizeText(str) {
-            return String(str ?? '')
-                .toLowerCase()
-                .normalize('NFC')
-                .replace(/[\u200B-\u200D\uFEFF]/g, '')
-                .replace(/\s+/g, ' ')
-                .trim();
-        }
-
-        function escapeRegex(str) {
-            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-
-        function escapeHTML(str) {
-            return String(str ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        function highlightText(text, tokens) {
-            const escaped = escapeHTML(text);
-            if (!tokens || !tokens.length) return escaped;
-
-            const sorted = [...tokens].filter(Boolean).sort((a, b) => b.length - a.length);
-            let result = escaped;
-            const placeholders = [];
-
-            for (const token of sorted) {
-                const eToken = escapeHTML(token);
-                if (!eToken) continue;
-                const re = new RegExp(escapeRegex(eToken), 'gi');
-                result = result.replace(re, (m) => {
-                    const idx = placeholders.length;
-                    placeholders.push(m);
-                    return `\u0000${idx}\u0000`;
-                });
-            }
-            return result.replace(/\u0000(\d+)\u0000/g,
-                (_, i) => `<mark>${placeholders[+i]}</mark>`);
-        }
-
-        function extractNumber(str) {
-            const m = String(str).match(/[\d.]+/);
-            return m ? parseFloat(m[0]) : 0;
-        }
-
-        function memoryCompare(a, b) {
-            const na = extractNumber(a);
-            const nb = extractNumber(b);
-            if (na !== nb) return na - nb;
-            return a.localeCompare(b, 'th');
-        }
-
-        // ============================================================
-        // 4) Column detection
-        // ============================================================
-        function detectColumns() {
-            modelCol  = FORCE_MODEL_COL;
-            memoryCol = FORCE_MEMORY_COL;
-            for (const h of headers) {
-                if (!modelCol  && MODEL_PATTERN.test(h))  modelCol  = h;
-                if (!memoryCol && MEMORY_PATTERN.test(h)) memoryCol = h;
-            }
-            console.log('Detected — model:', modelCol, '| memory:', memoryCol);
-        }
-
-        // ============================================================
-        // 5) Dropdowns
-        // ============================================================
-        function collectUnique(colName, pool) {
-            const set = new Set();
-            const source = pool || allData;
-            for (const row of source) {
-                const v = String(row[colName] ?? '').trim();
-                if (v) set.add(v);
-            }
-            return [...set];
-        }
-
-        function populateModelSelect() {
-            if (!modelCol) {
-                modelSelect.disabled = true;
-                modelSelect.innerHTML = '<option value="">— ไม่พบคอลัมน์รุ่น —</option>';
-                return;
-            }
-            const values = collectUnique(modelCol).sort((a, b) => a.localeCompare(b, 'th'));
-            const current = modelSelect.value;
-
-            modelSelect.innerHTML = '<option value="">— ทุกรุ่น —</option>' +
-                values.map(v => `<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join('');
-
-            if (values.includes(current)) modelSelect.value = current;
-        }
-
-        function populateMemorySelect() {
-            if (!memoryCol) {
-                memorySelect.disabled = true;
-                memorySelect.innerHTML = '<option value="">— ไม่พบคอลัมน์ความจุ —</option>';
-                return;
-            }
-            const selectedModel = modelSelect.value;
-            const pool = selectedModel
-                ? allData.filter(r => String(r[modelCol] ?? '').trim() === selectedModel)
-                : allData;
-
-            const values = collectUnique(memoryCol, pool).sort(memoryCompare);
-            const current = memorySelect.value;
-
-            memorySelect.innerHTML = '<option value="">— ทุกความจุ —</option>' +
-                values.map(v => `<option value="${escapeHTML(v)}">${escapeHTML(v)}</option>`).join('');
-
-            if (values.includes(current)) memorySelect.value = current;
-            else memorySelect.value = '';
-        }
-
-        // ============================================================
-        // 6) Cache
-        // ============================================================
-        function buildCache() {
-            cache = allData.map((row, idx) => {
-                const cells = headers.map(h => normalizeText(row[h]));
-                return {
-                    row,
-                    cells,
-                    joined: cells.join(' '),
-                    // compact: ตัดช่องว่างทั้งหมด — ใช้จับคู่ มือ1 / 25% ให้แม่นยำ
-                    compact: cells.map(c => c.replace(/\s+/g, '')).join(' '),
-                    idx,
-                };
-            });
-        }
-
-        // ============================================================
-        // 7) Condition matching (boundary-aware)
-        // ============================================================
-        function rowMatchesCondition(item, token) {
-            const tok = normalizeText(token).replace(/\s+/g, '');
-
-            // 25% / 30% — ต้องไม่ติดตัวเลขข้างหน้า (เช่น 125% ไม่ match)
-            if (/^\d+%$/.test(tok)) {
-                const num = tok.slice(0, -1);
-                return new RegExp(`(?:^|\\D)${num}%`).test(item.compact);
-            }
-
-            // มือ1 / มือ2 — ต้องไม่ติดตัวเลขข้างหลัง (เช่น มือ12 ไม่ match)
-            if (/^มือ\d+$/.test(tok)) {
-                return new RegExp(`${tok}(?!\\d)`).test(item.compact);
-            }
-
-            return item.compact.includes(tok);
-        }
-
-        // ============================================================
-        // 8) Search within pool
-        // ============================================================
-        function searchWithin(pool, query) {
-            const q = normalizeText(query);
-            if (!q) return { results: pool.map(it => it.row), tokens: [], mode: 'all' };
-
-            const tokens = q.split(/\s+/).filter(Boolean);
-
-            // AND
-            const andResults = [];
-            for (const item of pool) {
-                let ok = true, score = 0;
-                const matchedCols = new Set();
-
-                for (const token of tokens) {
-                    let found = false;
-                    for (let c = 0; c < item.cells.length; c++) {
-                        if (item.cells[c].includes(token)) {
-                            found = true;
-                            score += item.cells[c].split(token).length - 1;
-                            matchedCols.add(c);
-                        }
-                    }
-                    if (!found) { ok = false; break; }
-                    score += 10;
-                }
-                if (ok) {
-                    score += matchedCols.size * 5;
-                    andResults.push({ row: item.row, score, order: item.idx });
-                }
-            }
-
-            if (andResults.length > 0) {
-                andResults.sort((a, b) => b.score - a.score || a.order - b.order);
-                return { results: andResults.map(r => r.row), tokens, mode: 'and' };
-            }
-
-            // OR fallback
-            const orResults = [];
-            for (const item of pool) {
-                let score = 0;
-                const matchedCols = new Set();
-                for (const token of tokens) {
-                    for (let c = 0; c < item.cells.length; c++) {
-                        if (item.cells[c].includes(token)) {
-                            score += 1;
-                            matchedCols.add(c);
-                        }
-                    }
-                }
-                if (score > 0) {
-                    score += matchedCols.size * 2;
-                    orResults.push({ row: item.row, score, order: item.idx });
-                }
-            }
-            orResults.sort((a, b) => b.score - a.score || a.order - b.order);
-            return { results: orResults.map(r => r.row), tokens, mode: 'or' };
-        }
-
-        // ============================================================
-        // 9) Combined filter
-        // ============================================================
-        function getSelectedConditions() {
-            return [...condCheckboxes].filter(cb => cb.checked).map(cb => cb.value);
-        }
-
-        function applyFilters() {
-            const model      = modelSelect.value;
-            const memory     = memorySelect.value;
-            const query      = searchInput.value;
-            const conditions = getSelectedConditions();
-
-            // Step 1 — model/memory
-            let pool = cache;
-            if (model && modelCol) {
-                pool = pool.filter(it => normalizeText(it.row[modelCol]) === normalizeText(model));
-            }
-            if (memory && memoryCol) {
-                pool = pool.filter(it => normalizeText(it.row[memoryCol]) === normalizeText(memory));
-            }
-
-            // Step 2 — condition toggles (OR within group)
-            if (conditions.length > 0) {
-                pool = pool.filter(it =>
-                    conditions.some(cond => rowMatchesCondition(it, cond))
-                );
-            }
-
-            // Step 3 — search text (AND)
-            const { results, tokens, mode } = searchWithin(pool, query);
-            currentTokens = tokens;
-
-            renderTable(results, tokens, mode === 'or' && query.trim() !== '');
-            renderChips(tokens, mode, model, memory, conditions);
-            updateResultCount(results.length, allData.length, mode,
-                              !!model, !!memory, conditions.length > 0);
-        }
-
-        // ============================================================
-        // 10) Render
-        // ============================================================
-        function renderTable(data, tokens, showOrNotice) {
-            if (data.length === 0) {
-                tableContainer.innerHTML = `
-                    <table>
-                        <thead>${buildThead()}</thead>
-                        <tbody>
-                            <tr class="no-result">
-                                <td colspan="${headers.length || 1}">
-                                    🔎 ไม่พบข้อมูล — ลองลดตัวกรองหรือเปลี่ยนคำค้น
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>`;
-                return;
-            }
-
-            const tbodyHTML = data.map(row => {
-                const cells = headers.map(h =>
-                    `<td>${highlightText(row[h], tokens)}</td>`
-                ).join('');
-                return `<tr>${cells}</tr>`;
-            }).join('');
-
-            const notice = showOrNotice
-                ? `<div class="or-notice">
-                     ℹ️ ไม่พบแถวที่มี <strong>ทุกคำ</strong> — แสดงผลแบบ <strong>OR</strong>
-                   </div>`
-                : '';
-
-            tableContainer.innerHTML = notice + `
-                <table>
-                    <thead>${buildThead()}</thead>
-                    <tbody>${tbodyHTML}</tbody>
-                </table>`;
-        }
-
-        function buildThead() {
-            return '<tr>' + headers.map(h => `<th>${escapeHTML(h)}</th>`).join('') + '</tr>';
-        }
-
-        function renderChips(tokens, mode, model, memory, conditions) {
-            const parts = [];
-
-            if (model)  parts.push(`<span class="chip filter">รุ่น: ${escapeHTML(model)}</span>`);
-            if (memory) parts.push(`<span class="chip filter">ความจุ: ${escapeHTML(memory)}</span>`);
-            conditions.forEach(c =>
-                parts.push(`<span class="chip filter">${escapeHTML(c)}</span>`)
-            );
-
-            if (tokens.length) {
-                parts.push(tokens.map(t =>
-                    `<span class="chip ${mode === 'or' ? 'mode-or' : ''}">${escapeHTML(t)}</span>`
-                ).join(''));
-            }
-
-            chipsEl.innerHTML = parts.join('');
-        }
-
-        function updateResultCount(shown, total, mode, hasModel, hasMemory, hasCond) {
-            const anyFilter = hasModel || hasMemory || hasCond || mode !== 'all';
-            if (!anyFilter) {
-                resultCount.textContent = `แสดงทั้งหมด ${total.toLocaleString()} รายการ`;
-                return;
-            }
-            const icon = mode === 'or' ? '⚠️' : '✅';
-            const label = mode === 'or' ? 'ตรงบางคำ' : 'ตรงทุกคำ';
-            resultCount.textContent =
-                `${icon} พบ ${shown.toLocaleString()} จาก ${total.toLocaleString()} รายการ (${label})`;
-        }
-
-        // ============================================================
-        // 11) Error
-        // ============================================================
-        function showError(message) {
-            tableContainer.innerHTML = `<div class="error-box">⚠️ ${message}</div>`;
-            resultCount.textContent = '';
-        }
-
-        // ============================================================
-        // 12) Load CSV
+        // 3) ฟังก์ชันโหลด CSV
         // ============================================================
         async function loadCSV() {
             try {
                 const response = await fetch(CSV_URL);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} – ไม่สามารถเข้าถึงไฟล์ได้`);
+                }
+
                 const csvText = await response.text();
 
                 Papa.parse(csvText, {
-                    header: true,
+                    header: true,          // แถวแรกเป็นชื่อคอลัมน์
                     skipEmptyLines: true,
-                    dynamicTyping: false,
+                    dynamicTyping: false,  // เก็บเป็น string ทั้งหมดเพื่อการค้นหาที่แม่นยำ
                     complete: function (results) {
+                        if (results.errors.length > 0) {
+                            console.warn('CSV parsing warnings:', results.errors);
+                        }
+
                         allData = results.data;
                         headers = results.meta.fields || [];
 
@@ -736,16 +264,14 @@
                             return;
                         }
 
-                        detectColumns();
-                        buildCache();
-                        populateModelSelect();
-                        populateMemorySelect();
-
-                        renderTable(allData, [], false);
-                        updateResultCount(allData.length, allData.length, 'all', false, false, false);
+                        renderTable(allData);
+                        updateResultCount(allData.length, allData.length);
                     },
-                    error: (err) => showError('แปลง CSV ไม่สำเร็จ: ' + err.message)
+                    error: function (err) {
+                        showError('เกิดข้อผิดพลาดในการแปลง CSV: ' + err.message);
+                    }
                 });
+
             } catch (error) {
                 console.error(error);
                 showError(
@@ -753,57 +279,117 @@
                     '<strong>สาเหตุที่เป็นไปได้:</strong><br>' +
                     '• ลิงก์ CSV อาจไม่ถูกต้องหรือหมดอายุ<br>' +
                     '• ไฟล์อาจไม่ได้แชร์แบบ "Anyone with the link can view"<br>' +
-                    '• เบราว์เซอร์อาจบล็อกการเชื่อมต่อ (CORS)'
+                    '• เบราว์เซอร์อาจบล็อกการเชื่อมต่อ (CORS)<br><br>' +
+                    '<em>ลองเปิดลิงก์ CSV ในแท็บใหม่เพื่อตรวจสอบว่ายังใช้งานได้หรือไม่</em>'
                 );
             }
         }
 
         // ============================================================
-        // 13) Events
+        // 4) แสดงตาราง
+        // ============================================================
+        function renderTable(data) {
+            if (data.length === 0) {
+                tableContainer.innerHTML = `
+                    <table>
+                        <thead>${buildThead()}</thead>
+                        <tbody>
+                            <tr class="no-result">
+                                <td colspan="${headers.length || 1}">🔎 ไม่พบข้อมูลที่ตรงกับคำค้นหา</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+                return;
+            }
+
+            const theadHTML = buildThead();
+            const tbodyHTML = data.map(row => {
+                const cells = headers.map(h => {
+                    const val = row[h] !== undefined && row[h] !== null ? row[h] : '';
+                    return `<td>${escapeHTML(String(val))}</td>`;
+                }).join('');
+                return `<tr>${cells}</tr>`;
+            }).join('');
+
+            tableContainer.innerHTML = `
+                <table>
+                    <thead>${theadHTML}</thead>
+                    <tbody>${tbodyHTML}</tbody>
+                </table>
+            `;
+        }
+
+        function buildThead() {
+            const ths = headers.map(h => `<th>${escapeHTML(h)}</th>`).join('');
+            return `<tr>${ths}</tr>`;
+        }
+
+        // ============================================================
+        // 5) ค้นหา (กรองข้อมูล)
+        // ============================================================
+        function filterData(query) {
+            const q = query.trim().toLowerCase();
+
+            if (!q) {
+                renderTable(allData);
+                updateResultCount(allData.length, allData.length);
+                return;
+            }
+
+            const filtered = allData.filter(row => {
+                return headers.some(h => {
+                    const val = row[h];
+                    if (val === undefined || val === null) return false;
+                    return String(val).toLowerCase().includes(q);
+                });
+            });
+
+            renderTable(filtered);
+            updateResultCount(filtered.length, allData.length);
+        }
+
+        // ============================================================
+        // 6) อัปเดตจำนวนผลลัพธ์
+        // ============================================================
+        function updateResultCount(shown, total) {
+            if (shown === total) {
+                resultCount.textContent = `แสดงทั้งหมด ${total.toLocaleString()} รายการ`;
+            } else {
+                resultCount.textContent = `พบ ${shown.toLocaleString()} จาก ${total.toLocaleString()} รายการ`;
+            }
+        }
+
+        // ============================================================
+        // 7) แสดงข้อผิดพลาด
+        // ============================================================
+        function showError(message) {
+            tableContainer.innerHTML = `<div class="error-box">⚠️ ${message}</div>`;
+            resultCount.textContent = '';
+        }
+
+        // ============================================================
+        // 8) ป้องกัน XSS
+        // ============================================================
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ============================================================
+        // 9) Event: ค้นหาแบบ Real-time
         // ============================================================
         let debounceTimer;
         searchInput.addEventListener('input', function () {
-            clearBtn.classList.toggle('visible', this.value.length > 0);
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applyFilters, 150);
-        });
-
-        clearBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            clearBtn.classList.remove('visible');
-            applyFilters();
-            searchInput.focus();
-        });
-
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                searchInput.value = '';
-                clearBtn.classList.remove('visible');
-                applyFilters();
-            }
-        });
-
-        modelSelect.addEventListener('change', () => {
-            populateMemorySelect();
-            applyFilters();
-        });
-        memorySelect.addEventListener('change', applyFilters);
-
-        // toggle ใด ๆ ก็กรองใหม่ทันที
-        condCheckboxes.forEach(cb => cb.addEventListener('change', applyFilters));
-
-        resetBtn.addEventListener('click', () => {
-            modelSelect.value = '';
-            memorySelect.value = '';
-            searchInput.value = '';
-            clearBtn.classList.remove('visible');
-            condCheckboxes.forEach(cb => cb.checked = false);
-            populateMemorySelect();
-            applyFilters();
+            debounceTimer = setTimeout(() => {
+                filterData(this.value);
+            }, 150); // หน่วง 150ms เพื่อประสิทธิภาพ
         });
 
         // ============================================================
-        // 14) Start
+        // 10) เริ่มทำงาน
         // ============================================================
         loadCSV();
     </script>
